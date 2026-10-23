@@ -328,14 +328,12 @@ footer a:hover{color:var(--accent-text)}
    断点 1023px：详情两栏折叠
    ------------------------------------------------------------ */
 @media (max-width:1023px){
-  .detail-grid{grid-template-columns:1fr;gap:var(--s-4)}
-  .toc{position:static;order:-1;margin-bottom:var(--s-2)}
-  .toc-title{margin-bottom:var(--s-1)}
-  .toc ol{display:flex;gap:var(--s-1);overflow-x:auto;border-left:0;
-    border-bottom:2px solid var(--line);padding-bottom:var(--s-2)}
-  .toc li a{border-left:0;border-bottom:2px solid transparent;
-    margin:0 -2px -2px 0;white-space:nowrap;padding:6px 10px;font-size:var(--f-2xs)}
-  .toc li a[aria-current="true"]{border-left:0;border-bottom-color:var(--accent)}
+  /* 不用 grid：1fr 的自动最小宽度会被内容撑开，导致整页横向溢出 */
+  .detail-grid{display:block}
+  .detail-grid > *{min-width:0}
+  /* 横向目录条在窄屏只有一两个半章节可见，且其 nowrap 布局会撑宽页面，直接隐藏；
+     正文各章节标题本身足以导航 */
+  .toc{display:none}
   .cards3{grid-template-columns:1fr}
 }
 
@@ -343,6 +341,12 @@ footer a:hover{color:var(--accent-text)}
    断点 720px：单列 + 表格卡片化 + 筛选抽屉
    ------------------------------------------------------------ */
 @media (max-width:720px){
+  /* 硬约束：任何情况下都不允许整页横向溢出 */
+  html,body{max-width:100%;overflow-x:hidden}
+  .wrap{max-width:100%}
+  .article{width:100%;max-width:100%}
+  .article .table-wrap{max-width:100%}
+
   .hero{padding:var(--s-8) 0 var(--s-7)}
   .hero h1{font-size:var(--f-2xl)}
   .hero p{font-size:var(--f-sm)}
@@ -354,7 +358,6 @@ footer a:hover{color:var(--accent-text)}
   .stat:nth-child(-n+2){border-top:0}
   .stat:nth-child(even){border-left:1px solid var(--line)}
   .stat b{font-size:var(--f-xl)}
-  .stat:last-child:nth-child(odd){grid-column:span 2;border-left:0}
   .stat:last-child:nth-child(odd){grid-column:span 2;border-left:0}
 
   .grid{grid-template-columns:1fr}
