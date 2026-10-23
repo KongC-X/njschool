@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap">
+  <div class="crumb"><a href="{{ base }}index.html">首页</a> / 政策与更名</div>
+  <article class="article">
+    <div class="eyebrow">政策</div>
+    <h1 class="doc-title">2026 年招生政策与更名对照</h1>
+    <p class="hint">内容每年招生季更新，来源为市教育局、区政府与学校官方发布。</p>
+
+    <h2>{{ pages['policy-2026'].title }}</h2>
+    <p class="hint">{{ pages['policy-2026'].summary }} · 更新于 {{ pages['policy-2026'].updated }}</p>
+    {{ pages['policy-2026'].html | safe }}
+
+    <h2>{{ pages.renames.title }}</h2>
+    <p class="hint">{{ pages.renames.summary }} · 更新于 {{ pages.renames.updated }}</p>
+    {{ pages.renames.html | safe }}
+
+    <h2>如何使用这两份内容</h2>
+    <p>政策条目用于判断「今年规则有没有变」，更名对照用于避免「按旧校名搜不到」。
+       具体到某所学校的招生计划、施教区与投档线，请到 <a href="{{ base }}schools.html">学校库</a> 查看该校档案。</p>
+  </article>
+</div>
+{% endblock %}

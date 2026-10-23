@@ -2,12 +2,13 @@
 {% block content %}
 <div class="wrap">
   <section class="hero">
-    <h1>南京中小学档案</h1>
-    <p>{{ total }} 所学校的公开信息汇编：施教区、招生计划、投档线、摇号计划，
-       逐条标注信度，如实列出数据缺口。</p>
+    <div class="eyebrow">南京 · 2026</div>
+    <h1>把每所学校的公开信息，整理清楚</h1>
+    <p>{{ total }} 所中小学的施教区、招生计划、投档线与班型，
+       逐条标注信息来源，查不到的就写「未获取」。</p>
     <div class="hero-search">
       <label class="sr-only" for="hq">搜索学校</label>
-      <input id="hq" type="search" placeholder="搜索学校，如「琅琊路」「金中」「江北」……"
+      <input id="hq" type="search" placeholder="搜索学校，如「琅琊路」「金中」「江北」"
              onkeydown="if(event.key==='Enter')heroSearch()">
       <button type="button" onclick="heroSearch()">搜索</button>
     </div>
@@ -20,41 +21,47 @@
   </div>
 
   <section class="sec">
-    <h2>按学段浏览</h2><div class="hint">点击进入学校库并自动筛选</div>
+    <div class="sec-head">
+      <div class="eyebrow">按学段</div>
+      <h2 class="sec-title">先选学段</h2>
+      <p class="hint">点击进入学校库并自动筛选该学段</p>
+    </div>
     <div class="cards3">
       {%- for item in level_cards %}
       <a class="lv-card" href="schools.html?lv={{ item.level | urlencode }}">
-        <h3>{{ item.level }}</h3><div class="n">{{ item.count }} 所</div><p>{{ item.desc }}</p></a>
+        <h3>{{ item.level }}</h3>
+        <div class="n">{{ item.count }} 所</div>
+        <p>{{ item.desc }}</p></a>
       {%- endfor %}
     </div>
   </section>
 
   <section class="sec">
-    <h2>按行政区浏览</h2><div class="hint">覆盖南京 {{ districts | length }} 个区</div>
+    <div class="sec-head">
+      <div class="eyebrow">按行政区</div>
+      <h2 class="sec-title">{{ districts | length }} 个区，就近查看</h2>
+      <p class="hint">括号内为该区收录数量分布</p>
+    </div>
     <div class="dist-grid">
       {%- for d in district_cards %}
       <a class="dist" href="schools.html?dist={{ d.name | urlencode }}">
-        <b>{{ d.name }}</b><span>{{ d.total }} 所</span><small>{{ d.detail }}</small></a>
+        <b>{{ d.name }}</b><span>{{ d.total }} 所</span>
+        <small>{{ d.detail }}</small></a>
       {%- endfor %}
     </div>
   </section>
 
   <section class="sec">
-    <h2>2026 年招生政策要点</h2>
-    <div class="hint">{{ pages['policy-2026'].summary if 'policy-2026' in pages else '' }}</div>
-    {{ pages['policy-2026'].html | safe if 'policy-2026' in pages else '' }}
-  </section>
-
-  <section class="sec">
-    <h2>学校更名对照</h2>
-    <div class="hint">{{ pages.renames.summary if 'renames' in pages else '' }}</div>
-    {{ pages.renames.html | safe if 'renames' in pages else '' }}
-  </section>
-
-  <section class="sec">
-    <h2>数据怎么来的</h2>
-    <div class="hint">全部来自公开渠道，每份档案附来源表与「数据缺口清单」。
-      已于 2026-10-17 完成 779 项全量核验并修正。<a href="about.html">查看数据说明 →</a></div>
+    <div class="sec-head">
+      <div class="eyebrow">2026 变化</div>
+      <h2 class="sec-title">{{ pages['home-highlights'].title if 'home-highlights' in pages else '今年的主要变化' }}</h2>
+      <p class="hint">
+        <a href="policy.html">查看完整政策与更名对照 →</a>
+      </p>
+    </div>
+    <div class="article" style="padding:var(--s-2) var(--s-5) var(--s-4)">
+      {{ pages['home-highlights'].html | safe if 'home-highlights' in pages else '' }}
+    </div>
   </section>
 </div>
 {% endblock %}

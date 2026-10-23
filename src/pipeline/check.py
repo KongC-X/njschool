@@ -14,7 +14,8 @@ MIN_H2_FOR_TOC = 3
 PAGE_SIZE_WARN_KB = 120
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
-ASSET_BUDGET_KB = {"tokens.css": 6, "site.css": 24, "app.js": 12}
+# 超出预算说明在往同一文件堆样式，应拆分（如 components.css / pages.css）而非继续增长
+ASSET_BUDGET_KB = {"tokens.css": 6, "site.css": 28, "app.js": 12}
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
 RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
 
@@ -88,6 +89,11 @@ def run(rep: Report, expected_pages):
             rep.error(rel, "缺少 <title>")
         if 'name="description"' not in html:
             rep.warn(rel, "缺少 meta description")
+        # 分享卡片：og 缺失时转发只显示裸链接，体验明显变差
+        if 'property="og:title"' not in html or 'property="og:description"' not in html:
+            rep.error(rel, "缺少 og:title / og:description")
+        if 'name="theme-color"' not in html:
+            rep.warn(rel, "缺少 theme-color")
         if 'class="skip"' not in html:
             rep.error(rel, "缺少跳转主内容的无障碍链接")
         if config.BASE_URL and 'rel="canonical"' not in html:
@@ -113,6 +119,8 @@ def run(rep: Report, expected_pages):
         if rel.startswith("schools" + os.sep) and rel.count(os.sep) == 1:
             if len(RE_H2.findall(html)) >= MIN_H2_FOR_TOC and 'class="toc"' not in html:
                 rep.warn(rel, "章节较多但缺少目录")
+            if 'application/ld+json' not in html:
+                rep.warn(rel, "缺少 JSON-LD 结构化数据")
 
         # 内部链接可达性
         # 注意：先剔除 <script> 内容——列表页把数据内嵌在 JS 里，

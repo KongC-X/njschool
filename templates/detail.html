@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% from "partials.html" import badges, official %}
 {% block content %}
+{# 结构化数据：便于搜索引擎识别「这是一所什么学校」，放在 body 内亦被支持 #}
+<script type="application/ld+json">{{ jsonld | safe }}</script>
 <div class="wrap">
   <div class="crumb"><a href="{{ base }}index.html">首页</a> / <a href="{{ base }}schools.html">学校库</a> /
     <a href="{{ base }}schools.html?lv={{ s.level | urlencode }}">{{ s.level }}</a> /

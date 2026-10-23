@@ -13,7 +13,14 @@
 <title>{{ title }} · 南京中小学档案</title>
 <meta name="description" content="{{ desc or '南京市中小学公开信息汇编：' ~ total ~ ' 所学校档案，含施教区、招生计划、投档线与信度标注。' }}">
 {% if canonical %}<link rel="canonical" href="{{ canonical }}">
-{% endif %}<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+{% endif %}<meta property="og:site_name" content="南京中小学档案">
+<meta property="og:title" content="{{ title }} · 南京中小学档案">
+<meta property="og:description" content="{{ desc or '南京市中小学公开信息汇编' }}">
+<meta property="og:type" content="website">
+{% if canonical %}<meta property="og:url" content="{{ canonical }}">
+{% endif %}<meta name="twitter:card" content="summary">
+<!-- 浏览器地址栏配色；与 tokens.css 的 --accent 保持一致 -->
+<meta name="theme-color" content="#2563eb"><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
 <link rel="stylesheet" href="{{ base }}assets/tokens.css">
 <link rel="stylesheet" href="{{ base }}assets/site.css">
 <script>document.documentElement.className += ' js';</script>
@@ -44,6 +51,7 @@
         公开信息汇编 · 数据版本 v2026-10 · 更新 {{ today }}</div>
       <div><h4>导航</h4>
         <a href="{{ base }}schools.html">学校库</a><br>
+        <a href="{{ base }}policy.html">政策与更名</a><br>
         <a href="{{ base }}about.html">数据说明</a></div>
       <div><h4>信度标注</h4>
         [A] 官方发布　[B] 权威媒体　[C] 家长圈口径</div>

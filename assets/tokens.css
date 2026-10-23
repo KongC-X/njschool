@@ -1,60 +1,110 @@
 /* ============================================================
-   设计令牌（唯一样式源）
-   —— 所有颜色/圆角/阴影只在此定义，组件样式一律引用变量。
-   —— 修改主题只需改本文件；深色模式通过 data-theme 覆盖同名变量。
-   ============================================================ */
-/* ===== 主题变量 ===== */
-:root{
-  --bg:#f6f7f9; --panel:#ffffff; --text:#171a21; --muted:#667085;
-  --line:#e4e7ec; --accent:#1d4ed8; --accent-soft:#eef4ff;
-  --green-bg:#ecfdf3; --green:#067647; --red-bg:#fef3f2; --red:#b42318;
-  --amber-bg:#fffaeb; --amber:#b54708;
-  --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
-}
-html[data-theme="dark"]{
-  --bg:#0f1217; --panel:#161a22; --text:#e7e9ee; --muted:#98a2b3;
-  --line:#262c38; --accent:#6ea8fe; --accent-soft:#1c2740;
-  --green-bg:#12291c; --green:#7be2a8; --red-bg:#331716; --red:#fda29b;
-  --amber-bg:#2e2410; --amber:#fec84b;
-  --shadow:0 1px 2px rgba(0,0,0,.5);
-}
-@media (prefers-color-scheme:dark){ html:not([data-theme="light"]){
-  --bg:#0f1217; --panel:#161a22; --text:#e7e9ee; --muted:#98a2b3;
-  --line:#262c38; --accent:#6ea8fe; --accent-soft:#1c2740;
-  --green-bg:#12291c; --green:#7be2a8; --red-bg:#331716; --red:#fda29b;
-  --amber-bg:#2e2410; --amber:#fec84b;
-  --shadow:0 1px 2px rgba(0,0,0,.5);
-}}
+   设计令牌 · 唯一样式源
+   ------------------------------------------------------------
+   约定：
+   1. 颜色、字号、间距、圆角、阴影、动效只在此定义；
+   2. 组件样式（site.css）只引用变量，不写具体值；
+   3. 深色模式覆盖同名变量，组件无需第二套样式。
 
-/* ============================================================
-   字体 / 间距 / 圆角 / 阴影 / 动效 令牌（P2 补充）
-   —— 数值沿用既有视觉，不改变外观，只把散落的魔法数字收敛。
-   —— 新代码一律引用令牌，禁止再写字面量。
+   色彩结构：
+     中性阶（bg → surface → line → muted → text → ink）承载结构；
+     强调色（accent 系）只用于可交互元素与当前状态；
+     语义色（green/amber/red）只用于信度与状态，不作装饰。
    ============================================================ */
+
 :root{
-  /* 字阶：以 15px 为基准，向上取 16/17/20/26/34，向下取 13.5/12.5/11.5 */
+  /* ---- 中性阶 ---- */
+  --bg:#f6f7fb;
+  --surface:#ffffff;
+  --surface-2:#f1f3f9;
+  --line:#e5e7ef;
+  --line-strong:#d3d7e3;
+  --muted:#5f6b7f;
+  --text:#1a1f2b;
+  --ink:#0d1220;
+
+  /* ---- 强调色 ---- */
+  --accent:#2563eb;
+  --accent-strong:#1d4ed8;
+  --accent-weak:#eef3ff;
+  --accent-text:#1b47b5;
+  --on-accent:#ffffff;
+  --on-accent:#ffffff;
+
+  /* ---- 语义色 ---- */
+  --green-bg:#e8f7ee;  --green:#11643a;
+  --blue-bg:#e9f1ff;   --blue:#1b47b5;
+  --amber-bg:#fdf3e2;  --amber:#8a4d06;
+  --red-bg:#fdeceb;    --red:#9c1c12;
+
+  /* ---- 字阶（1.2 比例，15px 基准） ---- */
   --f-2xs:11.5px; --f-xs:12.5px; --f-sm:13.5px; --f-base:15px;
   --f-md:16px; --f-lg:17px; --f-xl:20px; --f-2xl:26px; --f-3xl:34px;
-  --lh-tight:1.3; --lh-base:1.7;
+  --lh-tight:1.3; --lh-base:1.75;
 
-  /* 间距：4px 基准 */
+  /* ---- 间距（4px 基准） ---- */
   --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px;
-  --s-6:24px; --s-7:32px; --s-8:40px; --s-9:64px;
+  --s-6:24px; --s-7:32px; --s-8:40px; --s-9:56px;
 
-  /* 圆角与阴影 */
-  --r-sm:8px; --r-md:10px; --r-pill:999px;
-  --sh-1:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
-  --sh-2:0 4px 12px rgba(16,24,40,.08),0 1px 3px rgba(16,24,40,.06);
+  /* ---- 圆角 ---- */
+  --r-sm:8px; --r-md:10px; --r-lg:14px; --r-pill:999px;
 
-  /* 动效 */
-  --t-fast:120ms; --t-base:180ms;
+  /* ---- 阴影：只保留两级 ---- */
+  --sh-1:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.06);
+  --sh-2:0 6px 18px rgba(16,24,40,.09), 0 2px 6px rgba(16,24,40,.05);
 
-  /* 版心 */
+  /* ---- 动效 ---- */
+  --t-fast:120ms; --t-base:200ms;
+
+  /* ---- 版心 ---- */
   --w-wide:1120px;
+
+  /* ---- 兼容别名（旧样式引用，勿在新代码使用） ---- */
+  --panel:var(--surface);
+  --radius:var(--r-lg);
+  --shadow:var(--sh-1);
+  --accent-soft:var(--accent-weak);
 }
+
 html[data-theme="dark"]{
-  --sh-2:0 6px 16px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);
+  --bg:#0b0f16;
+  --surface:#141922;
+  --surface-2:#1a202b;
+  --line:#242b38;
+  --line-strong:#333c4d;
+  --muted:#9aa5b8;
+  --text:#e6e9f0;
+  --ink:#f3f5f9;
+
+  --accent:#7aa7ff;
+  --accent-strong:#9dc0ff;
+  --accent-weak:#17233a;
+  --accent-text:#b7cdff;
+  --on-accent:#08111f;
+  --on-accent:#08111f;
+
+  --green-bg:#10291c; --green:#7ee2a8;
+  --blue-bg:#16233c;  --blue:#a8c4ff;
+  --amber-bg:#2c2210; --amber:#f5c563;
+  --red-bg:#311614;   --red:#f6a29a;
+
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 8px 22px rgba(0,0,0,.55);
 }
-@media (prefers-color-scheme:dark){ html:not([data-theme="light"]){
-  --sh-2:0 6px 16px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4);
-}}
+
+/* 未手动选择主题时跟随系统 */
+@media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]){
+    --bg:#0b0f16; --surface:#141922; --surface-2:#1a202b;
+    --line:#242b38; --line-strong:#333c4d;
+    --muted:#9aa5b8; --text:#e6e9f0; --ink:#f3f5f9;
+    --accent:#7aa7ff; --accent-strong:#9dc0ff;
+    --accent-weak:#17233a; --accent-text:#b7cdff; --on-accent:#08111f;
+    --green-bg:#10291c; --green:#7ee2a8;
+    --blue-bg:#16233c; --blue:#a8c4ff;
+    --amber-bg:#2c2210; --amber:#f5c563;
+    --red-bg:#311614; --red:#f6a29a;
+    --sh-1:0 1px 2px rgba(0,0,0,.45);
+    --sh-2:0 8px 22px rgba(0,0,0,.55);
+  }
+}

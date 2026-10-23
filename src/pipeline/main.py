@@ -36,6 +36,7 @@ def run():
     outputs = {
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
+        "policy.html": render.policy(env, pages),
         "about.html": render.about(env, schools, pages, web_counts),
     }
     for s in schools:
@@ -61,7 +62,7 @@ def run():
             f.write(html)
 
     # sitemap 只在有基址时生成：协议要求绝对地址，宁缺勿假
-    urls = ["", "schools.html", "about.html"] + [s.url for s in schools]
+    urls = ["", "schools.html", "policy.html", "about.html"] + [s.url for s in schools]
     if config.BASE_URL:
         xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
