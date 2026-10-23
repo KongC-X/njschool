@@ -1,0 +1,27 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---- 构建产物（由 make 生成，不入库）----
+site/
+index.json
+南京中小学档案.md
+南京学校对比表.xlsx
+data/website_check.json
+
+# ---- 系统与编辑器 ----
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# ---- 本地临时文件 ----
+*.log
+tmp/
+.playwright-cli/
+
+# ---- 工具运行产生的中间目录（非项目源码）----
+.南京学校对比表.ref/
+.workbuddy/

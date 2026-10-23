@@ -1,0 +1,164 @@
+{
+  "初中-雨花台区-南京市第一中学实验学校": {
+    "site": null,
+    "wechat": null,
+    "level": "C",
+    "basis": "原雨花台区站群站点 yzsyxx.yhjyxx.cn 现打开显示「暂停服务通知」，第三方招生简章所载 www.yzsyxx.cn 已非学校站点（仅域名停放页），暂无可访问的校方官网，按 C 级留空"
+  },
+  "初中-建邺区-南京师范大学附属中学新城初级中学": {
+    "site": "https://www.jyjsfz.cn/xccjzx/",
+    "wechat": null,
+    "level": "A",
+    "basis": "学校公众号发布《关于南师附中新城初中官网网址变更的公告》，明文写明「我校唯一官方网站网址：https://www.jyjsfz.cn/xccjzx/index.htm」，并声明原 nsfzxc.cn 停用；页面标题为「新城初级中学」"
+  },
+  "初中-建邺区-南京外国语学校河西初级中学": {
+    "site": "https://www.jyjsfz.cn/njwgyxxhxcjzx/",
+    "wechat": null,
+    "level": "B",
+    "basis": "建邺区教育站群中的学校专属子站，页面标题即「南京外国语学校河西初级中学」，发布该校2026级新生入学须知、每周晨会等校区动态；原域名 nflshxc.com.cn 已过期被影视站占用，不可用"
+  },
+  "初中-建邺区-南京河西外国语学校": {
+    "site": "http://www.nhfls.com.cn/",
+    "wechat": "南京河西外国语学校",
+    "level": "A",
+    "basis": "学校2026年学科特长生招生简章、教师招聘公告均写明「学校网址：http://www.nhfls.com.cn/」，站点标题即校名，内容为该校本部动态"
+  },
+  "初中-栖霞区-南京仙林外国语学校": {
+    "site": "https://www.nflsxl.com/",
+    "wechat": null,
+    "level": "B",
+    "basis": "站点标题即「南京仙林外国语学校」，发布该校中学部2026-2027学年周工作安排、总务动态等；另有域名 nxfls.com 标题同为该校名，nflsxl.com 内容更新更完整，故取此站"
+  },
+  "初中-江宁区-南京东山外国语学校": {
+    "site": "http://dswx.jnjy.net.cn/",
+    "wechat": "dswgyxx",
+    "level": "A",
+    "basis": "学校2025年入学政策公布与校服采购招标公告均注明「学校网站：http://dswx.jnjy.net.cn/」，站点标题即南京东山外国语学校"
+  },
+  "初中-建邺区-南京苏杰学校": {
+    "site": "https://sjzx.topsuje.com/",
+    "wechat": null,
+    "level": "B",
+    "basis": "苏杰教育集团官网（topsuje.com）下的苏杰学校子站，内容为苏杰学校初中部动态（含建邺区教育局、区教师发展中心到校视导等校本新闻），属集团站子站、非本校独立域名"
+  },
+  "初中-江宁区-南京市竹山中学": {
+    "site": "http://zszx.jnjy.net.cn/",
+    "wechat": null,
+    "level": "A",
+    "basis": "站点页脚每页标注「网址：zszx.jnjy.net.cn」，标题为「南京市竹山中学」，发布两校区行政听课、周工作安排等校本信息"
+  },
+  "初中-雨花台区-南京市南站中学": {
+    "site": "http://nzzx.yhjyxx.cn/",
+    "wechat": null,
+    "level": "A",
+    "basis": "雨花台区政府网发布的《南京市南站中学2025年公开招聘编外教师公告》写明「南京市南站中学网（http://nzzx.yhjyxx.cn/）」，站点标题即校名"
+  },
+  "初中-六合区-南京市六合区高级中学附属初级中学": {
+    "site": null,
+    "wechat": null,
+    "level": "C",
+    "basis": "仅检索到第三方教育平台（名校名家行 mxmjx.org.cn，江苏桃李阁旗下）的学校展示页，属第三方目录站；未发现校方自有站点，学校动态只见于六合教育信息网 lhenet.net 区级页面，按 C 级留空"
+  },
+  "初中-六合区-南京市六合区雄州初级中学": {
+    "site": null,
+    "wechat": null,
+    "level": "C",
+    "basis": "第三方目录站所载学校网址 www.lhxzzx.net 已无法访问（502），校方公告与采购公示仅发布在六合教育信息网 lhenet.net，无可访问的独立官网"
+  },
+  "初中-六合区-南京市金陵中学龙湖分校": {
+    "site": null,
+    "wechat": "南京市金陵中学龙湖分校",
+    "level": "C",
+    "basis": "旧校园网域名 jlzxlhfx.net（学校招生公告曾列出）已被体育直播类站点占用，未见新官网；学校动态主要通过微信公众号与六合教育信息网发布，按 C 级不写入 site"
+  },
+  "初中-建邺区-南京市中华中学附属初级中学": {
+    "site": "http://www.jyjsfz.cn/zhzxfscjzx/",
+    "wechat": null,
+    "level": "B",
+    "basis": "建邺区教育站群中的学校专属子站，页面标题即「中华中学附属初级中学」"
+  },
+  "初中-建邺区-南京市金陵中学建邺实验学校": {
+    "site": "http://www.jyjsfz.cn/jlzxjysyxx/",
+    "wechat": null,
+    "level": "B",
+    "basis": "建邺区教育站群中的学校专属子站，页面标题即「金陵中学建邺实验学校」"
+  },
+  "初中-建邺区-南京市致远初级中学": {
+    "site": null,
+    "wechat": "南京市致远初级中学",
+    "level": "C",
+    "basis": "备案官网 www.njzycz.cn 现打开仅跳转至「用户登录」页、无任何公开内容，备用域名 njzycz.net 返回 502，判定为无法正常访问，按 C 级留空"
+  },
+  "初中-建邺区-南京市金陵中学南湖初级中学": {
+    "site": null,
+    "wechat": null,
+    "level": "C",
+    "basis": "该校2026年5月由「南京市南湖第二中学」更名而来，在建邺区教育站群及公开检索中均未发现改名后的独立官网，信息主要通过原校微信公众号发布"
+  },
+  "初中-栖霞区-南京市金陵中学仙林分校中学部": {
+    "site": "http://www.njjzxl.net/",
+    "wechat": null,
+    "level": "A",
+    "basis": "学校2026年足球特定类型招生简章明文写明「南京市金陵中学仙林分校中学部官网网址：http://www.njjzxl.net/」，站点版权标注校名"
+  },
+  "初中-栖霞区-南京师范大学附属中学丁家庄初级中学": {
+    "site": "http://nsfzdjzfx.site.qxteacher.com/",
+    "wechat": null,
+    "level": "B",
+    "basis": "招生简章所列 www.nsfzdjz.com 当前返回 502 无法访问；现用栖霞区教育站群学校子站，页面标题「南京师范大学附属中学丁家庄初级中学」，发布本校招生简章、家长会等校区动态"
+  },
+  "初中-栖霞区-南京市迈皋桥初级中学": {
+    "site": "http://www.mgqcjzx29.com/",
+    "wechat": null,
+    "level": "B",
+    "basis": "站点标题即「南京市迈皋桥初级中学（南京市第二十九中学分校）」，内容为该校督导、家长学堂、维修招标等校本动态，2026年仍有更新"
+  },
+  "初中-栖霞区-南京市伯乐中学": {
+    "site": "http://njblzx.site.qxteacher.com/",
+    "wechat": "南京市伯乐中学",
+    "level": "B",
+    "basis": "该校已更名为「南京仙林外国语学校伯乐中学」，现用栖霞区教育站群子站，标题即新校名，发布2026年七年级招生公告与每周工作安排；旧域名 njblzx.com 已不再使用"
+  },
+  "初中-溧水区-江苏省溧水高级中学附属初级中学": {
+    "site": null,
+    "wechat": null,
+    "level": "C",
+    "basis": "溧水区教育局招聘公告的「招聘学校网址」表列明官网为 lsfz.njlsedu.cn，但该域名及整站群当前均返回 502 无法访问，按 C 级留空"
+  },
+  "初中-溧水区-南京市溧水区第一初级中学": {
+    "site": null,
+    "wechat": null,
+    "level": "C",
+    "basis": "溧水区教育局招聘公告列明官网为 lsycz.njlsedu.cn，但该域名当前返回 502 无法访问（njlsedu.cn 站群整体不可用），按 C 级留空"
+  },
+  "初中-雨花台区-南京市雨花台初级中学": {
+    "site": "http://yhtcjzx.yhjyxx.cn/",
+    "wechat": null,
+    "level": "A",
+    "basis": "学校2025年初一入学公告页脚标注「校园网址：http://yhtcjzx.yhjyxx.cn/」，2025/2026年足球、篮球招生简章亦写「官网网址」为该地址，站点标题即雨花台初级中学"
+  },
+  "初中-雨花台区-南京市金陵中学岱山分校": {
+    "site": "http://jlzxds.yhjyxx.cn/",
+    "wechat": "南京市金陵中学岱山分校",
+    "level": "A",
+    "basis": "2026年足球特定类型招生简章明文「南京市金陵中学岱山分校官网网址：http://jlzxds.yhjyxx.cn/」；雨花台区政府招聘公告亦同"
+  },
+  "初中-雨花台区-南京市梅山第二中学": {
+    "site": "http://msez.yhjyxx.cn/",
+    "wechat": "msdezx",
+    "level": "A",
+    "basis": "2026年足球特定类型招生简章写明「南京市梅山第二中学官网网址：http://msez.yhjyxx.cn/」，站点页脚版权标注校名，公众号名片标注微信号 msdezx"
+  },
+  "初中-高淳区-南京市高淳区第二中学": {
+    "site": "https://gcez.gcjy.info/",
+    "wechat": null,
+    "level": "B",
+    "basis": "高淳教育站群中的学校专属站点，页面标题即「高淳区第二中学」，发布2025级均衡分班、市教研室视导、每周菜谱等校本动态"
+  },
+  "初中-高淳区-南京市高淳区第三中学": {
+    "site": "https://gcsz.gcjy.info/",
+    "wechat": null,
+    "level": "B",
+    "basis": "高淳教育站群中的学校专属站点，页面标题即「高淳区第三中学」，与高淳二中同属 gcjy.info 站群且为独立二级域名"
+  }
+}

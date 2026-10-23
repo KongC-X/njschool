@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<!--
+  设计系统原型 · 南京中小学档案
+  用途：验证重构方案中的视觉令牌与核心组件，非最终页面。
+  说明：本文件不引用外部依赖，可直接双击打开；右上角可切换深色。
+-->
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>设计系统原型 · 南京中小学档案</title>
+<style>
+/* ============================================================
+   1. 设计令牌（唯一样式源）
+   ============================================================ */
+:root{
+  /* 色彩 —— 中性阶 + 单一强调色，语义色仅用于状态 */
+  --c-bg:#f7f8fa;
+  --c-surface:#ffffff;
+  --c-surface-2:#f2f4f7;
+  --c-text:#111827;
+  --c-text-2:#374151;
+  --c-muted:#5b6472;          /* 正文次级：对比度 ≥4.5:1 */
+  --c-border:#e3e6eb;
+  --c-border-strong:#cfd4dc;
+  --c-accent:#1d4ed8;
+  --c-accent-weak:#eef3fe;
+  --c-accent-text:#1e40af;
+  --c-ok-bg:#e7f6ec;  --c-ok-fg:#12663a;
+  --c-info-bg:#e8f0fe; --c-info-fg:#1e40af;
+  --c-warn-bg:#fdf1e0; --c-warn-fg:#8a4b08;
+  --c-danger-bg:#fdeceb; --c-danger-fg:#9f1c14;
+
+  /* 字号 —— 1.2 模块化比例 */
+  --f-xs:12px; --f-sm:14px; --f-base:16px;
+  --f-h4:19px; --f-h3:23px; --f-h2:28px; --f-h1:34px;
+  --lh-tight:1.35; --lh-base:1.75;
+
+  /* 间距 —— 4px 基准 */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+
+  /* 圆角 / 层级 / 动效 */
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-pill:999px;
+  --sh-1:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.07);
+  --sh-2:0 4px 10px rgba(16,24,40,.07), 0 2px 4px rgba(16,24,40,.05);
+  --sh-3:0 12px 28px rgba(16,24,40,.12);
+  --t-fast:120ms; --t-base:200ms;
+
+  /* 版心 */
+  --w-prose:68ch; --w-wide:1180px;
+}
+html[data-theme="dark"]{
+  --c-bg:#0e1116;
+  --c-surface:#161a21;
+  --c-surface-2:#1c222b;
+  --c-text:#e8eaef;
+  --c-text-2:#c3c8d2;
+  --c-muted:#9aa3b2;
+  --c-border:#252b35;
+  --c-border-strong:#333b47;
+  --c-accent:#7aa7ff;
+  --c-accent-weak:#1a2740;
+  --c-accent-text:#a8c4ff;
+  --c-ok-bg:#122a1d;  --c-ok-fg:#7ee2a8;
+  --c-info-bg:#16233c; --c-info-fg:#a8c4ff;
+  --c-warn-bg:#2c2210; --c-warn-fg:#f5c563;
+  --c-danger-bg:#331715; --c-danger-fg:#f6a29a;
+  --sh-1:0 1px 2px rgba(0,0,0,.4);
+  --sh-2:0 4px 12px rgba(0,0,0,.5);
+  --sh-3:0 12px 28px rgba(0,0,0,.6);
+}
+
+/* ============================================================
+   2. 基础
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--c-bg);color:var(--c-text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
+              "Microsoft YaHei",system-ui,sans-serif;
+  font-size:var(--f-base);line-height:var(--lh-base);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;line-height:var(--lh-tight);letter-spacing:-.01em;font-weight:700}
+p{margin:0 0 var(--s-3)}
+a{color:var(--c-accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px;border-radius:var(--r-sm)}
+.wrap{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5)}
+.prose{max-width:var(--w-prose)}
+
+/* 无障碍：跳转链接 */
+.skip{position:absolute;left:-9999px;top:0;background:var(--c-accent);color:#fff;
+  padding:var(--s-2) var(--s-4);z-index:100;border-radius:0 0 var(--r-sm) 0}
+.skip:focus{left:0}
+
+/* ============================================================
+   3. 品牌与导航
+   ============================================================ */
+.nav{position:sticky;top:0;z-index:50;background:var(--c-surface);
+  background:color-mix(in srgb,var(--c-surface) 92%,transparent);
+  backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--c-border)}
+.nav-in{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5);height:60px;
+  display:flex;align-items:center;gap:var(--s-5)}
+.brand{display:flex;align-items:center;gap:var(--s-2);color:var(--c-text);font-weight:700;
+  font-size:var(--f-base);letter-spacing:-.02em}
+.brand:hover{text-decoration:none}
+.brand svg{display:block;flex:none}
+.brand .mark{width:26px;height:26px;border-radius:7px;background:var(--c-accent);
+  display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800}
+.nav-links{display:flex;gap:var(--s-1);margin-left:auto;align-items:center}
+.nav-links a{color:var(--c-muted);font-size:var(--f-sm);padding:8px 12px;
+  border-radius:var(--r-sm);transition:background var(--t-fast),color var(--t-fast)}
+.nav-links a:hover{color:var(--c-text);background:var(--c-surface-2);text-decoration:none}
+.nav-links a[aria-current="page"]{color:var(--c-accent-text);background:var(--c-accent-weak);font-weight:600}
+.icon-btn{width:36px;height:36px;border:1px solid var(--c-border);background:var(--c-surface);
+  color:var(--c-text);border-radius:var(--r-sm);cursor:pointer;font-size:15px;
+  display:grid;place-items:center;transition:border-color var(--t-fast)}
+.icon-btn:hover{border-color:var(--c-border-strong)}
+
+/* ============================================================
+   4. 版块与标题层级
+   ============================================================ */
+section{padding:var(--s-7) 0;border-bottom:1px solid var(--c-border)}
+section:last-of-type{border-bottom:0}
+.eyebrow{font-size:var(--f-xs);font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--c-accent);margin-bottom:var(--s-2)}
+.sec-title{font-size:var(--f-h3);margin-bottom:var(--s-1)}
+.sec-desc{color:var(--c-muted);font-size:var(--f-sm);margin-bottom:var(--s-5)}
+
+/* 三级视觉权重：主结论 > 辅助数据 > 来源 */
+.lv-primary{font-size:var(--f-h2);font-weight:700;color:var(--c-text)}
+.lv-secondary{font-size:var(--f-sm);color:var(--c-text-2)}
+.lv-meta{font-size:var(--f-xs);color:var(--c-muted)}
+
+/* ============================================================
+   5. 组件：色板 / 字阶 / 间距
+   ============================================================ */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--s-3)}
+.sw{border:1px solid var(--c-border);border-radius:var(--r-md);overflow:hidden;background:var(--c-surface)}
+.sw i{display:block;height:52px}
+.sw div{padding:var(--s-2) var(--s-3);font-size:var(--f-xs);color:var(--c-muted);
+  display:flex;justify-content:space-between;gap:var(--s-2)}
+.sw b{color:var(--c-text);font-weight:600}
+
+.typescale{background:var(--c-surface);border:1px solid var(--c-border);
+  border-radius:var(--r-lg);padding:var(--s-5)}
+.typescale div{display:flex;align-items:baseline;gap:var(--s-4);
+  padding:var(--s-2) 0;border-bottom:1px dashed var(--c-border)}
+.typescale div:last-child{border-bottom:0}
+.typescale span{flex:none;width:86px;font-size:var(--f-xs);color:var(--c-muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.spacing{display:flex;align-items:flex-end;gap:var(--s-3);flex-wrap:wrap}
+.spacing i{display:block;background:var(--c-accent-weak);border:1px solid var(--c-accent);
+  border-radius:2px}
+.spacing small{display:block;text-align:center;font-size:11px;color:var(--c-muted);margin-top:var(--s-1)}
+
+/* ============================================================
+   6. 组件：按钮 / 徽章 / 筛选
+   ============================================================ */
+.btn{display:inline-flex;align-items:center;gap:var(--s-2);padding:10px var(--s-5);
+  border-radius:var(--r-md);border:1px solid transparent;font-size:var(--f-sm);
+  font-weight:600;cursor:pointer;transition:filter var(--t-fast),border-color var(--t-fast);
+  font-family:inherit;min-height:44px}
+.btn-primary{background:var(--c-accent);color:#fff}
+.btn-primary:hover{filter:brightness(1.08);text-decoration:none}
+.btn-ghost{background:transparent;color:var(--c-accent);border-color:var(--c-accent)}
+.btn-ghost:hover{background:var(--c-accent-weak);text-decoration:none}
+.btn-neutral{background:var(--c-surface);color:var(--c-text);border-color:var(--c-border)}
+.btn-neutral:hover{border-color:var(--c-border-strong)}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:var(--f-xs);
+  font-weight:700;padding:3px 9px;border-radius:var(--r-sm);white-space:nowrap}
+.badge-a{background:var(--c-ok-bg);color:var(--c-ok-fg)}
+.badge-b{background:var(--c-info-bg);color:var(--c-info-fg)}
+.badge-c{background:var(--c-warn-bg);color:var(--c-warn-fg)}
+.badge-warn{background:var(--c-danger-bg);color:var(--c-danger-fg)}
+.badge-outline{background:transparent;border:1px solid var(--c-border);color:var(--c-muted);font-weight:500}
+
+.chips{display:flex;gap:var(--s-2);flex-wrap:wrap}
+.chip{font-family:inherit;font-size:var(--f-sm);padding:7px 14px;border-radius:var(--r-pill);
+  border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text);
+  cursor:pointer;min-height:36px;transition:all var(--t-fast)}
+.chip:hover{border-color:var(--c-accent)}
+.chip[aria-pressed="true"]{background:var(--c-accent);border-color:var(--c-accent);color:#fff;font-weight:600}
+
+/* ============================================================
+   7. 组件：统计块 / 卡片
+   ============================================================ */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--s-3)}
+.stat{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);
+  padding:var(--s-4) var(--s-5)}
+.stat b{display:block;font-size:var(--f-h2);font-weight:700;letter-spacing:-.02em;
+  line-height:1.1;margin-bottom:var(--s-1)}
+.stat span{font-size:var(--f-xs);color:var(--c-muted)}
+.stat em{font-style:normal;font-size:var(--f-xs);color:var(--c-ok-fg);font-weight:600}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--s-4)}
+.card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);
+  padding:var(--s-4) var(--s-5);transition:box-shadow var(--t-base),border-color var(--t-base);}
+.card:hover{border-color:var(--c-border-strong);box-shadow:var(--sh-2)}
+.card h3{font-size:var(--f-h4);margin-bottom:var(--s-2)}
+.card h3 a{color:var(--c-text)}
+.card .meta{font-size:var(--f-xs);color:var(--c-muted);margin-bottom:var(--s-3);
+  display:flex;gap:var(--s-2);flex-wrap:wrap;align-items:center}
+.card p{font-size:var(--f-sm);color:var(--c-text-2);margin:0}
+.card .foot{margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--c-border);
+  display:flex;justify-content:space-between;align-items:center;font-size:var(--f-xs)}
+
+/* ============================================================
+   8. 组件：表格（含移动端卡片化）
+   ============================================================ */
+.table-wrap{border:1px solid var(--c-border);border-radius:var(--r-lg);
+  overflow:hidden;background:var(--c-surface)}
+table{width:100%;border-collapse:collapse;font-size:var(--f-sm)}
+thead th{background:var(--c-surface-2);text-align:left;padding:var(--s-3) var(--s-4);
+  font-size:var(--f-xs);font-weight:700;color:var(--c-muted);
+  letter-spacing:.02em;white-space:nowrap;border-bottom:1px solid var(--c-border)}
+tbody td{padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--c-border);
+  vertical-align:top;color:var(--c-text-2)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--c-surface-2)}
+td strong{color:var(--c-text);font-weight:600}
+
+/* ============================================================
+   9. 组件：详情页布局（TOC + 正文 + 侧栏）
+   ============================================================ */
+.detail{display:grid;grid-template-columns:200px minmax(0,1fr) 260px;
+  gap:var(--s-6);align-items:start}
+.toc{position:sticky;top:76px;font-size:var(--f-sm)}
+.toc h4{font-size:var(--f-xs);color:var(--c-muted);letter-spacing:.06em;
+  margin-bottom:var(--s-2);text-transform:uppercase}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--c-border)}
+.toc li a{display:block;padding:5px var(--s-3);color:var(--c-muted);
+  border-left:2px solid transparent;margin-left:-2px}
+.toc li a:hover{color:var(--c-text);text-decoration:none}
+.toc li a[aria-current="true"]{color:var(--c-accent-text);border-left-color:var(--c-accent);font-weight:600}
+.panel{background:var(--c-surface);border:1px solid var(--c-border);
+  border-radius:var(--r-lg);padding:var(--s-4)}
+.panel h4{font-size:var(--f-xs);color:var(--c-muted);margin-bottom:var(--s-3);
+  letter-spacing:.06em;text-transform:uppercase}
+.panel dl{margin:0;display:grid;gap:var(--s-2)}
+.panel dt{font-size:var(--f-xs);color:var(--c-muted)}
+.panel dd{margin:0 0 var(--s-2);font-size:var(--f-sm);font-weight:600}
+
+/* 空状态 */
+.empty{text-align:center;padding:var(--s-7) var(--s-4);color:var(--c-muted);
+  border:1px dashed var(--c-border);border-radius:var(--r-lg);background:var(--c-surface)}
+.empty b{display:block;color:var(--c-text);margin-bottom:var(--s-1)}
+
+/* ============================================================
+   10. 响应式（移动优先，单点增强）
+   ============================================================ */
+@media (max-width:1023px){
+  .detail{grid-template-columns:1fr}
+  .toc{position:static;order:-1}
+  .toc ol{display:flex;gap:var(--s-2);overflow-x:auto;border-left:0;
+    border-bottom:2px solid var(--c-border);padding-bottom:var(--s-2)}
+  .toc li a{border-left:0;border-bottom:2px solid transparent;margin:0 -2px -2px 0;
+    white-space:nowrap}
+  .toc li a[aria-current="true"]{border-left:0;border-bottom-color:var(--c-accent)}
+}
+@media (max-width:767px){
+  :root{--f-h1:28px;--f-h2:23px;--f-h3:20px}
+  .wrap{padding:0 var(--s-4)}
+  .nav-in{height:54px;gap:var(--s-3);padding:0 var(--s-4)}
+  .nav-links a{padding:8px;font-size:var(--f-xs)}
+  .brand span.long{display:none}
+  section{padding:var(--s-6) 0}
+  .cards{grid-template-columns:1fr}
+  /* 表格 → 定义列表卡片化，避免横向滚动 */
+  .table-wrap table,.table-wrap thead,.table-wrap tbody,.table-wrap tr,.table-wrap td{
+    display:block;width:100%}
+  .table-wrap thead{display:none}
+  .table-wrap tr{border-bottom:1px solid var(--c-border);padding:var(--s-2) 0}
+  .table-wrap tr:last-child{border-bottom:0}
+  .table-wrap td{border:0;padding:6px var(--s-4);display:grid;
+    grid-template-columns:92px 1fr;gap:var(--s-3);font-size:var(--f-sm)}
+  .table-wrap td::before{content:attr(data-label);color:var(--c-muted);
+    font-size:var(--f-xs);font-weight:600}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要内容</a>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#">
+      <span class="mark" aria-hidden="true">宁</span>
+      <span class="long">南京中小学档案</span>
+    </a>
+    <div class="nav-links">
+      <a href="#" aria-current="page">首页</a>
+      <a href="#">学校库</a>
+      <a href="#">对比</a>
+      <a href="#">政策</a>
+      <a href="#">数据说明</a>
+    </div>
+    <button class="icon-btn" id="themeBtn" aria-label="切换深色模式">◐</button>
+  </div>
+</nav>
+
+<main id="main" class="wrap">
+
+  <!-- ① 色板 -->
+  <section>
+    <div class="eyebrow">Design Tokens</div>
+    <h2 class="sec-title">色彩</h2>
+    <p class="sec-desc">中性阶承载结构，强调色唯一，语义色仅用于状态。深色模式通过同名令牌覆盖，不改组件样式。</p>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--c-bg)"></i><div><b>背景</b><code>--c-bg</code></div></div>
+      <div class="sw"><i style="background:var(--c-surface)"></i><div><b>表面</b><code>--c-surface</code></div></div>
+      <div class="sw"><i style="background:var(--c-surface-2)"></i><div><b>次级面</b><code>surface-2</code></div></div>
+      <div class="sw"><i style="background:var(--c-text)"></i><div><b>正文</b><code>--c-text</code></div></div>
+      <div class="sw"><i style="background:var(--c-muted)"></i><div><b>次级文字</b><code>--c-muted</code></div></div>
+      <div class="sw"><i style="background:var(--c-border)"></i><div><b>描边</b><code>--c-border</code></div></div>
+      <div class="sw"><i style="background:var(--c-accent)"></i><div><b>强调</b><code>--c-accent</code></div></div>
+      <div class="sw"><i style="background:var(--c-accent-weak)"></i><div><b>强调底</b><code>accent-weak</code></div></div>
+    </div>
+  </section>
+
+  <!-- ② 字阶 -->
+  <section>
+    <div class="eyebrow">Typography</div>
+    <h2 class="sec-title">字阶</h2>
+    <p class="sec-desc">1.2 模块化比例，中文正文行高 1.75、行宽 68ch。避免全站只用 15px 一种字号导致的层级扁平。</p>
+    <div class="typescale">
+      <div><span>34 / h1</span><b style="font-size:var(--f-h1)">南京中小学档案</b></div>
+      <div><span>28 / h2</span><b style="font-size:var(--f-h2)">鼓楼区 · 27 所小学</b></div>
+      <div><span>23 / h3</span><b style="font-size:var(--f-h3)">南京市琅琊路小学</b></div>
+      <div><span>19 / h4</span><b style="font-size:var(--f-h4)">一、学校速览</b></div>
+      <div><span>16 / base</span><span style="font-size:var(--f-base);color:var(--c-text)">1934 年建校，机关生源为主，素质教育与应试双强。</span></div>
+      <div><span>14 / small</span><span style="font-size:var(--f-sm);color:var(--c-text-2)">对口二十九中本部（单校直升），2026 年电脑派位 21 人。</span></div>
+      <div><span>12 / xs</span><span style="font-size:var(--f-xs);color:var(--c-muted)">来源：南京市人民政府官网 · 采集 2026-10-17</span></div>
+    </div>
+  </section>
+
+  <!-- ③ 间距 -->
+  <section>
+    <div class="eyebrow">Spacing</div>
+    <h2 class="sec-title">间距阶梯</h2>
+    <p class="sec-desc">4px 基准，只允许使用这些值。当前实现中出现了 9/11/13/15px 等零散数值，是视觉不统一的直接原因。</p>
+    <div class="spacing">
+      <div><i style="width:4px;height:4px"></i><small>1</small></div>
+      <div><i style="width:8px;height:8px"></i><small>2</small></div>
+      <div><i style="width:12px;height:12px"></i><small>3</small></div>
+      <div><i style="width:16px;height:16px"></i><small>4</small></div>
+      <div><i style="width:24px;height:24px"></i><small>5</small></div>
+      <div><i style="width:32px;height:32px"></i><small>6</small></div>
+      <div><i style="width:48px;height:48px"></i><small>7</small></div>
+      <div><i style="width:64px;height:64px"></i><small>8</small></div>
+    </div>
+  </section>
+
+  <!-- ④ 按钮与徽章 -->
+  <section>
+    <div class="eyebrow">Components</div>
+    <h2 class="sec-title">按钮 · 信度徽章 · 筛选</h2>
+    <p class="sec-desc">信度 A/B/C 由纯文字改为语义色徽章，并保留 <code>title</code> 说明；筛选器使用 <code>aria-pressed</code> 表达状态。</p>
+
+    <div style="display:flex;gap:var(--s-3);flex-wrap:wrap;margin-bottom:var(--s-5)">
+      <a href="#" class="btn btn-primary">访问学校官网 ↗</a>
+      <a href="#" class="btn btn-ghost">核验时未响应 ↗</a>
+      <button class="btn btn-neutral">加入对比</button>
+    </div>
+
+    <div style="display:flex;gap:var(--s-2);flex-wrap:wrap;align-items:center;margin-bottom:var(--s-5)">
+      <span class="badge badge-a" title="官方发布：学校官网/教育局/招考院">A 官方</span>
+      <span class="badge badge-b" title="权威媒体转述">B 媒体</span>
+      <span class="badge badge-c" title="家长圈口径，需交叉验证">C 家长圈</span>
+      <span class="badge badge-outline">公办</span>
+      <span class="badge badge-outline">鼓楼区</span>
+      <span class="badge badge-outline">第一梯队</span>
+    </div>
+
+    <div class="chips" role="group" aria-label="按行政区筛选">
+      <button class="chip" aria-pressed="true">全部</button>
+      <button class="chip" aria-pressed="false">鼓楼区</button>
+      <button class="chip" aria-pressed="false">玄武区</button>
+      <button class="chip" aria-pressed="false">秦淮区</button>
+      <button class="chip" aria-pressed="false">建邺区</button>
+      <button class="chip" aria-pressed="false">江北新区</button>
+    </div>
+  </section>
+
+  <!-- ⑤ 统计块与卡片 -->
+  <section>
+    <div class="eyebrow">Data Display</div>
+    <h2 class="sec-title">统计块 · 学校卡片</h2>
+    <p class="sec-desc">关键数字用 stat 块突出，替代当前「所有信息都塞进表格」的做法；卡片按主结论、辅助信息、来源三层组织。</p>
+
+    <div class="stats" style="margin-bottom:var(--s-6)">
+      <div class="stat"><b>204</b><span>收录学校</span></div>
+      <div class="stat"><b>153 <em>75%</em></b><span>已核实官网</span></div>
+      <div class="stat"><b>11</b><span>覆盖行政区</span></div>
+      <div class="stat"><b>779</b><span>核验项（2026-10）</span></div>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <h3><a href="#">南京市琅琊路小学</a></h3>
+        <div class="meta">
+          <span class="badge badge-outline">小学</span>
+          <span class="badge badge-outline">公办</span>
+          <span class="badge badge-outline">鼓楼区</span>
+        </div>
+        <p>1934 年建校，机关生源为主，素质教育与应试双强；对口二十九中本部，2026 年派位 21 人。</p>
+        <div class="foot">
+          <span class="lv-meta">2026-10-17 更新</span>
+          <a href="#">查看档案 →</a>
+        </div>
+      </article>
+      <article class="card">
+        <h3><a href="#">南京外国语学校</a></h3>
+        <div class="meta">
+          <span class="badge badge-outline">高中</span>
+          <span class="badge badge-outline">公办</span>
+          <span class="badge badge-outline">玄武区</span>
+        </div>
+        <p>2026 年投档线 716 分（含外语加试），全市最高；语言类保送与出国双通道。</p>
+        <div class="foot">
+          <span class="lv-meta">2026-10-17 更新</span>
+          <a href="#">查看档案 →</a>
+        </div>
+      </article>
+      <article class="card">
+        <h3><a href="#">南京市瑞金路小学</a></h3>
+        <div class="meta">
+          <span class="badge badge-outline">小学</span>
+          <span class="badge badge-outline">公办</span>
+          <span class="badge badge-warn">无官网</span>
+        </div>
+        <p>原官网域名已被抢注为非教育类站点，现以学校微信公众号发布信息。</p>
+        <div class="foot">
+          <span class="lv-meta">2026-10-22 核验</span>
+          <a href="#">查看档案 →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ⑥ 表格 -->
+  <section>
+    <div class="eyebrow">Table</div>
+    <h2 class="sec-title">数据表格</h2>
+    <p class="sec-desc">表头使用次级面底色 + 12px 小字；行悬停高亮。窄屏转为「标签 + 值」卡片，不再横向滚动。</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>学校</th><th>2026 投档线</th><th>班型</th><th>官方渠道</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="学校"><strong>南京师范大学附属中学</strong></td>
+            <td data-label="投档线">652 / 645</td>
+            <td data-label="班型">科学高中 300 人</td>
+            <td data-label="渠道"><span class="badge badge-a">已核实</span></td>
+          </tr>
+          <tr>
+            <td data-label="学校"><strong>南京市金陵中学</strong></td>
+            <td data-label="投档线">647 / 628</td>
+            <td data-label="班型">两校区 1340 人</td>
+            <td data-label="渠道"><span class="badge badge-a">已核实</span></td>
+          </tr>
+          <tr>
+            <td data-label="学校"><strong>南京市第二十九中学</strong></td>
+            <td data-label="投档线">644 / 642</td>
+            <td data-label="班型">锦江 450 人</td>
+            <td data-label="渠道"><span class="badge badge-b">核验未响应</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ⑦ 详情页布局 -->
+  <section>
+    <div class="eyebrow">Layout</div>
+    <h2 class="sec-title">详情页：TOC + 正文 + 关键数据</h2>
+    <p class="sec-desc">33 KB 长页面需要锚点导航。桌面三栏，平板折叠为顶部横向 TOC，手机单栏并保留侧栏内容于文末。</p>
+
+    <div class="detail">
+      <aside class="toc">
+        <h4>本页目录</h4>
+        <ol>
+          <li><a href="#" aria-current="true">一、学校速览</a></li>
+          <li><a href="#">二、基本情况</a></li>
+          <li><a href="#">三、班型与分班</a></li>
+          <li><a href="#">四、招生与录取</a></li>
+          <li><a href="#">五、升学政策</a></li>
+          <li><a href="#">六、升学表现</a></li>
+        </ol>
+      </aside>
+
+      <div>
+        <h3 style="font-size:var(--f-h2);margin-bottom:var(--s-2)">南京市琅琊路小学</h3>
+        <div class="meta" style="display:flex;gap:var(--s-2);flex-wrap:wrap;margin-bottom:var(--s-4)">
+          <span class="badge badge-outline">小学</span>
+          <span class="badge badge-outline">公办</span>
+          <span class="badge badge-outline">鼓楼区</span>
+          <span class="badge badge-outline">第一梯队</span>
+        </div>
+        <p class="prose" style="color:var(--c-text-2)">1934 年建校，机关生源为主，素质教育与应试双强；对口二十九中本部（单校直升），2026 年电脑派位 21 人。</p>
+        <div style="display:flex;gap:var(--s-3);flex-wrap:wrap;margin:var(--s-4) 0">
+          <a href="#" class="btn btn-primary">访问学校官网 ↗</a>
+          <span class="lv-meta" style="align-self:center">微信公众号：njslylxx</span>
+        </div>
+        <p class="lv-meta" style="margin-bottom:var(--s-5)">一键定位：施教区 / 对口初中 / 派位计划 / 师资</p>
+      </div>
+
+      <aside class="panel">
+        <h4>关键数据</h4>
+        <dl>
+          <dt>创办时间</dt><dd>1934 年</dd>
+          <dt>办学性质</dt><dd>公办</dd>
+          <dt>对口初中</dt><dd>南京市第二十九中学</dd>
+          <dt>2026 派位</dt><dd>21 人</dd>
+          <dt>信度</dt><dd><span class="badge badge-a">A 官方</span></dd>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ⑧ 空状态 -->
+  <section>
+    <div class="eyebrow">States</div>
+    <h2 class="sec-title">空状态</h2>
+    <div class="empty">
+      <b>没有匹配的学校</b>
+      试试缩短关键词，或清除部分筛选条件。
+      <div style="margin-top:var(--s-4)"><button class="btn btn-neutral">清除全部筛选</button></div>
+    </div>
+  </section>
+
+  <footer style="padding:var(--s-6) 0;color:var(--c-muted);font-size:var(--f-xs)">
+    设计系统原型 · 仅用于评审视觉方向，非最终页面 · 2026-10-23
+  </footer>
+</main>
+
+<script>
+/* 主题切换：写入 localStorage，与站点实现保持一致 */
+(function(){
+  var saved = localStorage.getItem('nj-theme');
+  if(saved) document.documentElement.dataset.theme = saved;
+  else if(matchMedia('(prefers-color-scheme: dark)').matches)
+    document.documentElement.dataset.theme = 'dark';
+
+  var btn = document.getElementById('themeBtn');
+  function sync(){
+    var dark = document.documentElement.dataset.theme === 'dark';
+    btn.textContent = dark ? '☀' : '☾';
+    btn.setAttribute('aria-label', dark ? '切换浅色模式' : '切换深色模式');
+  }
+  btn.addEventListener('click', function(){
+    var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('nj-theme', next);
+    sync();
+  });
+  sync();
+
+  /* 演示 chips 的 aria-pressed 切换 */
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.chip').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x === c));
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

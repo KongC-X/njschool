@@ -1,0 +1,60 @@
+# 南京中小学档案 · 构建入口
+#
+#   make            查看全部可用命令
+#   make all        完整构建（索引 → 站点 → 导出）
+#   make site       仅构建站点（含索引）
+#   make export     仅生成导出件（目录 md / 对比表 xlsx）
+#   make preview    本地预览（http://127.0.0.1:8788）
+#   make clean      清理构建产物
+#
+# 部署时通过环境变量注入站点基址，sitemap 才会生成：
+#   make site BASE=https://nj.example.com
+
+# 优先使用隔离环境（依赖 markdown / openpyxl），不可用时退回系统 python3
+VENV_PY := /Users/kongc/.workbuddy/binaries/python/envs/default/bin/python
+PY := $(shell [ -x "$(VENV_PY)" ] && echo "$(VENV_PY)" || echo python3)
+
+BASE ?=
+PORT ?= 8788
+
+.PHONY: help all site export index preview check clean verify-web
+
+help:
+	@echo "可用命令："
+	@echo "  make all        完整构建（索引 + 站点 + 导出）"
+	@echo "  make site       构建站点（自动先建索引）"
+	@echo "  make export     生成目录 md 与对比表 xlsx"
+	@echo "  make index      仅重建 index.json"
+	@echo "  make check      语法检查（不产出文件）"
+	@echo "  make verify-web 体检全部学校官网链接"
+	@echo "  make preview    本地预览 127.0.0.1:$(PORT)"
+	@echo "  make clean      删除 site/ 与导出件"
+	@echo ""
+	@echo "部署：make site BASE=https://你的域名"
+
+all: site export
+
+index:
+	$(PY) src/build_index.py
+
+site: index
+	NJ_BASE_URL="$(BASE)" $(PY) src/build_website.py
+
+export: index
+	$(PY) src/build_catalog.py
+	$(PY) src/build_xlsx.py
+
+check:
+	$(PY) -m py_compile src/*.py && echo "语法检查通过"
+
+verify-web:
+	$(PY) src/merge_websites.py
+	$(PY) src/verify_websites.py --apply
+
+preview:
+	@echo "预览地址：http://127.0.0.1:$(PORT)/"
+	@cd site && $(PY) -m http.server $(PORT) --bind 127.0.0.1
+
+clean:
+	rm -rf site index.json 南京中小学档案.md 南京学校对比表.xlsx
+	@echo "已清理构建产物"

@@ -1,0 +1,27 @@
+/* ============================================================
+   设计令牌（唯一样式源）
+   —— 所有颜色/圆角/阴影只在此定义，组件样式一律引用变量。
+   —— 修改主题只需改本文件；深色模式通过 data-theme 覆盖同名变量。
+   ============================================================ */
+/* ===== 主题变量 ===== */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --text:#171a21; --muted:#667085;
+  --line:#e4e7ec; --accent:#1d4ed8; --accent-soft:#eef4ff;
+  --green-bg:#ecfdf3; --green:#067647; --red-bg:#fef3f2; --red:#b42318;
+  --amber-bg:#fffaeb; --amber:#b54708;
+  --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+}
+html[data-theme="dark"]{
+  --bg:#0f1217; --panel:#161a22; --text:#e7e9ee; --muted:#98a2b3;
+  --line:#262c38; --accent:#6ea8fe; --accent-soft:#1c2740;
+  --green-bg:#12291c; --green:#7be2a8; --red-bg:#331716; --red:#fda29b;
+  --amber-bg:#2e2410; --amber:#fec84b;
+  --shadow:0 1px 2px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme:dark){ html:not([data-theme="light"]){
+  --bg:#0f1217; --panel:#161a22; --text:#e7e9ee; --muted:#98a2b3;
+  --line:#262c38; --accent:#6ea8fe; --accent-soft:#1c2740;
+  --green-bg:#12291c; --green:#7be2a8; --red-bg:#331716; --red:#fda29b;
+  --amber-bg:#2e2410; --amber:#fec84b;
+  --shadow:0 1px 2px rgba(0,0,0,.5);
+}}
