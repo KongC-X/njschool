@@ -43,7 +43,7 @@ img{max-width:100%;height:auto}
 /* ------------------------------------------------------------
    布局
    ------------------------------------------------------------ */
-.wrap{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5)}
+.wrap{max-width:none;margin:0 auto;padding:0 var(--gutter)}
 .sec{padding:var(--s-8) 0}
 .sec + .sec{border-top:1px solid var(--line)}
 .sec-head{margin-bottom:var(--s-5)}
@@ -60,7 +60,7 @@ img{max-width:100%;height:auto}
    ------------------------------------------------------------ */
 .nav{position:sticky;top:0;z-index:50;background:var(--surface);
   border-bottom:1px solid var(--line)}
-.nav-in{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5);height:58px;
+.nav-in{max-width:none;margin:0 auto;padding:0 var(--gutter);height:58px;
   display:flex;align-items:center;gap:var(--s-6)}
 .brand{display:inline-flex;align-items:center;gap:var(--s-2);
   font-size:var(--f-md);font-weight:700;color:var(--ink);letter-spacing:-.02em}
@@ -91,7 +91,7 @@ img{max-width:100%;height:auto}
 .hero > *{position:relative;z-index:1}
 .hero .eyebrow{margin-bottom:var(--s-3)}
 .hero h1{font-size:var(--f-3xl);margin:0 0 var(--s-3);letter-spacing:-.03em}
-.hero p{color:var(--muted);font-size:var(--f-md);max-width:56ch;
+.hero p{color:var(--muted);font-size:var(--f-md);max-width:64ch;
   margin:0 auto var(--s-6)}
 .hero-search{max-width:520px;margin:0 auto;display:flex;gap:var(--s-2);
   background:var(--surface);padding:6px;border-radius:var(--r-lg);
@@ -264,7 +264,7 @@ td strong{color:var(--ink);font-weight:600}
 .nosite{font-size:var(--f-xs);color:var(--muted);line-height:1.6}
 .vnote{font-size:var(--f-2xs);color:var(--muted);opacity:.85;margin-left:auto}
 
-.detail-grid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--s-7);
+.detail-grid{display:grid;grid-template-columns:var(--toc-w) minmax(0,1fr);gap:var(--s-8);
   align-items:start}
 .toc{position:sticky;top:76px;font-size:var(--f-sm)}
 .toc-title{font-size:var(--f-2xs);letter-spacing:.1em;color:var(--muted);
@@ -284,10 +284,6 @@ td strong{color:var(--ink);font-weight:600}
   padding-left:var(--s-3);border-left:3px solid var(--accent);line-height:1.4}
 .article h3{font-size:var(--f-md);margin:var(--s-6) 0 var(--s-2)}
 .article h4{font-size:var(--f-sm);margin:var(--s-5) 0 var(--s-2);color:var(--muted)}
-.article > p,
-.article > ul,
-.article > ol,
-.article > blockquote{max-width:72ch}
 .article > p{line-height:var(--lh-base)}
 .article ul,.article ol{padding-left:var(--s-5)}
 .article li{margin:var(--s-1) 0}
@@ -486,4 +482,50 @@ footer a:hover{color:var(--accent-text)}
 @media (max-width:420px){
   .brand-text{display:none}
   .nav-links a{padding:7px 8px}
+}
+
+
+/* ------------------------------------------------------------
+   大屏适配
+   稿件是给家长查资料用的，大屏下应该「填满、字够大」，
+   而不是把 1120px 的内容居中留白。字号随视口分两档放大。
+   ------------------------------------------------------------ */
+@media (min-width:1280px){
+  :root{
+    --gutter:clamp(24px, 2.6vw, 40px);
+    --toc-w:240px;
+    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
+    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
+  }
+}
+@media (min-width:1700px){
+  :root{
+    --gutter:clamp(32px, 3vw, 64px);
+    --toc-w:260px;
+    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
+    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   大屏适配
+   稿件是给家长查资料用的，大屏下应该「填满、字够大」，
+   而不是把 1120px 的内容居中留白。字号随视口分两档放大。
+   ------------------------------------------------------------ */
+@media (min-width:1280px){
+  :root{
+    --gutter:clamp(24px, 2.6vw, 40px);
+    --toc-w:240px;
+    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
+    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
+  }
+}
+@media (min-width:1700px){
+  :root{
+    --gutter:clamp(32px, 3vw, 64px);
+    --toc-w:260px;
+    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
+    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
+  }
 }
