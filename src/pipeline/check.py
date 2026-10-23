@@ -16,6 +16,7 @@ PAGE_SIZE_WARN_KB = 120
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
 ASSET_BUDGET_KB = {"tokens.css": 6, "site.css": 24, "app.js": 12}
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
+RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
 
 RE_H1 = re.compile(r"<h1[\s>]")
 RE_H2 = re.compile(r"<h2[\s>]")
@@ -59,6 +60,18 @@ def run(rep: Report, expected_pages):
         if bad:
             rep.error("assets/site.css",
                       f"出现硬编码色值 {sorted(set(bad))[:5]}，应改用 tokens.css 中的变量")
+
+        # 2c) 移动端溢出回归护栏
+        # 曾出现：桌面端给表格设 min-width:520px 以便横向滚动，
+        # 但窄屏表格已改为卡片布局，min-width 仍生效会把整页撑宽、右侧内容被裁切。
+        mw = RE_TABLE_MINW.search(css)
+        if mw and int(mw.group(1)) >= 400:
+            mobile_blocks = re.findall(r"@media\s*\(max-width:720px\)\s*\{(.*?)\n\}", css, re.S)
+            has_override = any("table{min-width:0" in b.replace(" ", "") for b in mobile_blocks)
+            if not has_override:
+                rep.error("assets/site.css",
+                          f"表格设了 min-width:{mw.group(1)}px 但移动端未覆盖为 0，"
+                          f"窄屏会整页横向溢出")
 
     for path in html_files:
         rel = os.path.relpath(path, config.SITE)

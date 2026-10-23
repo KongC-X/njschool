@@ -222,14 +222,6 @@ footer a:hover{color:var(--accent)}
 @media (max-width:720px){ .page-title{font-size:20px;margin-top:16px} }
 
 /* ============================================================
-   页面级标题（学校库 / 数据说明）
-   —— 每页必须有且仅有一个 h1，此前这两个页面缺失，读屏无法获知页面主题
-   ============================================================ */
-.page-title{font-size:24px;margin:22px 0 6px;letter-spacing:-.01em}
-.page-sub{color:var(--muted);font-size:13.5px;margin:0 0 4px}
-@media (max-width:720px){ .page-title{font-size:20px;margin-top:16px} }
-
-/* ============================================================
    P2 组件补充
    ============================================================ */
 
@@ -296,6 +288,12 @@ html.js .controls[data-open="false"] #q{display:none}
   .article .table-wrap td::before{content:attr(data-label);color:var(--muted);
     font-size:var(--f-2xs);font-weight:600;padding-top:2px}
   .article .table-wrap td:not([data-label]){display:block}
+  /* 解除桌面端的表格最小宽度：卡片化后仍生效会把页面撑宽，导致整页横向裁切 */
+  .article .table-wrap table{min-width:0}
+  /* 单元格内是两列网格，默认 stretch 会把信度徽章拉成整条色块 */
+  .article .table-wrap td{justify-items:start;align-items:start}
+  .article .table-wrap td::before{padding-top:2px}
+  .article .table-wrap td > *{min-width:0}
 }
 
 /* 窄屏导航：品牌字标与链接挤在一起，收字号而非隐藏文案（保留站点标识） */
@@ -308,4 +306,11 @@ html.js .controls[data-open="false"] #q{display:none}
   .hero{padding:var(--s-8) 0 var(--s-7)}
   .stat{padding:var(--s-3)}
   .stat b{font-size:var(--f-xl)}
+}
+
+/* 兜底：移动端禁止整页横向滚动。
+   正常情况下应由各组件自身收缩解决；此处仅防止个别长串（URL、连续英文）撑破布局。 */
+@media (max-width:720px){
+  body{overflow-x:clip}
+  .article{overflow-wrap:anywhere}
 }
