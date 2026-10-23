@@ -1,0 +1,143 @@
+/* ============================================================
+   响应式覆盖层
+   ------------------------------------------------------------
+   必须最后加载：断点内的规则要与基础规则、页面专属规则做覆盖比较，
+   若提前加载会被后加载文件中的同名基础规则盖掉（拆文件时踩过）。
+   顺序：tokens.css → site.css → pages.css → responsive.css
+   ============================================================ */
+
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+@media (max-width:1023px){
+  /* 不用 grid：1fr 的自动最小宽度会被内容撑开，导致整页横向溢出 */
+  .detail-grid{display:block}
+  .detail-grid > *{min-width:0}
+  /* 横向目录条在窄屏只有一两个半章节可见，且其 nowrap 布局会撑宽页面，直接隐藏；
+     正文各章节标题本身足以导航 */
+  .toc{display:none}
+  .cards3{grid-template-columns:1fr}
+}
+
+@media (max-width:720px){
+  /* 硬约束：任何情况下都不允许整页横向溢出 */
+  html,body{max-width:100%;overflow-x:hidden}
+  .wrap{max-width:100%}
+  .article{width:100%;max-width:100%}
+  .article .table-wrap{max-width:100%}
+
+  .hero{padding:var(--s-8) 0 var(--s-7)}
+  .hero h1{font-size:var(--f-2xl)}
+  .hero p{font-size:var(--f-sm)}
+  .hero-search{padding:5px}
+  .hero-search button{padding:10px var(--s-4)}
+
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat{border-left:0;border-top:1px solid var(--line);padding:var(--s-4)}
+  .stat:nth-child(-n+2){border-top:0}
+  .stat:nth-child(even){border-left:1px solid var(--line)}
+  .stat b{font-size:var(--f-xl)}
+  .stat:last-child:nth-child(odd){grid-column:span 2;border-left:0}
+
+  .grid{grid-template-columns:1fr}
+  .dist-grid{grid-template-columns:repeat(2,1fr)}
+
+  .filter-toggle{display:flex;align-items:center;justify-content:center;gap:var(--s-2);
+    width:100%;margin:var(--s-3) 0;padding:11px var(--s-4);min-height:44px;
+    border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
+    color:var(--text);font-size:var(--f-sm);font-family:inherit;cursor:pointer}
+  .filter-toggle::after{content:"▾";font-size:var(--f-2xs);color:var(--muted);
+    transition:transform var(--t-fast)}
+  .filter-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
+
+  #q{font-size:var(--f-md);padding:12px 14px}
+  .chip{min-height:38px;padding:8px 14px;font-size:var(--f-sm)}
+
+  .detail-head{padding:var(--s-4)}
+  .detail-head h1{font-size:var(--f-xl)}
+  .article{padding:0 var(--s-4) var(--s-5)}
+  .article h2{font-size:var(--f-md);margin-top:var(--s-6)}
+  .article > p,.article > ul,.article > ol,.article > blockquote{max-width:none}
+
+  /* 正文表格 →「字段名 + 值」卡片，避免横向滚动 */
+  .article .table-wrap{overflow:visible;border:0;background:transparent}
+  .article .table-wrap table,
+  .article .table-wrap thead,
+  .article .table-wrap tbody,
+  .article .table-wrap tr,
+  .article .table-wrap td{display:block;width:100%}
+  .article .table-wrap thead{display:none}
+  .article .table-wrap tr{background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-md);margin-bottom:var(--s-3);padding:var(--s-2) 0}
+  .article .table-wrap td{border:0;padding:5px var(--s-3);display:grid;
+    grid-template-columns:84px minmax(0,1fr);gap:var(--s-3);
+    font-size:var(--f-sm);justify-items:start;align-items:start}
+  .article .table-wrap td::before{content:attr(data-label);color:var(--muted);
+    font-size:var(--f-2xs);font-weight:600;padding-top:2px}
+  .article .table-wrap td:not([data-label]){display:block}
+  /* 桌面端为横向滚动设置的最小宽度，卡片布局下必须归零，否则整页被撑宽 */
+  .article .table-wrap table{min-width:0}
+  .article .table-wrap td > *{min-width:0}
+
+  footer .cols{gap:var(--s-5)}
+  .vnote{margin-left:0}
+}
+
+@media (max-width:480px){
+  .wrap{padding:0 var(--s-4)}
+  .nav-in{gap:var(--s-2);padding:0 var(--s-4)}
+  .brand{font-size:var(--f-sm)}
+  .brand-mark{width:24px;height:24px;font-size:var(--f-2xs)}
+  .nav-links{gap:0}
+  .nav-links a{padding:7px;font-size:var(--f-2xs)}
+  #themeBtn{width:34px;height:34px;margin-left:var(--s-1)}
+  .page-title{font-size:var(--f-xl)}
+  .sec{padding:var(--s-6) 0}
+}
+
+@media (max-width:720px){
+  body{overflow-x:clip}
+  .article{overflow-wrap:anywhere}
+}
+
+@media (max-width:720px){
+  .article .table-wrap td.kv-key{display:none}
+}
+
+@media (min-width:1280px){
+  :root{
+    --gutter:clamp(24px, 2.6vw, 40px);
+    --toc-w:240px;
+    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
+    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
+  }
+}
+
+@media (min-width:1700px){
+  :root{
+    --gutter:clamp(32px, 3vw, 64px);
+    --toc-w:260px;
+    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
+    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
+  }
+}
+
+@media (min-width:1280px){
+  :root{
+    --gutter:clamp(24px, 2.6vw, 40px);
+    --toc-w:240px;
+    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
+    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
+  }
+}
+
+@media (min-width:1700px){
+  :root{
+    --gutter:clamp(32px, 3vw, 64px);
+    --toc-w:260px;
+    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
+    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
+  }
+}

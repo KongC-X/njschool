@@ -5,15 +5,17 @@
 这样模板可以单独渲染预览，测试时无需触碰文件系统。
 """
 import json
+import os
 import re
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import config, load
+from . import config, facts, load
 
 NAV = [
     ("index.html", "首页", "home"),
     ("schools.html", "学校库", "schools"),
+    ("compare.html", "对比", "compare"),
     ("policy.html", "政策", "policy"),
     ("about.html", "数据说明", "about"),
 ]
@@ -85,22 +87,43 @@ def home(env, schools, districts, pages, web_counts):
 LIST_COLS = ("name", "short", "district", "level", "type", "tier", "tagline")
 
 
+def schools_data(schools, districts):
+    """生成 assets/schools-data.js。
+
+    外置为 JS 资产而不是内联在 HTML 里：
+      - 学校库与对比页共用同一份数据，浏览器只下载一次；
+      - HTML 从 50KB 降到几 KB；
+      - <script src> 不受 file:// 的 fetch 限制，双击打开仍可用。
+    """
+    rows = []
+    for s in schools:
+        text = open(os.path.join(config.ROOT, s.file), encoding="utf-8").read()
+        f = facts.extract(text)
+        rows.append([s.name, s.short, s.district, s.level, s.type, s.tier,
+                     s.tagline, f or None, 1 if s.website.site else 0])
+    payload = {
+        "cols": list(LIST_COLS) + ["facts", "hasSite"],
+        "rows": rows,
+        "districts": districts,
+        "factLabels": facts.FACT_LABELS,
+    }
+    return "window.__SCHOOLS__ = " + json.dumps(
+        payload, ensure_ascii=False, separators=(",", ":")) + ";\n"
+
+
 def schools_page(env, schools, districts):
-    # 详情页地址由「学段-校名」推导（与 load.School.url 的编码规则一致），
-    # 因此不必在数据里重复存 204 条 URL。
-    slim = [[getattr(s, c) for c in LIST_COLS] for s in schools]
-
-    data_js = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    dist_js = json.dumps(districts, ensure_ascii=False)
-    schools_js = env.get_template("schools.js").render(
-        schools_json=data_js, districts_json=dist_js,
-        cols_js=json.dumps(LIST_COLS, ensure_ascii=False))
-
     return env.get_template("schools.html").render(
         base="", active="schools", nav=nav(), title="学校库",
-        desc=f"南京 {len(schools)} 所中小学检索：按学段、行政区、办学性质筛选。",
-        canonical=canonical("schools.html"), schools_js=schools_js,
-        total=len(schools),
+        desc=f"南京 {len(schools)} 所中小学检索：支持多关键词、按学段/行政区/性质筛选。",
+        canonical=canonical("schools.html"), total=len(schools),
+    )
+
+
+def compare(env, schools):
+    return env.get_template("compare.html").render(
+        base="", active="compare", nav=nav(), title="对比",
+        desc="自选 2–4 所学校并排对比：性质、梯队、关键数据与官方渠道。",
+        canonical=canonical("compare.html"), total=len(schools),
     )
 
 

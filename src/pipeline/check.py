@@ -15,7 +15,8 @@ PAGE_SIZE_WARN_KB = 120
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
 # 超出预算说明在往同一文件堆样式，应拆分（如 components.css / pages.css）而非继续增长
-ASSET_BUDGET_KB = {"tokens.css": 6, "site.css": 28, "app.js": 12}
+ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 20,
+                   "responsive.css": 10, "app.js": 12, "schools-data.js": 140}
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
 RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
 
@@ -43,7 +44,8 @@ def run(rep: Report, expected_pages):
         rep.error("产物", f"生成 {len(html_files)} 个页面，预期 {expected_pages} 个")
 
     # 2) 资源文件
-    for name in ("tokens.css", "site.css", "app.js"):
+    for name in ("tokens.css", "site.css", "pages.css", "responsive.css",
+                 "app.js", "schools-data.js"):
         p = os.path.join(config.SITE, "assets", name)
         if not os.path.isfile(p):
             rep.error("产物", f"缺少资源文件 assets/{name}")
@@ -54,8 +56,10 @@ def run(rep: Report, expected_pages):
             rep.warn(f"assets/{name}", f"体积 {kb:.1f}KB 超过预算 {budget}KB，考虑拆分")
 
     # 2b) 令牌纪律：组件样式不得写死色值（#fff 用于强调色上的文字，允许）
-    comp = os.path.join(config.SITE, "assets", "site.css")
-    if os.path.isfile(comp):
+    for sheet in ("site.css", "pages.css", "responsive.css"):
+        comp = os.path.join(config.SITE, "assets", sheet)
+        if not os.path.isfile(comp):
+            continue
         css = open(comp, encoding="utf-8").read()
         bad = [c for c in RE_HEX.findall(css) if c.lower() not in ("#fff", "#ffffff")]
         if bad:
@@ -63,16 +67,22 @@ def run(rep: Report, expected_pages):
                       f"出现硬编码色值 {sorted(set(bad))[:5]}，应改用 tokens.css 中的变量")
 
         # 2c) 移动端溢出回归护栏
-        # 曾出现：桌面端给表格设 min-width:520px 以便横向滚动，
-        # 但窄屏表格已改为卡片布局，min-width 仍生效会把整页撑宽、右侧内容被裁切。
-        mw = RE_TABLE_MINW.search(css)
-        if mw and int(mw.group(1)) >= 400:
-            mobile_blocks = re.findall(r"@media\s*\(max-width:720px\)\s*\{(.*?)\n\}", css, re.S)
-            has_override = any("table{min-width:0" in b.replace(" ", "") for b in mobile_blocks)
-            if not has_override:
-                rep.error("assets/site.css",
-                          f"表格设了 min-width:{mw.group(1)}px 但移动端未覆盖为 0，"
-                          f"窄屏会整页横向溢出")
+    # 曾出现：桌面端给表格设 min-width:520px 以便横向滚动，
+    # 但窄屏表格已改为卡片布局，min-width 仍生效会把整页撑宽、右侧内容被裁切。
+    # 覆盖规则可能在 responsive.css，故需跨三个样式文件合并后判断。
+    all_css = ""
+    for sheet in ("site.css", "pages.css", "responsive.css"):
+        p = os.path.join(config.SITE, "assets", sheet)
+        if os.path.isfile(p):
+            all_css += open(p, encoding="utf-8").read() + "\n"
+    mw = RE_TABLE_MINW.search(all_css)
+    if mw and int(mw.group(1)) >= 400:
+        mobile_blocks = re.findall(r"@media\s*\(max-width:720px\)\s*\{(.*?)\n\}", all_css, re.S)
+        has_override = any("table{min-width:0" in b.replace(" ", "") for b in mobile_blocks)
+        if not has_override:
+            rep.error("assets/*.css",
+                      f"表格设了 min-width:{mw.group(1)}px 但移动端未覆盖为 0，"
+                      f"窄屏会整页横向溢出")
 
     for path in html_files:
         rel = os.path.relpath(path, config.SITE)

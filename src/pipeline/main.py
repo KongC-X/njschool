@@ -36,6 +36,8 @@ def run():
     outputs = {
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
+        "compare.html": render.compare(env, schools),
+        "compare.html": render.compare(env, schools),
         "policy.html": render.policy(env, pages),
         "about.html": render.about(env, schools, pages, web_counts),
     }
@@ -48,7 +50,7 @@ def run():
     os.makedirs(os.path.join(config.SITE, "assets"))
     os.makedirs(os.path.join(config.SITE, "schools"), exist_ok=True)
 
-    for name in ("tokens.css", "site.css", "app.js"):
+    for name in ("tokens.css", "site.css", "pages.css", "responsive.css", "app.js"):
         src = os.path.join(config.ASSETS, name)
         if not os.path.isfile(src):
             print(f"✗ 缺少资源文件：{src}")
@@ -62,7 +64,13 @@ def run():
             f.write(html)
 
     # sitemap 只在有基址时生成：协议要求绝对地址，宁缺勿假
-    urls = ["", "schools.html", "policy.html", "about.html"] + [s.url for s in schools]
+    # 列表 / 对比 / 搜索共用一份数据资产（浏览器只下载一次）
+    with open(os.path.join(config.SITE, "assets", "schools-data.js"), "w",
+              encoding="utf-8") as f:
+        f.write(render.schools_data(schools, index["districts"]))
+
+    urls = ["", "schools.html", "compare.html", "policy.html", "about.html"] \
+        + [s.url for s in schools]
     if config.BASE_URL:
         xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

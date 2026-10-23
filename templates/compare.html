@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap">
+  <h1 class="page-title">对比</h1>
+  <p class="page-sub">选 2–4 所学校并排看：性质、梯队、关键数据与官方渠道。选择会保存在本机，可复制链接分享。</p>
+
+  <div class="picker">
+    <label class="sr-only" for="pick">添加学校</label>
+    <input id="pick" type="search" autocomplete="off"
+           placeholder="输入校名添加对比（如「琅琊路」「金中」）">
+    <ul class="pick-list" id="pickList" role="listbox" aria-label="候选学校" hidden></ul>
+  </div>
+
+  <div class="chips" id="picked" aria-label="已选学校"></div>
+
+  <div id="cmp"></div>
+
+  <div class="cmp-actions">
+    <button type="button" class="btn-ghost" id="copyLink">复制分享链接</button>
+    <button type="button" class="btn-ghost" id="clearAll" hidden>清空</button>
+  </div>
+</div>
+<script src="{{ base }}assets/schools-data.js"></script>
+<script>{% include "compare.js" %}</script>
+{% endblock %}

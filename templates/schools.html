@@ -2,7 +2,7 @@
 {% block content %}
 <div class="wrap">
   <h1 class="page-title">学校库</h1>
-  <p class="page-sub">{{ total }} 所学校，可按学段、行政区、办学性质筛选，或直接搜索校名与关键词。</p>
+  <p class="page-sub">{{ total }} 所学校。支持多关键词（空格分隔）、按学段/行政区/性质筛选。</p>
 
   <button type="button" class="filter-toggle" id="filterToggle"
           aria-expanded="false" aria-controls="filters">
@@ -11,7 +11,7 @@
 
   <div class="controls" id="filters" data-open="true">
     <label class="sr-only" for="q">搜索学校</label>
-    <input id="q" type="search" placeholder="搜索学校名称、简称、梯队或关键词……">
+    <input id="q" type="search" placeholder="搜索校名、简称、梯队或关键词，多个词用空格分隔">
     <div class="frow">
       <div class="fgroup"><span class="flabel" id="lv-label">学段</span>
         <span id="f-lv" role="group" aria-labelledby="lv-label" class="contents"></span></div>
@@ -21,12 +21,12 @@
         <span id="f-type" role="group" aria-labelledby="type-label" class="contents"></span></div>
     </div>
   </div>
+
   <p class="count" id="count" role="status" aria-live="polite"></p>
   <div class="grid" id="grid"></div>
 </div>
-<script>
-{{ schools_js | safe }}
-</script>
+<script src="{{ base }}assets/schools-data.js"></script>
+<script>{% include "schools.js" %}</script>
 <script>
 /* 支持 ?lv= / ?dist= 直达筛选（首页入口联动） */
 (function(){
