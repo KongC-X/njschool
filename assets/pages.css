@@ -33,11 +33,17 @@
 .hero-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-weak)}
 
 /* 统计条：一张卡 + 发丝线分隔，比五个独立卡片更整 */
-.stats{display:grid;grid-template-columns:repeat(5,1fr);
+.stats{display:grid;grid-template-columns:1.35fr repeat(4,1fr);
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   box-shadow:var(--sh-1);margin:var(--s-7) 0 0;overflow:hidden}
 .stat{padding:var(--s-5) var(--s-4);text-align:center;border-left:1px solid var(--line)}
 .stat:first-child{border-left:0}
+/* 收录总量是页面的核心数字，给它更高的视觉权重，其余四项作为构成说明 */
+.stat:first-child b{font-size:calc(var(--f-2xl) * 1.45);color:var(--accent)}
+.stat:first-child span{color:var(--text)}
+/* 收录总量是页面的核心数字，给它更高的视觉权重，其余四项作为构成说明 */
+.stat:first-child b{font-size:calc(var(--f-2xl) * 1.45);color:var(--accent)}
+.stat:first-child span{color:var(--text)}
 .stat b{display:block;font-size:var(--f-2xl);line-height:1.15;color:var(--ink);
   letter-spacing:-.02em}
 .stat span{display:block;margin-top:var(--s-1);font-size:var(--f-xs);color:var(--muted)}
@@ -212,8 +218,12 @@
 .pick-empty{color:var(--muted);cursor:default}
 
 #picked{margin:0 0 var(--s-4)}
+/* 每列上限 560px：2 所对比时不会拉到 1000px 宽导致行长失控，
+   整体居中而不是贴左留白 */
 .cmp{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));
-  gap:var(--s-4);align-items:start}
+  gap:var(--s-4);align-items:start;
+  max-width:calc(var(--n,2) * 560px + (var(--n,2) - 1) * var(--s-4));
+  margin-inline:auto}
 .cmp-col{background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:var(--s-5);box-shadow:var(--sh-1)}
 .cmp-name{font-size:var(--f-md);margin-bottom:var(--s-2);line-height:1.4}
@@ -257,8 +267,12 @@ mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3
 .pick-empty{color:var(--muted);cursor:default}
 
 #picked{margin:0 0 var(--s-4)}
+/* 每列上限 560px：2 所对比时不会拉到 1000px 宽导致行长失控，
+   整体居中而不是贴左留白 */
 .cmp{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));
-  gap:var(--s-4);align-items:start}
+  gap:var(--s-4);align-items:start;
+  max-width:calc(var(--n,2) * 560px + (var(--n,2) - 1) * var(--s-4));
+  margin-inline:auto}
 .cmp-col{background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:var(--s-5);box-shadow:var(--sh-1)}
 .cmp-name{font-size:var(--f-md);margin-bottom:var(--s-2);line-height:1.4}

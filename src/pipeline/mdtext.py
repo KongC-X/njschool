@@ -148,7 +148,11 @@ def _add_table_labels(html):
 
             new_body = re.sub(r"<td([^>]*)>", sub_td, body)
 
-        return table.replace(body, new_body, 1)
+        table = table.replace(body, new_body, 1)
+        if is_kv:
+            # 供样式层识别：宽屏下把三列「项目/内容/信度」重排为双列卡片
+            table = table.replace("<table>", '<table data-kv="1">', 1)
+        return table
 
     return re.sub(r"<table>.*?</table>", fix_table, html, flags=re.S)
 
@@ -159,9 +163,12 @@ def _wrap_tables(html):
     表格元素本身必须保持 display:table，否则列宽算法失效、表头背景只覆盖文字；
     横向滚动交给外层 .table-wrap 承担。此规则此前散落在模板后处理里，现统一到渲染层。
     """
-    return re.sub(r"<table>(.*?)</table>",
-                  r'<div class="table-wrap"><table>\1</table></div>',
-                  html, flags=re.S)
+    def wrap(m):
+        inner = m.group(0)
+        cls = "table-wrap table-wrap--kv" if 'data-kv="1"' in inner else "table-wrap"
+        return f'<div class="{cls}">{inner}</div>'
+
+    return re.sub(r"<table[^>]*>.*?</table>", wrap, html, flags=re.S)
 
 
 def _build_toc(tokens):

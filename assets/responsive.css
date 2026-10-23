@@ -141,3 +141,51 @@
     --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
   }
 }
+
+
+/* ------------------------------------------------------------
+   宽屏（≥1600px）：键值表改为双列卡片
+   三列表格在宽屏下「内容」列会拉到 1500px 以上，右侧大片空白，
+   且信度徽章离内容过远。改为每行一张小卡：字段名在上、值在下、信度靠右。
+   ------------------------------------------------------------ */
+@media (min-width:1600px){
+  .table-wrap--kv{border:0;background:transparent;box-shadow:none;overflow:visible}
+  .table-wrap--kv table{display:block;min-width:0}
+  .table-wrap--kv thead{display:none}
+  .table-wrap--kv tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--s-3)}
+  .table-wrap--kv tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
+    gap:2px var(--s-3);align-items:start;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:var(--s-3) var(--s-4)}
+  .table-wrap--kv td{display:block;border:0;padding:0;min-width:0}
+  .table-wrap--kv td.kv-key{display:none}
+  .table-wrap--kv td[data-label]::before{content:attr(data-label);display:block;
+    font-size:var(--f-2xs);color:var(--muted);margin-bottom:3px}
+  .table-wrap--kv td[data-label="信度"]{grid-column:2;grid-row:1;justify-self:end}
+  .table-wrap--kv td[data-label="信度"]::before{display:none}
+}
+
+
+/* ------------------------------------------------------------
+   宽屏（≥1600px）：键值表改为双列卡片
+   三列表格在宽屏下「内容」列会拉到 1500px 以上，右侧大片空白，
+   且信度徽章离内容过远。改为每行一张小卡：字段名在上、值在下、信度靠右。
+   ------------------------------------------------------------ */
+@media (min-width:1600px){
+  .table-wrap--kv{border:0;background:transparent;box-shadow:none;overflow:visible}
+  .table-wrap--kv table{display:block;min-width:0}
+  .table-wrap--kv thead{display:none}
+  .table-wrap--kv tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--s-3)}
+  .table-wrap--kv tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
+    gap:2px var(--s-3);align-items:start;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:var(--s-3) var(--s-4)}
+  .table-wrap--kv td{display:block;border:0;padding:0;min-width:0}
+  .table-wrap--kv td.kv-key{display:none}
+  .table-wrap--kv td[data-label]::before{content:attr(data-label);display:block;
+    font-size:var(--f-2xs);color:var(--muted);margin-bottom:3px}
+  .table-wrap--kv td[data-label="信度"]{grid-column:2;grid-row:1;justify-self:end}
+  .table-wrap--kv td[data-label="信度"]::before{display:none}
+}
