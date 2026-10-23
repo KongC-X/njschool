@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap">
+  <section class="sec">
+    <h1 class="page-title">数据说明</h1>
+    <div class="hint">本项目是公开信息汇编，以下规则适用于全部 {{ total }} 份档案。</div>
+
+    <h3 class="sub-title">官方渠道（官网 / 公众号）</h3>
+    <p class="hint">共 {{ total }} 所，其中 <b>{{ with_site }}</b> 所（{{ site_pct }}%）已核实到可用官网。</p>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">官网状态与展示方式对照</caption>
+        <tr><th style="width:180px">状态</th><th>含义与展示方式</th></tr>
+        <tr><td><b>有官网</b></td><td>页面提供「访问学校官网」按钮，链接经构建期体检。</td></tr>
+        <tr><td><b>保留但提示</b></td><td>构建期探测未响应，链接保留并标注「核验时未响应」——多校源站存在间歇性故障，不代表站点已废弃。</td></tr>
+        <tr><td><b>存在但不可访问</b></td><td>确认有官网或区教育平台页面，但当前停机/下线，仅显示原域名不设跳转，避免家长点进错误页面。</td></tr>
+        <tr><td><b>内容停更</b></td><td>站点可打开但多年未更新，参考价值有限，不提供跳转。</td></tr>
+        <tr><td><b>无独立官网</b></td><td>域名退役、被抢注或从未建站；官方信息以学校公众号或区教育局发布为准。</td></tr>
+      </table>
+    </div>
+    <p class="hint">关于公众号：<code>未取得微信号</code> 不等于「没有公众号」，多为仍在更新但未提取到 ID；
+      页面会区分「已核实微信号」与「有渠道但未取到 ID」两种情况，不把已停用的账号列为有效渠道。</p>
+
+    {{ about_html | safe }}
+  </section>
+</div>
+{% endblock %}

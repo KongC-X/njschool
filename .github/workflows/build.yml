@@ -1,0 +1,58 @@
+name: build-and-deploy
+
+# 构建并发布静态站点。
+# 触发：推送到主分支，或手动执行。
+# 站点基址由仓库信息推导，无需手工维护 sitemap 占位符。
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: pip install markdown jinja2 openpyxl
+
+      - name: 校验数据（失败即中断）
+        run: python src/validate.py
+
+      - name: 重建索引
+        run: python src/build_index.py
+
+      - name: 构建站点
+        env:
+          # 项目页地址形如 https://<owner>.github.io/<repo>
+          NJ_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: python src/build_website.py
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

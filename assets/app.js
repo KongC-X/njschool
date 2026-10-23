@@ -39,3 +39,57 @@ function heroSearch() {
   var q = el.value.trim();
   location.href = 'schools.html' + (q ? '?q=' + encodeURIComponent(q) : '');
 }
+
+/* 详情页目录联动：滚动时高亮当前章节（渐进增强，无 IntersectionObserver 时静默跳过） */
+(function () {
+  var toc = document.querySelector('.toc');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
+  if (!links.length) return;
+
+  var map = {};
+  links.forEach(function (a) {
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    var el = document.getElementById(id);
+    if (el) map[id] = a;
+  });
+  var ids = Object.keys(map);
+  if (!ids.length) return;
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.removeAttribute('aria-current'); });
+      if (map[e.target.id]) map[e.target.id].setAttribute('aria-current', 'true');
+    });
+  }, { rootMargin: '-72px 0px -70% 0px', threshold: 0 });
+
+  ids.forEach(function (id) { io.observe(document.getElementById(id)); });
+})();
+
+/* 详情页目录联动：滚动时高亮当前章节（渐进增强，无 IntersectionObserver 时静默跳过） */
+(function () {
+  var toc = document.querySelector('.toc');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
+  if (!links.length) return;
+
+  var map = {};
+  links.forEach(function (a) {
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    var el = document.getElementById(id);
+    if (el) map[id] = a;
+  });
+  var ids = Object.keys(map);
+  if (!ids.length) return;
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.removeAttribute('aria-current'); });
+      if (map[e.target.id]) map[e.target.id].setAttribute('aria-current', 'true');
+    });
+  }, { rootMargin: '-72px 0px -70% 0px', threshold: 0 });
+
+  ids.forEach(function (id) { io.observe(document.getElementById(id)); });
+})();

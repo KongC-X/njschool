@@ -132,7 +132,7 @@ tbody tr:last-child td{border-bottom:0}
 .article{background:var(--panel);border:1px solid var(--line);
   border-radius:var(--radius);padding:8px 28px 28px;margin-bottom:32px;
   box-shadow:var(--shadow)}
-.article h1{display:none} /* 正文中的主标题已由页头展示 */
+/* 正文首个 H1 已在构建期剥离（pipeline/mdtext.py），此处不再用 display:none 掩盖 */
 .article h2{font-size:19px;margin:30px 0 12px;padding-bottom:8px;
   border-bottom:2px solid var(--accent-soft)}
 .article h3{font-size:16px;margin:22px 0 8px}
@@ -169,3 +169,57 @@ footer a:hover{color:var(--accent)}
   .detail-head{padding:16px 18px}
 }
 
+
+/* ============================================================
+   无障碍基础件（P1）
+   —— 跳转链接、读屏专用文本、键盘焦点环、减少动效偏好
+   ============================================================ */
+.skip{position:absolute;left:-9999px;top:0;z-index:100;background:var(--accent);
+  color:#fff;padding:8px 16px;border-radius:0 0 8px 0;font-size:13.5px}
+.skip:focus{left:0;text-decoration:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ============================================================
+   详情页：目录 + 正文 两栏（≥1024px）
+   ============================================================ */
+.detail-grid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:28px;align-items:start}
+.toc{position:sticky;top:72px;font-size:13.5px}
+.toc-title{font-size:11.5px;letter-spacing:.08em;color:var(--muted);
+  margin-bottom:8px;text-transform:uppercase}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc li a{display:block;padding:5px 12px;color:var(--muted);
+  border-left:2px solid transparent;margin-left:-2px}
+.toc li a:hover{color:var(--text);text-decoration:none;border-left-color:var(--line)}
+.toc li a[aria-current="true"]{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+.sub-title{font-size:16px;margin:22px 0 8px}
+@media (max-width:1023px){
+  .detail-grid{grid-template-columns:1fr;gap:16px}
+  .toc{position:static;order:-1}
+  .toc ol{display:flex;gap:4px;overflow-x:auto;border-left:0;
+    border-bottom:2px solid var(--line);padding-bottom:8px}
+  .toc li a{border-left:0;border-bottom:2px solid transparent;margin:0 -2px -2px 0;
+    white-space:nowrap;padding:5px 10px}
+  .toc li a[aria-current="true"]{border-left:0;border-bottom-color:var(--accent)}
+}
+
+/* ============================================================
+   页面级标题（学校库 / 数据说明）
+   —— 每页必须有且仅有一个 h1，此前这两个页面缺失，读屏无法获知页面主题
+   ============================================================ */
+.page-title{font-size:24px;margin:22px 0 6px;letter-spacing:-.01em}
+.page-sub{color:var(--muted);font-size:13.5px;margin:0 0 4px}
+@media (max-width:720px){ .page-title{font-size:20px;margin-top:16px} }
+
+/* ============================================================
+   页面级标题（学校库 / 数据说明）
+   —— 每页必须有且仅有一个 h1，此前这两个页面缺失，读屏无法获知页面主题
+   ============================================================ */
+.page-title{font-size:24px;margin:22px 0 6px;letter-spacing:-.01em}
+.page-sub{color:var(--muted);font-size:13.5px;margin:0 0 4px}
+@media (max-width:720px){ .page-title{font-size:20px;margin-top:16px} }

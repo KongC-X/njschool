@@ -1,0 +1,56 @@
+{#
+  页面骨架：导航 + 内容插槽 + 页脚。
+  变量：
+    base     资源与链接的相对前缀（根页面为 ""，详情页为 "../"）
+    active   当前导航项标识，用于 aria-current 与高亮
+    title / desc / canonical
+#}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }} · 南京中小学档案</title>
+<meta name="description" content="{{ desc or '南京市中小学公开信息汇编：' ~ total ~ ' 所学校档案，含施教区、招生计划、投档线与信度标注。' }}">
+{% if canonical %}<link rel="canonical" href="{{ canonical }}">
+{% endif %}<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+<link rel="stylesheet" href="{{ base }}assets/tokens.css">
+<link rel="stylesheet" href="{{ base }}assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到主要内容</a>
+<nav class="nav" aria-label="主导航">
+  <div class="nav-in">
+    <a class="brand" href="{{ base }}index.html"><span aria-hidden="true">🏫</span> 南京<em>中小学</em>档案</a>
+    <div class="nav-links">
+      {%- for item in nav %}
+      <a href="{{ base }}{{ item.href }}"{% if item.key == active %} class="on" aria-current="page"{% endif %}>{{ item.label }}</a>
+      {%- endfor %}
+      <button id="themeBtn" type="button" onclick="toggleTheme()" aria-label="切换主题">🌙</button>
+    </div>
+  </div>
+</nav>
+<main id="main">
+{% block content %}{% endblock %}
+</main>
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><h4>南京中小学档案</h4>
+        公开信息汇编 · 数据版本 v2026-10 · 更新 {{ today }}</div>
+      <div><h4>导航</h4>
+        <a href="{{ base }}schools.html">学校库</a><br>
+        <a href="{{ base }}about.html">数据说明</a></div>
+      <div><h4>信度标注</h4>
+        [A] 官方发布　[B] 权威媒体　[C] 家长圈口径</div>
+    </div>
+    <div class="disclaim">
+      <strong>免责声明</strong>：本站为公开信息汇编，数据来自政府/教育局官网、学校官网与官方公众号、党报及权威媒体，
+      <strong>不构成任何择校建议</strong>；政策与数据每年变动，请以官方最新发布为准。
+      家长圈统计的升学数据均已标注 [C]，不可作为唯一依据。各档案末节列有「数据缺口清单」——未获取即未获取，不作推测。
+    </div>
+  </div>
+</footer>
+<script src="{{ base }}assets/app.js"></script>
+</body>
+</html>

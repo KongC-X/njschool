@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap">
+  <h1 class="page-title">学校库</h1>
+  <p class="page-sub">{{ total }} 所学校，可按学段、行政区、办学性质筛选，或直接搜索校名与关键词。</p>
+  <div class="controls">
+    <label class="sr-only" for="q">搜索学校</label>
+    <input id="q" type="search" placeholder="搜索学校名称、简称、梯队或关键词……">
+    <div class="frow">
+      <div class="fgroup"><span class="flabel" id="lv-label">学段</span>
+        <span id="f-lv" role="group" aria-labelledby="lv-label" style="display:contents"></span></div>
+      <div class="fgroup"><span class="flabel" id="dist-label">行政区</span>
+        <span id="f-dist" role="group" aria-labelledby="dist-label" style="display:contents"></span></div>
+      <div class="fgroup"><span class="flabel" id="type-label">性质</span>
+        <span id="f-type" role="group" aria-labelledby="type-label" style="display:contents"></span></div>
+    </div>
+  </div>
+  <p class="count" id="count" role="status" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+{{ schools_js | safe }}
+</script>
+<script>
+/* 支持 ?lv= / ?dist= 直达筛选（首页入口联动） */
+(function(){
+  const p = new URLSearchParams(location.search);
+  const map = {lv:'f-lv', dist:'f-dist'};
+  Object.keys(map).forEach(function(k){
+    const v = p.get(k); if(!v) return;
+    const box = document.getElementById(map[k]);
+    Array.prototype.forEach.call(box.children, function(c){
+      if(c.dataset.v === v){ c.click(); }
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -17,7 +17,7 @@ PY := $(shell [ -x "$(VENV_PY)" ] && echo "$(VENV_PY)" || echo python3)
 BASE ?=
 PORT ?= 8788
 
-.PHONY: help all site export index preview check clean verify-web
+.PHONY: help all site export index validate check preview clean verify-web
 
 help:
 	@echo "可用命令："
@@ -25,7 +25,8 @@ help:
 	@echo "  make site       构建站点（自动先建索引）"
 	@echo "  make export     生成目录 md 与对比表 xlsx"
 	@echo "  make index      仅重建 index.json"
-	@echo "  make check      语法检查（不产出文件）"
+	@echo "  make validate   仅校验数据（不写文件）"
+	@echo "  make check      语法检查 + 数据校验"
 	@echo "  make verify-web 体检全部学校官网链接"
 	@echo "  make preview    本地预览 127.0.0.1:$(PORT)"
 	@echo "  make clean      删除 site/ 与导出件"
@@ -44,8 +45,12 @@ export: index
 	$(PY) src/build_catalog.py
 	$(PY) src/build_xlsx.py
 
+validate:
+	$(PY) src/validate.py
+
 check:
-	$(PY) -m py_compile src/*.py && echo "语法检查通过"
+	$(PY) -m py_compile src/*.py src/pipeline/*.py && echo "语法检查通过"
+	$(PY) src/validate.py
 
 verify-web:
 	$(PY) src/merge_websites.py

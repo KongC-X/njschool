@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "partials.html" import badges, official %}
+{% block content %}
+<div class="wrap">
+  <div class="crumb"><a href="{{ base }}index.html">首页</a> / <a href="{{ base }}schools.html">学校库</a> /
+    <a href="{{ base }}schools.html?lv={{ s.level | urlencode }}">{{ s.level }}</a> /
+    <a href="{{ base }}schools.html?dist={{ s.district | urlencode }}">{{ s.district }}</a></div>
+
+  <div class="detail-head">
+    <h1>{{ s.name }}</h1>
+    {{ badges(s) }}
+    <div class="tier">{{ s.tier }}</div>
+    <div class="tag">{{ s.tagline }}</div>
+    {{ official(s.website, verified_at) }}
+  </div>
+
+  <div class="detail-grid">
+    {%- if toc %}
+    <aside class="toc">
+      <nav aria-label="本页目录">
+        <div class="toc-title">本页目录</div>
+        {{ toc | safe }}
+      </nav>
+    </aside>
+    {%- endif %}
+    <article class="article">{{ body | safe }}</article>
+  </div>
+</div>
+{% endblock %}

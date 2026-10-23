@@ -527,13 +527,14 @@ python3 src/build_website.py         # 重建站点（详情页显示官方渠�
 
 ```bash
 make              # 查看全部命令
+make validate     # 仅校验数据（不写文件）
+make check        # 语法检查 + 数据校验
 make all          # 完整构建：索引 → 站点 → 导出件
-make site         # 仅站点（自动先建索引）
+make site         # 仅站点（自动先建索引，含产物检查）
 make preview      # 本地预览 http://127.0.0.1:8788
-make check        # 语法检查
 ```
 
-部署时注入站点基址，sitemap 才会生成（sitemap 协议要求绝对地址）：
+部署时注入站点基址，sitemap 与 canonical 才会生成（协议要求绝对地址）：
 
 ```bash
 make site BASE=https://你的域名
@@ -541,26 +542,49 @@ make site BASE=https://你的域名
 
 不设 `BASE` 时**不生成 sitemap**——宁可不产出，也不产出带占位符的无效文件。
 
-### 目录职责（2026-10-23 分层）
+### 目录职责
 
 | 路径 | 职责 |
 |---|---|
-| `小学/ 初中/ 高中/**/*.md` | **内容层**，204 份档案（唯一内容真相） |
-| `index.json` | 数据层缓存，由 `build_index.py` 从档案扫描生成（不入库） |
+| `小学/ 初中/ 高中/**/*.md` | **内容层**：204 份档案（唯一内容真相） |
+| `content/pages/*.md` | **内容层**：政策、更名、数据说明等可独立编辑的页面内容 |
+| `index.json` | 数据层缓存，由 `build_index.py` 扫描档案生成（不入库） |
 | `data/school_websites.json` | 人工维护的官网核查结果（入库） |
-| `assets/tokens.css` | **设计令牌唯一来源**（颜色/圆角/阴影/主题） |
+| `src/pipeline/` | **构建层**：config / schema / load / mdtext / render / check / main |
+| `templates/` | **呈现层**：Jinja2 模板与组件（`base` / `partials` / 各页面） |
+| `assets/tokens.css` | 设计令牌唯一来源（颜色/圆角/阴影/双主题） |
 | `assets/site.css` | 组件样式，只引用令牌，不出现具体色值 |
-| `assets/app.js` | 主题切换与首页搜索 |
-| `src/build_website.py` | 站点生成器（构建期渲染 md，客户端不解析） |
+| `assets/app.js` | 主题切换、首页搜索、详情页目录联动 |
+| `src/build_website.py` | 入口薄封装，实际逻辑在 `pipeline/` |
 | `site/` | 构建产物（不入库） |
 | `legacy/` | 已停用脚本与历史产物，见 `legacy/README.md` |
 
-页面：首页 / 学校库（搜索+筛选）/ 204 个详情页 / 数据说明；浅深色自适应 + 手动切换，移动端适配。
+### 构建流水线
+
+```
+① 读取内容 → ② 校验数据 → ③ 渲染页面 → ④ 写入站点 → ⑤ 检查产物
+```
+
+- **② 校验失败即中断**：必填字段、枚举值、URL 格式、档案数量一致性、档案须含「数据缺口」章节。
+  校验不通过时**不产生任何文件改动**，避免半成品覆盖线上。
+- **⑤ 产物检查**：每页恰好 1 个 H1、lang/canonical/description、样式必须外链、
+  内部链接可达、体积预算、sitemap 条目数与页面数一致且无双重编码。
+- 任一步失败，命令以非 0 退出，CI 据其中断发布。
+
+页面：首页 / 学校库（搜索+筛选）/ 204 个详情页（含章节目录）/ 数据说明；浅深色自适应 + 手动切换，移动端适配。
+
+### 持续集成
+
+`.github/workflows/build.yml`：推送主分支 → 校验 → 建索引 → 构建 → 发布 GitHub Pages。
+站点基址由仓库信息自动推导，无需手工维护。
 
 ### 迭代计划
 
 架构与前端重构方案见 `docs/站点重构方案-2026-10-23.md`，视觉方向原型见 `docs/design-preview.html`。
-当前已完成 P0（版本控制、sitemap 修复、重复产物归档、CSS 抽为单一令牌源），P1 待启动。
+
+- **P0 已完成**：版本控制、sitemap 修复、重复产物归档、CSS 收敛为单一令牌源
+- **P1 已完成**：流水线分层、schema 校验、政策内容移出代码、详情页目录、a11y 基础件、GitHub Actions
+- **P2 待启动**：视觉系统落地、响应式重构、对比页、全站搜索、政策独立页、性能优化
 
 ### 本轮（第三批）修正的关键事实
 
