@@ -18,6 +18,7 @@ verify_websites.py — 对 data/school_websites.json 中的官网地址做全量
 用法：
   python3 src/verify_websites.py           # 只体检并输出报告
   python3 src/verify_websites.py --apply   # 体检并把不合格项降级写回
+  python3 src/verify_websites.py --strict  # 存在「须移除」条目时以非 0 退出（供 CI 使用）
 """
 import json
 import re
@@ -261,6 +262,12 @@ def main():
         json.dump(payload, open(DATA, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         print(f"已写回：{payload['counts']}")
 
+    # CI 依据：出现「须移除」说明有链接已经不可用/被抢注，需要人工处理
+    if "--strict" in sys.argv and drop:
+        print(f"\n严格模式：{len(drop)} 个链接需人工复核，退出码 1")
+        return 1
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

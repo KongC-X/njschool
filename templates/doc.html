@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap">
+  <div class="crumb"><a href="{{ base }}index.html">首页</a> / {{ title }}</div>
+  <article class="article">
+    <div class="eyebrow">{{ eyebrow or '文档' }}</div>
+    <h1 class="doc-title">{{ title }}</h1>
+    {% if updated %}<p class="hint">更新于 {{ updated }}</p>{% endif %}
+    {{ html | safe }}
+  </article>
+</div>
+{% endblock %}

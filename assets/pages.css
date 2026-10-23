@@ -246,3 +246,19 @@ mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3
   .cmp{grid-template-columns:1fr}
   .cmp-col{padding:var(--s-4)}
 }
+
+/* ------------------------------------------------------------
+   404 页
+   ------------------------------------------------------------ */
+.notfound{max-width:720px;margin:0 auto;padding:var(--s-9) 0 var(--s-8)}
+.notfound h1{font-size:var(--f-3xl);margin:var(--s-2) 0 var(--s-3)}
+.nf-search{margin:var(--s-5) 0 var(--s-7)}
+.nf-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:var(--s-3)}
+.nf-card{display:block;padding:var(--s-4);border:1px solid var(--line);
+  border-radius:var(--r-md);background:var(--surface);color:var(--text);
+  transition:border-color var(--t-fast),background var(--t-fast)}
+.nf-card b{display:block;font-size:var(--f-md);margin-bottom:2px;color:var(--ink)}
+.nf-card span{font-size:var(--f-xs);color:var(--muted)}
+.nf-card:hover{border-color:var(--accent);background:var(--accent-weak);
+  text-decoration:none}

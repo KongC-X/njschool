@@ -7,6 +7,10 @@
 import os
 import re
 
+from urllib.parse import urlparse
+
+from urllib.parse import urlparse
+
 from . import config
 from .schema import Report
 
@@ -27,6 +31,12 @@ RE_LOCAL = re.compile(r'(?:href|src)="([^"]+)"')
 RE_PLACEHOLDER = re.compile(r"\{BASE\}")
 RE_DOUBLE_ENC = re.compile(r"%25[0-9A-Fa-f]{2}")
 RE_SCRIPT = re.compile(r"<script[^>]*>.*?</script>", re.S)
+
+# 404 是错误页，不应被索引，因此不要求 canonical
+NO_CANONICAL = {"404.html"}
+
+# 404 是错误页，不应被索引，因此不要求 canonical
+NO_CANONICAL = {"404.html"}
 
 
 def run(rep: Report, expected_pages):
@@ -170,7 +180,7 @@ def run(rep: Report, expected_pages):
             rep.warn(rel, "缺少 theme-color")
         if 'class="skip"' not in html:
             rep.error(rel, "缺少跳转主内容的无障碍链接")
-        if config.BASE_URL and 'rel="canonical"' not in html:
+        if config.BASE_URL and 'rel="canonical"' not in html and rel not in NO_CANONICAL:
             rep.error(rel, "已配置 BASE_URL 但缺少 canonical")
 
         # 样式与脚本必须外链，不允许回退到内联
@@ -205,6 +215,24 @@ def run(rep: Report, expected_pages):
             if target.startswith(("http://", "https://", "mailto:", "data:", "#", "//")):
                 continue
             clean = target.split("#")[0].split("?")[0]
+            # 从站点根算起的绝对链接（404 页使用）：按配置的基址路径裁剪后再校验
+            if clean.startswith("/"):
+                base_path = urlparse(config.BASE_URL).path.rstrip("/") if config.BASE_URL else ""
+                if base_path and clean.startswith(base_path + "/"):
+                    clean = clean[len(base_path) + 1:]
+                elif base_path == "":
+                    clean = clean.lstrip("/")
+                else:
+                    continue
+            # 从站点根算起的绝对链接（404 页使用）：按配置的基址路径裁剪后再校验
+            if clean.startswith("/"):
+                base_path = urlparse(config.BASE_URL).path.rstrip("/") if config.BASE_URL else ""
+                if base_path and clean.startswith(base_path + "/"):
+                    clean = clean[len(base_path) + 1:]
+                elif base_path == "":
+                    clean = clean.lstrip("/")
+                else:
+                    continue
             if not clean:
                 continue
             resolved = os.path.normpath(os.path.join(base_dir, clean))
@@ -219,8 +247,9 @@ def run(rep: Report, expected_pages):
         else:
             xml = open(sitemap, encoding="utf-8").read()
             locs = re.findall(r"<loc>([^<]+)</loc>", xml)
-            if len(locs) != expected_pages:
-                rep.error("sitemap", f"条目数 {len(locs)} 与页面数 {expected_pages} 不一致")
+            # sitemap 不含 404 页
+            if len(locs) != expected_pages - 1:
+                rep.error("sitemap", f"条目数 {len(locs)} 与可收录页面数 {expected_pages - 1} 不一致")
             if RE_DOUBLE_ENC.search(xml):
                 rep.error("sitemap", "存在双重 URL 编码（%25 开头的二次编码）")
             if not all(u.startswith(config.BASE_URL) for u in locs):

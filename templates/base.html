@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="{{ base }}assets/pages.css">
 <link rel="stylesheet" href="{{ base }}assets/responsive.css">
 <script>document.documentElement.className += ' js';</script>
+{% block head %}{% endblock %}
 </head>
 <body>
 <a class="skip" href="#main">跳到主要内容</a>
@@ -56,7 +57,8 @@
       <div><h4>导航</h4>
         <a href="{{ base }}schools.html">学校库</a><br>
         <a href="{{ base }}policy.html">政策与更名</a><br>
-        <a href="{{ base }}about.html">数据说明</a></div>
+        <a href="{{ base }}about.html">数据说明</a><br>
+        <a href="{{ base }}changelog.html">更新日志</a></div>
       <div><h4>信度标注</h4>
         [A] 官方发布　[B] 权威媒体　[C] 家长圈口径</div>
     </div>

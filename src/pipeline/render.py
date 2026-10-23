@@ -7,6 +7,7 @@
 import json
 import os
 import re
+from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -117,6 +118,39 @@ def schools_page(env, schools, districts):
         base="", active="schools", nav=nav(), title="学校库",
         desc=f"南京 {len(schools)} 所中小学检索：支持多关键词、按学段/行政区/性质筛选。",
         canonical=canonical("schools.html"), total=len(schools),
+    )
+
+
+def root_prefix():
+    """站点根路径前缀。
+
+    404 页会在任意深层路径下被返回，相对路径会解析到那个不存在的位置，
+    因此 404 必须用「从站点根算起」的绝对路径。未配置基址（本地 file://）时返回空串。
+    """
+    if not config.BASE_URL:
+        return ""
+    path = urlparse(config.BASE_URL).path.rstrip("/")
+    return f"{path}/" if path else "/"
+
+
+def doc(env, pages, key, title=None, desc=None, eyebrow=None):
+    """通用内容页：更新日志等由 content/pages 驱动的静态页。"""
+    if key not in pages:
+        raise SystemExit(f"缺少内容页：content/pages/{key}.md")
+    page = pages[key]
+    return env.get_template("doc.html").render(
+        base="", active="", nav=nav(),
+        title=title or page["title"],
+        desc=desc or page["summary"],
+        canonical=canonical(f"{key}.html"),
+        html=page["html"], updated=page["updated"], eyebrow=eyebrow,
+    )
+
+
+def not_found(env):
+    return env.get_template("404.html").render(
+        base=root_prefix(), active="", nav=nav(), title="页面不存在",
+        desc="页面不存在：可回到学校库重新查找，或查看政策与更名对照。",
     )
 
 

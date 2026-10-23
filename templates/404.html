@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="notfound">
+    <div class="eyebrow">404</div>
+    <h1>这一页不存在</h1>
+    <p class="hint">链接可能来自旧版页面，或者学校已更名。可以试试下面这几种方式。</p>
+
+    <form class="hero-search nf-search" onsubmit="return false;">
+      <label class="sr-only" for="nfq">搜索学校</label>
+      <input id="nfq" type="search" placeholder="输入校名，如「琅琊路」「金中」">
+      <button type="button" onclick="nfGo()">找学校</button>
+    </form>
+
+    <div class="nf-links">
+      <a class="nf-card" href="{{ base }}schools.html">
+        <b>学校库</b><span>按学段、行政区、性质筛选</span></a>
+      <a class="nf-card" href="{{ base }}compare.html">
+        <b>对比</b><span>自选 2–4 所并排看</span></a>
+      <a class="nf-card" href="{{ base }}policy.html">
+        <b>政策与更名</b><span>2026 年规则变动、校名对照</span></a>
+      <a class="nf-card" href="{{ base }}about.html">
+        <b>数据说明</b><span>来源、信度与数据缺口</span></a>
+    </div>
+  </div>
+</div>
+<script>
+/* 404 页没有完整脚本上下文，这里自带最小搜索跳转 */
+function nfGo() {
+  var q = document.getElementById('nfq').value.trim();
+  location.href = '{{ base }}schools.html' + (q ? '?q=' + encodeURIComponent(q) : '');
+}
+</script>
+{% endblock %}

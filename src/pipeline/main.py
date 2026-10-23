@@ -40,6 +40,9 @@ def run():
         "compare.html": render.compare(env, schools),
         "policy.html": render.policy(env, pages),
         "about.html": render.about(env, schools, pages, web_counts),
+        "changelog.html": render.doc(env, pages, "changelog", title="更新日志",
+                                     desc="数据与站点的重要变更记录。", eyebrow="记录"),
+        "404.html": render.not_found(env),
     }
     for s in schools:
         outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at)
@@ -69,8 +72,8 @@ def run():
               encoding="utf-8") as f:
         f.write(render.schools_data(schools, index["districts"]))
 
-    urls = ["", "schools.html", "compare.html", "policy.html", "about.html"] \
-        + [s.url for s in schools]
+    urls = ["", "schools.html", "compare.html", "policy.html", "changelog.html",
+            "about.html"] + [s.url for s in schools]
     if config.BASE_URL:
         xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

@@ -1,0 +1,47 @@
+name: link-check
+
+# 官网链接健康度体检。
+# 学校官网会下线、改版，甚至域名被抢注——这类变化不会有人主动告知，
+# 只能定期探测。发现问题时本工作流失败，GitHub 会向仓库所有者发送通知。
+#
+# 触发：每周一 09:00（北京时间）、或手动执行。
+
+on:
+  schedule:
+    - cron: "0 1 * * 1"      # UTC 01:00 = 北京 09:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: pip install markdown jinja2 openpyxl
+
+      - name: 重建索引（体检依赖 index.json）
+        run: python src/build_index.py
+
+      - name: 合并人工核查结果
+        run: python src/merge_websites.py
+
+      - name: 逐条探测官网
+        # --strict：出现「须移除」（抢注/停机/停更）时以非 0 退出
+        run: python src/verify_websites.py --strict
+
+      - name: 上传体检明细
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-check
+          path: data/website_check.json
+          if-no-files-found: ignore
+          retention-days: 30
