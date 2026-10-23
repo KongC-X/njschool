@@ -92,11 +92,22 @@ def _mark_confidence(html):
     return "".join(out)
 
 
+KV_HEADS = ("项目", "内容", "信度")
+
+
 def _add_table_labels(html):
     """为每个 td 注入 data-label（取自表头）。
 
     窄屏下表格转为「标签 + 值」卡片布局，需要每个单元格自带字段名；
     仅靠 CSS 无法取到表头文本，因此在构建期写入。
+
+    档案里的表格有两种形态，窄屏表现不同：
+      1. 键值表（表头为 项目 / 内容 / 信度）：第一列本身就是字段名。
+         若照搬表头，卡片会显示「项目 | 学校全称」「内容 | 南京市xx」——
+         标签重复且无意义。故把第一列的文字提升为第二列的标签，
+         并把第一列标记为 kv-key 在窄屏隐藏，卡片直接读作
+         「学校全称 | 南京市琅琊路小学」。
+      2. 普通多列表：按表头顺序逐个注入即可。
     """
     def fix_table(m):
         table = m.group(0)
@@ -109,15 +120,34 @@ def _add_table_labels(html):
             return table
 
         body = body_m.group(1)
-        counter = {"i": 0}
+        is_kv = tuple(labels[:3]) == KV_HEADS
 
-        def sub_td(td_m):
-            idx = counter["i"] % len(labels)
-            counter["i"] += 1
-            label = labels[idx].replace('"', "&quot;")
-            return f'<td data-label="{label}"{td_m.group(1)}>'
+        if is_kv:
+            def fix_row(rm):
+                row = rm.group(0)
+                cells = re.findall(r"<td([^>]*)>(.*?)</td>", row, re.S)
+                if len(cells) < 2:
+                    return row
+                key = re.sub(r"<[^>]+>", "", cells[0][1]).strip().replace('"', "&quot;")
+                out = [f'<td class="kv-key" data-label="项目"{cells[0][0]}>{cells[0][1]}</td>',
+                       f'<td data-label="{key}"{cells[1][0]}>{cells[1][1]}</td>']
+                for i, (attrs, content) in enumerate(cells[2:], start=2):
+                    label = labels[i] if i < len(labels) else ""
+                    out.append(f'<td data-label="{label}"{attrs}>{content}</td>')
+                return "<tr>" + "".join(out) + "</tr>"
 
-        new_body = re.sub(r"<td([^>]*)>", sub_td, body)
+            new_body = re.sub(r"<tr>.*?</tr>", fix_row, body, flags=re.S)
+        else:
+            counter = {"i": 0}
+
+            def sub_td(td_m):
+                idx = counter["i"] % len(labels)
+                counter["i"] += 1
+                label = labels[idx].replace('"', "&quot;")
+                return f'<td data-label="{label}"{td_m.group(1)}>'
+
+            new_body = re.sub(r"<td([^>]*)>", sub_td, body)
+
         return table.replace(body, new_body, 1)
 
     return re.sub(r"<table>.*?</table>", fix_table, html, flags=re.S)

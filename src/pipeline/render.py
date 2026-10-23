@@ -81,16 +81,20 @@ def home(env, schools, districts, pages, web_counts):
     )
 
 
+# 列表页数据列顺序（前端按此顺序解包）。用数组而非对象：204 条记录下可省约 30KB。
+LIST_COLS = ("name", "short", "district", "level", "type", "tier", "tagline")
+
+
 def schools_page(env, schools, districts):
-    slim = [{
-        "name": s.name, "short": s.short, "district": s.district, "level": s.level,
-        "type": s.type, "tier": s.tier, "tagline": s.tagline, "url": s.url,
-    } for s in schools]
+    # 详情页地址由「学段-校名」推导（与 load.School.url 的编码规则一致），
+    # 因此不必在数据里重复存 204 条 URL。
+    slim = [[getattr(s, c) for c in LIST_COLS] for s in schools]
 
     data_js = json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     dist_js = json.dumps(districts, ensure_ascii=False)
     schools_js = env.get_template("schools.js").render(
-        schools_json=data_js, districts_json=dist_js)
+        schools_json=data_js, districts_json=dist_js,
+        cols_js=json.dumps(LIST_COLS, ensure_ascii=False))
 
     return env.get_template("schools.html").render(
         base="", active="schools", nav=nav(), title="学校库",

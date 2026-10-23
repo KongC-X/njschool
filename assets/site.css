@@ -44,12 +44,12 @@ img{max-width:100%;height:auto}
    布局
    ------------------------------------------------------------ */
 .wrap{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5)}
-.sec{padding:var(--s-8) 0;border-top:1px solid var(--line)}
-.sec:first-of-type{border-top:0}
+.sec{padding:var(--s-8) 0}
+.sec + .sec{border-top:1px solid var(--line)}
 .sec-head{margin-bottom:var(--s-5)}
 .eyebrow{font-size:var(--f-2xs);font-weight:700;letter-spacing:.12em;
   text-transform:uppercase;color:var(--accent);margin-bottom:var(--s-2)}
-.sec-title{font-size:var(--f-xl);font-weight:700}
+.sec-title{font-size:var(--f-xl);font-weight:700;letter-spacing:-.01em}
 .hint{color:var(--muted);font-size:var(--f-sm);margin:var(--s-1) 0 0}
 .sub-title{font-size:var(--f-md);margin:var(--s-7) 0 var(--s-3)}
 .page-title{font-size:var(--f-2xl);letter-spacing:-.02em;margin:var(--s-7) 0 var(--s-2)}
@@ -181,6 +181,7 @@ html.js .controls[data-open="false"] #q{display:none}
 .card .more{margin-top:var(--s-3);font-size:var(--f-xs);color:var(--accent);font-weight:600}
 
 /* 空状态 */
+.grid > .empty{grid-column:1/-1}
 .empty{text-align:center;padding:var(--s-8) var(--s-4);color:var(--muted);
   border:1px dashed var(--line-strong);border-radius:var(--r-lg);background:var(--surface)}
 .empty strong{display:block;color:var(--ink);font-size:var(--f-md);margin-bottom:var(--s-1)}
@@ -199,7 +200,7 @@ html.js .controls[data-open="false"] #q{display:none}
   box-shadow:var(--sh-1)}
 .article .table-wrap{box-shadow:none}
 table{width:100%;border-collapse:collapse;font-size:var(--f-sm)}
-thead th{position:sticky;top:0;background:var(--surface-2);text-align:left;
+thead th{background:var(--surface-2);text-align:left;
   padding:var(--s-3) var(--s-4);font-size:var(--f-2xs);font-weight:700;
   color:var(--muted);letter-spacing:.04em;white-space:nowrap;
   border-bottom:1px solid var(--line)}
@@ -222,8 +223,8 @@ td strong{color:var(--ink);font-weight:600}
 /* ------------------------------------------------------------
    徽章
    ------------------------------------------------------------ */
-.badges{display:flex;gap:var(--s-1);flex-wrap:wrap;margin-bottom:var(--s-2)}
-.b{font-size:var(--f-2xs);padding:3px 8px;border-radius:6px;font-weight:600;
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--s-2)}
+.b{font-size:var(--f-2xs);padding:3px 9px;border-radius:6px;font-weight:600;
   line-height:1.5;white-space:nowrap}
 .b-lv{background:var(--accent-weak);color:var(--accent-text)}
 .b-pub{background:var(--green-bg);color:var(--green)}
@@ -238,6 +239,7 @@ td strong{color:var(--ink);font-weight:600}
 .crumb a:hover{color:var(--accent-text)}
 
 .detail-head{background:var(--surface);border:1px solid var(--line);
+  border-top:3px solid var(--accent);
   border-radius:var(--r-lg);padding:var(--s-6);margin:0 0 var(--s-5);
   box-shadow:var(--sh-1)}
 .detail-head h1{font-size:var(--f-2xl);letter-spacing:-.025em;margin:0 0 var(--s-3)}
@@ -268,7 +270,7 @@ td strong{color:var(--ink);font-weight:600}
 .toc-title{font-size:var(--f-2xs);letter-spacing:.1em;color:var(--muted);
   margin-bottom:var(--s-2);text-transform:uppercase}
 .toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
-.toc li a{display:block;padding:5px 12px;color:var(--muted);font-size:var(--f-xs);
+.toc li a{display:block;padding:5px 12px;line-height:1.5;color:var(--muted);font-size:var(--f-xs);
   border-left:2px solid transparent;margin-left:-2px;
   transition:color var(--t-fast),border-color var(--t-fast)}
 .toc li a:hover{color:var(--text);text-decoration:none;border-left-color:var(--line-strong)}
@@ -294,6 +296,12 @@ td strong{color:var(--ink);font-weight:600}
   border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--muted);
   font-size:var(--f-sm)}
 .article blockquote strong{color:var(--text)}
+/* 首段引用固定是「一句话定位」，用强调色与普通引用区分 */
+.article > blockquote:first-of-type{background:var(--accent-weak);
+  border-left-color:var(--accent);color:var(--text)}
+/* 首段引用固定是「一句话定位」，用强调色与普通引用区分 */
+.article > blockquote:first-of-type{background:var(--accent-weak);
+  border-left-color:var(--accent);color:var(--text)}
 .article code{background:var(--surface-2);padding:1px 6px;border-radius:5px;
   font-size:var(--f-xs);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .article hr{border:0;border-top:1px solid var(--line);margin:var(--s-6) 0}
@@ -358,12 +366,12 @@ footer a:hover{color:var(--accent-text)}
     width:100%;margin:var(--s-3) 0;padding:11px var(--s-4);min-height:44px;
     border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
     color:var(--text);font-size:var(--f-sm);font-family:inherit;cursor:pointer}
-  .filter-toggle::after{content:"▾";font-size:11px;color:var(--muted);
+  .filter-toggle::after{content:"▾";font-size:var(--f-2xs);color:var(--muted);
     transition:transform var(--t-fast)}
   .filter-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
 
-  #q{font-size:16px;padding:12px 14px}
-  .chip{min-height:38px;padding:8px 14px;font-size:14px}
+  #q{font-size:var(--f-md);padding:12px 14px}
+  .chip{min-height:38px;padding:8px 14px;font-size:var(--f-sm)}
 
   .detail-head{padding:var(--s-4)}
   .detail-head h1{font-size:var(--f-xl)}
@@ -392,6 +400,7 @@ footer a:hover{color:var(--accent-text)}
   .article .table-wrap td > *{min-width:0}
 
   footer .cols{gap:var(--s-5)}
+  .vnote{margin-left:0}
 }
 
 /* ------------------------------------------------------------
@@ -400,8 +409,8 @@ footer a:hover{color:var(--accent-text)}
 @media (max-width:480px){
   .wrap{padding:0 var(--s-4)}
   .nav-in{gap:var(--s-2);padding:0 var(--s-4)}
-  .brand{font-size:14px}
-  .brand-mark{width:24px;height:24px;font-size:11px}
+  .brand{font-size:var(--f-sm)}
+  .brand-mark{width:24px;height:24px;font-size:var(--f-2xs)}
   .nav-links{gap:0}
   .nav-links a{padding:7px;font-size:var(--f-2xs)}
   #themeBtn{width:34px;height:34px;margin-left:var(--s-1)}
@@ -425,12 +434,55 @@ footer a:hover{color:var(--accent-text)}
 .article > h2:first-of-type{margin-top:var(--s-6)}
 .article .hint{margin-bottom:var(--s-4)}
 
+
+
 /* ------------------------------------------------------------
-   文档型页面（政策 / 数据说明）
-   与档案正文共用 .article 容器，但标题层级更接近独立文章
+   内容型提示框（首页年度变化等）：比直接放文章容器更轻
    ------------------------------------------------------------ */
-.article .doc-title{font-size:var(--f-2xl);margin:var(--s-1) 0 var(--s-2);
-  letter-spacing:-.02em}
-.article > .eyebrow{margin-top:var(--s-4)}
-.article > h2:first-of-type{margin-top:var(--s-6)}
-.article .hint{margin-bottom:var(--s-4)}
+.callout{background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:var(--s-2) var(--s-5) var(--s-4);
+  box-shadow:var(--sh-1)}
+.callout ul{padding-left:var(--s-5);margin:var(--s-3) 0 0}
+.callout li{margin:var(--s-2) 0;font-size:var(--f-sm);color:var(--text);
+  line-height:var(--lh-base)}
+.callout li strong{color:var(--ink)}
+
+/* 表格列宽工具（避免在模板里写行内样式） */
+.col-status{width:180px}
+.contents{display:contents}
+
+/* ------------------------------------------------------------
+   移动端：键值表不再重复「项目 / 内容」标签
+   构建期已把「项目」列的值写入内容列的 data-label，
+   此列在窄屏隐藏，卡片直接显示「学校全称 | 南京市琅琊路小学」
+   ------------------------------------------------------------ */
+@media (max-width:720px){
+  .article .table-wrap td.kv-key{display:none}
+}
+
+/* ------------------------------------------------------------
+   打印：家长打印施教区、招生计划是真实场景
+   ------------------------------------------------------------ */
+@media print{
+  .nav,.toc,.filter-toggle,footer .cols,.skip{display:none!important}
+  body{background:var(--bg);color:var(--text);font-size:11pt}
+  .article,.detail-head,.callout,.table-wrap{box-shadow:none;border-color:var(--line)}
+  .article a::after{content:" (" attr(href) ")";font-size:9pt;color:var(--muted)}
+  .detail-grid{display:block}
+  .article{page-break-inside:auto}
+  .article .table-wrap{overflow:visible}
+}
+
+/* 超窄屏（≤420px）：隐藏字标只留图标块，避免导航换行
+   —— 链接仍保留 aria-label，读屏可获知站点名 */
+@media (max-width:420px){
+  .brand-text{display:none}
+  .nav-links a{padding:7px 8px}
+}
+
+/* 超窄屏（≤420px）：隐藏字标只留图标块，避免导航换行
+   —— 链接仍保留 aria-label，读屏可获知站点名 */
+@media (max-width:420px){
+  .brand-text{display:none}
+  .nav-links a{padding:7px 8px}
+}

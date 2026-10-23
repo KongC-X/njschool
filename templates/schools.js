@@ -1,6 +1,15 @@
 {# 学校库的前端筛选脚本（构建期注入数据） #}
-const DATA = {{ schools_json | safe }};
+const COLS = {{ cols_js | safe }};
+const RAW = {{ schools_json | safe }};
 const ALL_DISTRICTS = {{ districts_json | safe }};
+
+/* 数组 → 对象；详情页地址按「学段-校名」推导，与构建期生成规则一致 */
+const DATA = RAW.map(function (row) {
+  var o = {};
+  COLS.forEach(function (k, i) { o[k] = row[i]; });
+  o.url = 'schools/' + encodeURIComponent(o.level + '-' + o.name) + '.html';
+  return o;
+});
 const state = { q: new URLSearchParams(location.search).get('q') || '', lv:'', dist:'', type:'' };
 const grid = document.getElementById('grid'), cnt = document.getElementById('count');
 

@@ -108,3 +108,14 @@ html[data-theme="dark"]{
     --sh-2:0 8px 22px rgba(0,0,0,.55);
   }
 }
+
+/* 打印：纸张永远是白底黑字，与屏幕主题无关。
+   在令牌层覆盖，组件样式无需为打印写第二套颜色。 */
+@media print{
+  :root{
+    --bg:#fff; --surface:#fff; --surface-2:#fff;
+    --text:#000; --ink:#000; --muted:#555; --line:#bbb; --line-strong:#999;
+    --accent:#000; --accent-text:#000; --accent-weak:#fff;
+    --sh-1:none; --sh-2:none;
+  }
+}
