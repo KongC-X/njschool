@@ -97,7 +97,6 @@ img{max-width:100%;height:auto}
 
 .filter-toggle{display:none}
 html.js .controls[data-open="false"] .frow{display:none}
-html.js .controls[data-open="false"] #q{display:none}
 .filter-count{background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);
   font-size:var(--f-2xs);line-height:18px;padding:0 7px;font-weight:600}
 .filter-count[hidden]{display:none}
@@ -221,9 +220,6 @@ footer a:hover{color:var(--accent-text)}
    稿件是给家长查资料用的，大屏下应该「填满、字够大」，
    而不是把 1120px 的内容居中留白。字号随视口分两档放大。
    ------------------------------------------------------------ */
-
-/* 已选项容器（对比页） */
-.chips{display:flex;gap:var(--s-2);flex-wrap:wrap}
 
 /* 已选项容器（对比页） */
 .chips{display:flex;gap:var(--s-2);flex-wrap:wrap}

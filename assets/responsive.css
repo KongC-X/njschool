@@ -44,10 +44,12 @@
   .grid{grid-template-columns:1fr}
   .dist-grid{grid-template-columns:repeat(2,1fr)}
 
-  .filter-toggle{display:flex;align-items:center;justify-content:center;gap:var(--s-2);
-    width:100%;margin:var(--s-3) 0;padding:11px var(--s-4);min-height:44px;
-    border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
-    color:var(--text);font-size:var(--f-sm);font-family:inherit;cursor:pointer}
+  .filter-toggle{display:flex;align-items:center;justify-content:space-between;
+    gap:var(--s-2);width:100%;margin:var(--s-2) 0 var(--s-3);padding:11px var(--s-4);
+    min-height:44px;border:1px solid var(--line);border-radius:var(--r-md);
+    background:var(--surface);color:var(--text);font-size:var(--f-sm);
+    font-family:inherit;cursor:pointer;text-align:left}
+  .filter-toggle .filter-count{margin-left:auto;margin-right:var(--s-2)}
   .filter-toggle::after{content:"▾";font-size:var(--f-2xs);color:var(--muted);
     transition:transform var(--t-fast)}
   .filter-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}

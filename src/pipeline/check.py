@@ -84,6 +84,70 @@ def run(rep: Report, expected_pages):
                       f"表格设了 min-width:{mw.group(1)}px 但移动端未覆盖为 0，"
                       f"窄屏会整页横向溢出")
 
+    # 2d) 源文件卫生：重复定义检测
+    # 反复踩过的坑：用追加方式改文件时，同一段 CSS 或 JS 被写入两次。
+    # CSS 重复只是冗余；JS 重复会绑定两个监听器，同一次点击里互相抵消
+    # （筛选按钮点不动就是这么来的）。故 JS 重复按错误处理。
+    import collections as _c
+
+    for sheet in ("site.css", "pages.css", "responsive.css"):
+        f = os.path.join(config.SITE, "assets", sheet)
+        if not os.path.isfile(f):
+            continue
+        text = open(f, encoding="utf-8").read()
+        sels = re.findall(r"(?m)^([.#][^{\n]+)\{", text)
+        dups = [sel for sel, n in _c.Counter(x.strip() for x in sels).items() if n > 1]
+        if dups:
+            rep.warn(f"assets/{sheet}", f"同一文件内重复定义 {len(dups)} 个选择器：{dups[:3]}")
+
+    js = os.path.join(config.SITE, "assets", "app.js")
+    if os.path.isfile(js):
+        lines = [ln.rstrip() for ln in open(js, encoding="utf-8").read().splitlines()]
+        blocks = [tuple(lines[i:i + 8]) for i in range(len(lines) - 8)
+                  if lines[i].strip() and lines[i].lstrip().startswith(("(function", "/*", "var ", "function "))]
+        seen = {}
+        for b in blocks:
+            if len(set(x for x in b if x.strip())) < 6:
+                continue
+            if b in seen:
+                rep.error("assets/app.js",
+                          f"检测到重复代码块（约第 {lines.index(b[0]) + 1} 行起），"
+                          f"重复绑定监听器会导致交互失效")
+                break
+            seen[b] = True
+
+    # 2d) 源文件卫生：重复定义检测
+    # 反复踩过的坑：用追加方式改文件时，同一段 CSS 或 JS 被写入两次。
+    # CSS 重复只是冗余；JS 重复会绑定两个监听器，同一次点击里互相抵消
+    # （筛选按钮点不动就是这么来的）。故 JS 重复按错误处理。
+    import collections as _c
+
+    for sheet in ("site.css", "pages.css", "responsive.css"):
+        f = os.path.join(config.SITE, "assets", sheet)
+        if not os.path.isfile(f):
+            continue
+        text = open(f, encoding="utf-8").read()
+        sels = re.findall(r"(?m)^([.#][^{\n]+)\{", text)
+        dups = [sel for sel, n in _c.Counter(x.strip() for x in sels).items() if n > 1]
+        if dups:
+            rep.warn(f"assets/{sheet}", f"同一文件内重复定义 {len(dups)} 个选择器：{dups[:3]}")
+
+    js = os.path.join(config.SITE, "assets", "app.js")
+    if os.path.isfile(js):
+        lines = [ln.rstrip() for ln in open(js, encoding="utf-8").read().splitlines()]
+        blocks = [tuple(lines[i:i + 8]) for i in range(len(lines) - 8)
+                  if lines[i].strip() and lines[i].lstrip().startswith(("(function", "/*", "var ", "function "))]
+        seen = {}
+        for b in blocks:
+            if len(set(x for x in b if x.strip())) < 6:
+                continue
+            if b in seen:
+                rep.error("assets/app.js",
+                          f"检测到重复代码块（约第 {lines.index(b[0]) + 1} 行起），"
+                          f"重复绑定监听器会导致交互失效")
+                break
+            seen[b] = True
+
     for path in html_files:
         rel = os.path.relpath(path, config.SITE)
         html = open(path, encoding="utf-8").read()

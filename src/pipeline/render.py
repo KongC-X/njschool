@@ -80,6 +80,7 @@ def home(env, schools, districts, pages, web_counts):
         desc=f"南京 {len(schools)} 所中小学公开信息汇编：施教区、招生、投档线，逐条标注信度。",
         canonical=canonical(), total=len(schools), stats=stats,
         level_cards=level_cards, district_cards=district_cards, pages=pages,
+        districts=districts,
     )
 
 

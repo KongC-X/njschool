@@ -41,9 +41,6 @@
 /* 收录总量是页面的核心数字，给它更高的视觉权重，其余四项作为构成说明 */
 .stat:first-child b{font-size:calc(var(--f-2xl) * 1.45);color:var(--accent)}
 .stat:first-child span{color:var(--text)}
-/* 收录总量是页面的核心数字，给它更高的视觉权重，其余四项作为构成说明 */
-.stat:first-child b{font-size:calc(var(--f-2xl) * 1.45);color:var(--accent)}
-.stat:first-child span{color:var(--text)}
 .stat b{display:block;font-size:var(--f-2xl);line-height:1.15;color:var(--ink);
   letter-spacing:-.02em}
 .stat span{display:block;margin-top:var(--s-1);font-size:var(--f-xs);color:var(--muted)}
@@ -199,55 +196,6 @@
 @media (max-width:420px){
   .brand-text{display:none}
   .nav-links a{padding:7px 8px}
-}
-
-
-/* ------------------------------------------------------------
-   对比页
-   ------------------------------------------------------------ */
-.picker{position:relative;margin:var(--s-4) 0}
-.pick-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);
-  margin:0;padding:var(--s-1);list-style:none;background:var(--surface);
-  border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh-2);
-  max-height:min(320px, 50vh);overflow:auto}
-.pick-list li{display:flex;justify-content:space-between;align-items:baseline;
-  gap:var(--s-3);padding:9px var(--s-3);border-radius:var(--r-sm);
-  cursor:pointer;font-size:var(--f-sm)}
-.pick-list li:hover,.pick-list li:focus{background:var(--accent-weak);outline:none}
-.pick-list em{color:var(--muted);font-style:normal;font-size:var(--f-xs);white-space:nowrap}
-.pick-empty{color:var(--muted);cursor:default}
-
-#picked{margin:0 0 var(--s-4)}
-/* 每列上限 560px：2 所对比时不会拉到 1000px 宽导致行长失控，
-   整体居中而不是贴左留白 */
-.cmp{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));
-  gap:var(--s-4);align-items:start;
-  max-width:calc(var(--n,2) * 560px + (var(--n,2) - 1) * var(--s-4));
-  margin-inline:auto}
-.cmp-col{background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-lg);padding:var(--s-5);box-shadow:var(--sh-1)}
-.cmp-name{font-size:var(--f-md);margin-bottom:var(--s-2);line-height:1.4}
-.cmp-name a{color:var(--ink)}
-.cmp-name a:hover{color:var(--accent-text);text-decoration:none}
-.cmp-dl{margin:var(--s-3) 0 0}
-.cmp-dl dt{font-size:var(--f-2xs);color:var(--muted);margin-top:var(--s-2)}
-.cmp-dl dd{margin:2px 0 0;font-size:var(--f-sm);color:var(--text);line-height:1.6}
-.cmp .more{display:inline-block;margin-top:var(--s-4);font-size:var(--f-xs);
-  font-weight:600;color:var(--accent)}
-
-.cmp-actions{display:flex;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-5)}
-.btn-ghost{padding:9px 16px;border-radius:var(--r-md);border:1px solid var(--line);
-  background:var(--surface);color:var(--text);font-size:var(--f-sm);
-  font-family:inherit;cursor:pointer;min-height:40px}
-.btn-ghost:hover{border-color:var(--accent);color:var(--accent-text)}
-.btn-ghost[hidden]{display:none}
-
-/* 搜索命中高亮 */
-mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3px}
-
-@media (max-width:720px){
-  .cmp{grid-template-columns:1fr}
-  .cmp-col{padding:var(--s-4)}
 }
 
 
