@@ -17,7 +17,7 @@ PY := $(shell [ -x "$(VENV_PY)" ] && echo "$(VENV_PY)" || echo python3)
 BASE ?=
 PORT ?= 8788
 
-.PHONY: help all site export index validate check preview clean verify-web
+.PHONY: help all site export index validate check audit preview clean verify-web
 
 help:
 	@echo "可用命令："
@@ -28,6 +28,7 @@ help:
 	@echo "  make validate   仅校验数据（不写文件）"
 	@echo "  make check      语法检查 + 数据校验"
 	@echo "  make verify-web 体检全部学校官网链接"
+	@echo "  make audit      盘点数据缺口与收录遗漏"
 	@echo "  make preview    本地预览 127.0.0.1:$(PORT)"
 	@echo "  make clean      删除 site/ 与导出件"
 	@echo ""
@@ -47,6 +48,9 @@ export: index
 
 validate:
 	$(PY) src/validate.py
+
+audit: index
+	$(PY) src/audit_data.py
 
 check:
 	$(PY) -m py_compile src/*.py src/pipeline/*.py && echo "语法检查通过"
