@@ -296,9 +296,7 @@ td strong{color:var(--ink);font-weight:600}
   border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--muted);
   font-size:var(--f-sm)}
 .article blockquote strong{color:var(--text)}
-/* 首段引用固定是「一句话定位」，用强调色与普通引用区分 */
-.article > blockquote:first-of-type{background:var(--accent-weak);
-  border-left-color:var(--accent);color:var(--text)}
+
 /* 首段引用固定是「一句话定位」，用强调色与普通引用区分 */
 .article > blockquote:first-of-type{background:var(--accent-weak);
   border-left-color:var(--accent);color:var(--text)}
