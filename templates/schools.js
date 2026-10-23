@@ -49,8 +49,13 @@ function render(){
     return true;
   });
   cnt.textContent = '匹配 ' + rows.length + ' 所 / 共 ' + DATA.length + ' 所';
+  updateFilterBadge();
   if(!rows.length){
-    grid.innerHTML = '<div class="empty">没有匹配的学校，试试换个关键词或清空筛选。</div>';
+    grid.innerHTML = '<div class="empty"><strong>没有匹配的学校</strong>'
+      + '试试缩短关键词，或清除部分筛选条件。'
+      + '<br><button type="button" class="btn-reset" id="resetFilters">清除全部筛选</button></div>';
+    const btn = document.getElementById('resetFilters');
+    if(btn) btn.addEventListener('click', resetAll);
     return;
   }
   grid.innerHTML = rows.map(function(s){
@@ -68,6 +73,37 @@ function render(){
       + '<a class="more" href="' + s.url + '">查看完整档案 →</a>'
       + '</div>';
   }).join('');
+}
+
+/* 清空全部筛选（空状态里的按钮） */
+function resetAll(){
+  state.q = ''; state.lv = ''; state.dist = ''; state.type = '';
+  const input = document.getElementById('q');
+  if(input) input.value = '';
+  ['f-lv', 'f-dist', 'f-type'].forEach(function(id){
+    Array.prototype.forEach.call(document.getElementById(id).children, function(c){
+      const on = c.dataset.v === '';
+      c.classList.toggle('on', on);
+      c.setAttribute('aria-pressed', String(on));
+    });
+  });
+  render();
+}
+
+/* 移动端筛选按钮上的已选条件计数 */
+function updateFilterBadge(){
+  const badge = document.getElementById('filterCount');
+  if(!badge) return;
+  const n = (state.lv ? 1 : 0) + (state.dist ? 1 : 0) + (state.type ? 1 : 0)
+            + (state.q.trim() ? 1 : 0);
+  badge.textContent = String(n);
+  badge.hidden = n === 0;
+}
+
+/* 移动端默认折叠筛选，桌面端保持展开 */
+if(matchMedia('(max-width:720px)').matches){
+  const box = document.getElementById('filters');
+  if(box) box.dataset.open = 'false';
 }
 
 document.getElementById('q').value = state.q;

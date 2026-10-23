@@ -27,6 +27,8 @@ def render(text, toc_depth=2):
         }},
     )
     html = md.convert(text)
+    html = _add_table_labels(html)
+    html = _mark_confidence(html)
     return _wrap_tables(html), _build_toc(md.toc_tokens)
 
 
@@ -49,6 +51,76 @@ def _protect_bracket_annotations(text):
         return r"\[" + label + r"\](" + target + ")"
 
     return RE_BRACKET_ANNO.sub(repl, text)
+
+
+RE_CODE = re.compile(r"<code>.*?</code>", re.S)
+CONF_META = {
+    "A": ("conf-a", "官方发布：学校官网、教育局、招考院"),
+    "B": ("conf-b", "权威媒体转述"),
+    "C": ("conf-c", "家长圈口径，需交叉验证"),
+}
+
+
+def _badge(k):
+    cls, title = CONF_META[k]
+    return f'<span class="conf {cls}" title="{title}">{k}</span>'
+
+
+def _mark_confidence(html):
+    """把信度标记渲染为语义色徽章。
+
+    档案中标记有两种形态，需分别处理：
+      1. 行内代码 `` `[A]` ``——作者用反引号包住，渲染为 <code>[A]</code>
+      2. 表格「信度」列的裸字母 A / B / C
+    直接替换裸字母会造成大量误判（例如选项字母），故只处理已确认的信度列。
+    """
+    # ① 行内代码形式
+    html = re.sub(r"<code>\[([ABC])\]</code>", lambda m: _badge(m.group(1)), html)
+
+    # ② 信度列单元格（data-label 已在 _add_table_labels 中注入）
+    html = re.sub(r'(<td data-label="信度"[^>]*>)\s*([ABC])\s*(</td>)',
+                  lambda m: m.group(1) + _badge(m.group(2)) + m.group(3), html)
+
+    # ③ 正文中直接书写的 [A]（跳过 <code> 内的其它内容）
+    parts = RE_CODE.split(html)
+    codes = RE_CODE.findall(html)
+    out = []
+    for i, part in enumerate(parts):
+        out.append(re.sub(r"\[([ABC])\]", lambda m: _badge(m.group(1)), part))
+        if i < len(codes):
+            out.append(codes[i])
+    return "".join(out)
+
+
+def _add_table_labels(html):
+    """为每个 td 注入 data-label（取自表头）。
+
+    窄屏下表格转为「标签 + 值」卡片布局，需要每个单元格自带字段名；
+    仅靠 CSS 无法取到表头文本，因此在构建期写入。
+    """
+    def fix_table(m):
+        table = m.group(0)
+        heads = re.findall(r"<th[^>]*>(.*?)</th>", table, re.S)
+        labels = [re.sub(r"<[^>]+>|&nbsp;", "", h).strip() for h in heads]
+        if not labels:
+            return table
+        body_m = re.search(r"<tbody>(.*?)</tbody>", table, re.S)
+        if not body_m:
+            return table
+
+        body = body_m.group(1)
+        counter = {"i": 0}
+
+        def sub_td(td_m):
+            idx = counter["i"] % len(labels)
+            counter["i"] += 1
+            label = labels[idx].replace('"', "&quot;")
+            return f'<td data-label="{label}"{td_m.group(1)}>'
+
+        new_body = re.sub(r"<td([^>]*)>", sub_td, body)
+        return table.replace(body, new_body, 1)
+
+    return re.sub(r"<table>.*?</table>", fix_table, html, flags=re.S)
 
 
 def _wrap_tables(html):

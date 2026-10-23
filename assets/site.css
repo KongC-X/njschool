@@ -12,15 +12,20 @@ body{margin:0;background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.wrap{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5)}
 
 /* ===== 顶部导航 ===== */
 .nav{position:sticky;top:0;z-index:50;background:var(--panel);
   border-bottom:1px solid var(--line)}
-.nav-in{max-width:1120px;margin:0 auto;padding:0 20px;height:56px;
-  display:flex;align-items:center;gap:24px}
-.brand{font-weight:700;font-size:16px;letter-spacing:-.01em;color:var(--text)}
+.nav-in{max-width:var(--w-wide);margin:0 auto;padding:0 var(--s-5);height:56px;
+  display:flex;align-items:center;gap:var(--s-6)}
+/* 品牌：图标块 + 字标。图标用文字「宁」，比 emoji 在各平台渲染更一致 */
+.brand{display:inline-flex;align-items:center;gap:var(--s-2);
+  font-weight:700;font-size:var(--f-md);letter-spacing:-.01em;color:var(--text)}
 .brand:hover{text-decoration:none}
+.brand-mark{width:26px;height:26px;flex:none;border-radius:7px;background:var(--accent);
+  color:#fff;display:grid;place-items:center;font-size:var(--f-sm);font-weight:700;
+  letter-spacing:0;line-height:1}
 .brand em{font-style:normal;color:var(--accent)}
 .nav-links{display:flex;gap:4px;margin-left:auto;align-items:center}
 .nav-links a{color:var(--muted);font-size:14px;padding:6px 12px;border-radius:8px}
@@ -30,8 +35,8 @@ a:hover{text-decoration:underline}
   width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1}
 
 /* ===== 首页 ===== */
-.hero{padding:64px 0 40px;text-align:center}
-.hero h1{font-size:34px;margin:0 0 12px;letter-spacing:-.02em}
+.hero{padding:var(--s-9) 0 var(--s-8);text-align:center}
+.hero h1{font-size:var(--f-3xl);margin:0 0 var(--s-3);letter-spacing:-.02em;line-height:var(--lh-tight)}
 .hero p{color:var(--muted);max-width:640px;margin:0 auto 24px}
 .hero-search{max-width:520px;margin:0 auto;display:flex;gap:8px}
 .hero-search input{flex:1;padding:12px 16px;font-size:15px;border:1px solid var(--line);
@@ -43,8 +48,8 @@ a:hover{text-decoration:underline}
   gap:12px;margin:40px 0}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
   padding:18px;box-shadow:var(--shadow);text-align:center}
-.stat b{display:block;font-size:28px;line-height:1.2;letter-spacing:-.02em}
-.stat span{font-size:12.5px;color:var(--muted)}
+.stat b{display:block;font-size:var(--f-2xl);line-height:1.15;letter-spacing:-.02em}
+.stat span{font-size:var(--f-xs);color:var(--muted)}
 .sec{padding:28px 0}
 .sec h2{font-size:20px;margin:0 0 4px;letter-spacing:-.01em}
 .sec .hint{color:var(--muted);font-size:13px;margin-bottom:16px}
@@ -223,3 +228,84 @@ footer a:hover{color:var(--accent)}
 .page-title{font-size:24px;margin:22px 0 6px;letter-spacing:-.01em}
 .page-sub{color:var(--muted);font-size:13.5px;margin:0 0 4px}
 @media (max-width:720px){ .page-title{font-size:20px;margin-top:16px} }
+
+/* ============================================================
+   P2 组件补充
+   ============================================================ */
+
+/* 正文可读性：段落与列表限制行宽（表格不限制，仍占满） */
+.article > p,
+.article > ul,
+.article > ol,
+.article > blockquote{max-width:72ch}
+.article > p{line-height:var(--lh-base)}
+
+/* 信度徽章：把正文里的 [A]/[B]/[C] 由纯文字变为语义色标记。
+   颜色含义固定：A 绿（官方）/ B 蓝（媒体）/ C 橙（家长圈）。 */
+.conf{display:inline-block;min-width:19px;padding:0 5px;border-radius:4px;
+  font-size:var(--f-2xs);font-weight:700;line-height:18px;text-align:center;
+  vertical-align:1px;cursor:help}
+.conf-a{background:var(--green-bg);color:var(--green)}
+.conf-b{background:var(--accent-soft);color:var(--accent)}
+.conf-c{background:var(--amber-bg);color:var(--amber)}
+
+/* 空状态：图标 + 说明 + 明确下一步 */
+.empty{text-align:center;padding:var(--s-8) var(--s-4);color:var(--muted);
+  border:1px dashed var(--line);border-radius:var(--radius);background:var(--panel)}
+.empty strong{display:block;color:var(--text);font-size:var(--f-md);margin-bottom:var(--s-1)}
+.empty .btn-reset{margin-top:var(--s-4);padding:9px 18px;border-radius:var(--r-md);
+  border:1px solid var(--line);background:var(--panel);color:var(--text);
+  font-size:var(--f-sm);font-family:inherit;cursor:pointer;min-height:40px}
+.empty .btn-reset:hover{border-color:var(--accent);color:var(--accent)}
+
+/* 筛选抽屉：移动端默认折叠，由按钮展开；桌面端始终展开 */
+.filter-toggle{display:none}
+html.js .controls[data-open="false"] .frow{display:none}
+html.js .controls[data-open="false"] #q{display:none}
+
+@media (max-width:720px){
+  .filter-toggle{display:flex;align-items:center;justify-content:center;gap:var(--s-2);
+    width:100%;margin:var(--s-3) 0 var(--s-2);padding:11px var(--s-4);
+    border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);
+    color:var(--text);font-size:var(--f-sm);font-family:inherit;cursor:pointer;
+    min-height:44px}
+  .filter-toggle::after{content:"▾";font-size:11px;color:var(--muted);transition:transform var(--t-fast)}
+  .filter-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
+  .filter-count{background:var(--accent);color:#fff;border-radius:var(--r-pill);
+    font-size:11px;line-height:18px;padding:0 7px}
+  .filter-count[hidden]{display:none}
+
+  /* 触控目标与字号：16px 可避免 iOS 聚焦时页面缩放 */
+  #q{font-size:16px;padding:12px 14px}
+  .chip{min-height:38px;padding:8px 14px;font-size:14px}
+  .nav-links a{padding:8px 10px}
+  #themeBtn{width:38px;height:38px}
+
+  /* 正文表格卡片化：用 data-label 把表头变成每行的字段名，替代横向滚动 */
+  .article .table-wrap{overflow:visible;border:0;background:transparent}
+  .article .table-wrap table,
+  .article .table-wrap thead,
+  .article .table-wrap tbody,
+  .article .table-wrap tr,
+  .article .table-wrap td{display:block;width:100%}
+  .article .table-wrap thead{display:none}
+  .article .table-wrap tr{background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--r-md);margin-bottom:var(--s-3);padding:var(--s-2) 0}
+  .article .table-wrap td{border:0;padding:5px var(--s-4);display:grid;
+    grid-template-columns:88px minmax(0,1fr);gap:var(--s-3);font-size:var(--f-sm)}
+  .article .table-wrap td::before{content:attr(data-label);color:var(--muted);
+    font-size:var(--f-2xs);font-weight:600;padding-top:2px}
+  .article .table-wrap td:not([data-label]){display:block}
+}
+
+/* 窄屏导航：品牌字标与链接挤在一起，收字号而非隐藏文案（保留站点标识） */
+@media (max-width:480px){
+  .nav-in{gap:var(--s-2);padding:0 var(--s-4)}
+  .brand{font-size:14px}
+  .brand-mark{width:24px;height:24px;font-size:12px}
+  .nav-links{gap:2px}
+  .nav-links a{padding:8px 6px;font-size:12.5px}
+  .hero{padding:var(--s-8) 0 var(--s-7)}
+  .stat{padding:var(--s-3)}
+  .stat b{font-size:var(--f-xl)}
+}

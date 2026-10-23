@@ -3,7 +3,13 @@
 <div class="wrap">
   <h1 class="page-title">学校库</h1>
   <p class="page-sub">{{ total }} 所学校，可按学段、行政区、办学性质筛选，或直接搜索校名与关键词。</p>
-  <div class="controls">
+
+  <button type="button" class="filter-toggle" id="filterToggle"
+          aria-expanded="false" aria-controls="filters">
+    筛选条件 <span class="filter-count" id="filterCount" hidden></span>
+  </button>
+
+  <div class="controls" id="filters" data-open="true">
     <label class="sr-only" for="q">搜索学校</label>
     <input id="q" type="search" placeholder="搜索学校名称、简称、梯队或关键词……">
     <div class="frow">

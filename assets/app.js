@@ -93,3 +93,29 @@ function heroSearch() {
 
   ids.forEach(function (id) { io.observe(document.getElementById(id)); });
 })();
+
+/* 移动端筛选抽屉开合（桌面端过滤器常显，按钮不渲染可见） */
+(function () {
+  var btn = document.getElementById('filterToggle');
+  var box = document.getElementById('filters');
+  if (!btn || !box) return;
+  btn.addEventListener('click', function () {
+    var open = box.dataset.open !== 'true';
+    box.dataset.open = open ? 'true' : 'false';
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  btn.setAttribute('aria-expanded', String(box.dataset.open === 'true'));
+})();
+
+/* 移动端筛选抽屉开合（桌面端过滤器常显，按钮不渲染可见） */
+(function () {
+  var btn = document.getElementById('filterToggle');
+  var box = document.getElementById('filters');
+  if (!btn || !box) return;
+  btn.addEventListener('click', function () {
+    var open = box.dataset.open !== 'true';
+    box.dataset.open = open ? 'true' : 'false';
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  btn.setAttribute('aria-expanded', String(box.dataset.open === 'true'));
+})();

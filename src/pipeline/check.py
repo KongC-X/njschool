@@ -13,6 +13,10 @@ from .schema import Report
 MIN_H2_FOR_TOC = 3
 PAGE_SIZE_WARN_KB = 120
 
+# 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
+ASSET_BUDGET_KB = {"tokens.css": 6, "site.css": 24, "app.js": 12}
+RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
+
 RE_H1 = re.compile(r"<h1[\s>]")
 RE_H2 = re.compile(r"<h2[\s>]")
 RE_STYLE = re.compile(r"<style[\s>]")
@@ -41,6 +45,20 @@ def run(rep: Report, expected_pages):
         p = os.path.join(config.SITE, "assets", name)
         if not os.path.isfile(p):
             rep.error("产物", f"缺少资源文件 assets/{name}")
+            continue
+        kb = os.path.getsize(p) / 1024
+        budget = ASSET_BUDGET_KB.get(name)
+        if budget and kb > budget:
+            rep.warn(f"assets/{name}", f"体积 {kb:.1f}KB 超过预算 {budget}KB，考虑拆分")
+
+    # 2b) 令牌纪律：组件样式不得写死色值（#fff 用于强调色上的文字，允许）
+    comp = os.path.join(config.SITE, "assets", "site.css")
+    if os.path.isfile(comp):
+        css = open(comp, encoding="utf-8").read()
+        bad = [c for c in RE_HEX.findall(css) if c.lower() not in ("#fff", "#ffffff")]
+        if bad:
+            rep.error("assets/site.css",
+                      f"出现硬编码色值 {sorted(set(bad))[:5]}，应改用 tokens.css 中的变量")
 
     for path in html_files:
         rel = os.path.relpath(path, config.SITE)
