@@ -206,6 +206,20 @@ def run(rep: Report, expected_pages):
             if 'application/ld+json' not in html:
                 rep.warn(rel, "缺少 JSON-LD 结构化数据")
 
+        # 内容页不允许重复章节标题（曾因重复写入导致同一条日志出现两次）
+        if rel in ("changelog.html",):
+            heads = re.findall(r"<h2[^>]*>(.*?)</h2>", html)
+            dup = [h for h in set(heads) if heads.count(h) > 1]
+            if dup:
+                rep.error(rel, f"存在重复章节标题：{dup[:2]}")
+
+        # 内容页不允许重复章节标题（曾因重复写入导致同一条日志出现两次）
+        if rel in ("changelog.html",):
+            heads = re.findall(r"<h2[^>]*>(.*?)</h2>", html)
+            dup = [h for h in set(heads) if heads.count(h) > 1]
+            if dup:
+                rep.error(rel, f"存在重复章节标题：{dup[:2]}")
+
         # 内部链接可达性
         # 注意：先剔除 <script> 内容——列表页把数据内嵌在 JS 里，
         # 其中 `href="' + s.url + '"` 这类拼接片段会被正则误判为死链。
