@@ -41,6 +41,30 @@ TYPE_RULES = [
 ]
 
 
+# 泛指出处：本身没有可点开的单一原文，不是「没找到」，而是「不存在单一出处」
+GENERIC_TITLES = ("学校官网", "官网", "公众号", "学校官微", "校方", "家长圈公开讨论",
+                  "家长圈", "群内讨论", "培训机构汇总", "渠道汇总", "第三方教育平台",
+                  "学校大全", "教育黄页")
+GENERIC_HINTS = ("家长圈", "群内", "汇总", "整理", "培训机构", "泛指", "等渠道", "多方")
+
+
+def status_of(title, url, type_name):
+    """三种状态：已核实 / 泛指来源 / 未存档。
+
+    「未存档」不等于「没有出处」，而是「有出处但未取到可点开的链接」
+    （公众号文章、已下架页面、纸质材料等）。站点据此说明，避免读者误解。
+    """
+    if url:
+        return "已核实"
+    if type_name == "家长圈":
+        return "泛指来源"
+    if title in GENERIC_TITLES or any(h in title for h in GENERIC_HINTS):
+        return "泛指来源"
+    if type_name == "学校官方" and len(title) <= 6:
+        return "泛指来源"
+    return "未存档"
+
+
 def classify(title):
     for name, keys in TYPE_RULES:
         if any(k in title for k in keys):
@@ -98,10 +122,12 @@ def main():
             "URL": old.get("URL", ""),
             "采集日期": old.get("采集日期", ""),
             "备注": old.get("备注", ""),
+            "状态": "",
         })
+        rows[-1]["状态"] = status_of(title, rows[-1]["URL"], rows[-1]["类型"])
 
     with open(OUT, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["标题", "类型", "URL", "采集日期", "备注"])
+        w = csv.DictWriter(f, fieldnames=["标题", "类型", "URL", "采集日期", "状态", "备注"])
         w.writeheader()
         w.writerows(rows)
 
@@ -121,7 +147,14 @@ def main():
     print("  类型分布：", dict(by_type))
     # 供站点展示的统计
     import json
+    from collections import Counter as _C
+    by_status = _C(r["状态"] for r in rows)
     stats = {
+        "by_status": dict(by_status),
+        "rows_by_status": {
+            k: sum(counter.get(r["标题"], 0) for r in rows if r["状态"] == k)
+            for k in set(r["状态"] for r in rows)
+        },
         "titles": len(rows),
         "rows_total": total,
         "rows_with_url": covered,

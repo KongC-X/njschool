@@ -26,10 +26,27 @@
 
     <h2>来源可追溯性</h2>
     {% if src_stats %}
-    <p>全库来源标注共 <strong>{{ src_stats.rows_total }}</strong> 行，去重后 {{ src_stats.titles }} 个来源；
-       其中 <strong>{{ src_stats.rows_with_url }}</strong> 行（{{ (src_stats.rows_with_url * 100 // src_stats.rows_total) if src_stats.rows_total else 0 }}%）
-       已关联可点击原文，可在各校档案的「数据来源」表中直接打开。</p>
-    <p class="hint">尚未关联的条目多为「家长圈公开讨论」「培训机构汇总」这类无单一出处的来源，已在档案中如实标注，不冒充可核验。</p>
+    {% set rs = src_stats.rows_by_status or {} %}
+    {% set total_rows = src_stats.rows_total or 1 %}
+    <p>全库来源标注共 <strong>{{ src_stats.rows_total }}</strong> 行，去重后 {{ src_stats.titles }} 个来源。
+       按可核验程度分三档：</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th style="width:130px">状态</th><th style="width:110px">行数</th><th>含义</th></tr>
+        <tr><td><b>已核实</b></td>
+            <td>{{ rs.get('已核实', 0) }} 行（{{ rs.get('已核实', 0) * 100 // total_rows }}%）</td>
+            <td>已找到原文，档案「数据来源」表中可直接点开。</td></tr>
+        <tr><td><b>泛指来源</b></td>
+            <td>{{ rs.get('泛指来源', 0) }} 行（{{ rs.get('泛指来源', 0) * 100 // total_rows }}%）</td>
+            <td>如「家长圈公开讨论」「学校官网」——本身不存在单一可点开的原文，不是遗漏。</td></tr>
+        <tr><td><b>未存档</b></td>
+            <td>{{ rs.get('未存档', 0) }} 行（{{ rs.get('未存档', 0) * 100 // total_rows }}%）</td>
+            <td>有具体出处（文件或文章标题），但未取到可点链接：多为学校公众号文章、
+                已下架页面或需登录的政务系统。<b>不代表没有出处。</b></td></tr>
+      </table>
+    </div>
+    <p class="hint">三档合计 {{ src_stats.rows_total }} 行。每份档案的「数据来源」章节顶部均有同样说明，
+       避免读者把「点不开」误解为「编造」。</p>
     {% endif %}
 
     {{ about_html | safe }}

@@ -262,3 +262,11 @@ mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3
 .nf-card span{font-size:var(--f-xs);color:var(--muted)}
 .nf-card:hover{border-color:var(--accent);background:var(--accent-weak);
   text-decoration:none}
+
+
+
+/* 来源状态说明（详情页「数据来源」章节顶部） */
+.src-note{font-size:var(--f-xs);color:var(--muted);background:var(--surface-2);
+  border-left:3px solid var(--line-strong);margin:var(--s-3) 0 var(--s-4);
+  padding:var(--s-3) var(--s-4);line-height:1.7}
+.src-note strong{color:var(--text)}

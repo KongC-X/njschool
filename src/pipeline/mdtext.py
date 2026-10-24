@@ -31,6 +31,8 @@ def render(text, toc_depth=2, links=None):
     html = md.convert(text)
     html = _add_table_labels(html)
     html = _mark_confidence(html)
+    if links:
+        html = _add_source_note(html)
     return _wrap_tables(html), _build_toc(md.toc_tokens)
 
 
@@ -84,6 +86,21 @@ def _linkify_sources(text, links):
                     line = line.replace(title, f"[{title}]({url})", 1)
         out.append(line)
     return "\n".join(out)
+
+
+SRC_H2 = re.compile(r"(<h2[^>]*>[^<]*数据来源[^<]*</h2>)")
+SRC_NOTE = (
+    '<blockquote class="src-note">'
+    '<strong>来源状态</strong>：表中带链接的条目已核实原文，可直接打开；'
+    "未带链接的多为学校公众号文章、已下架页面或家长圈讨论，属「未存档」或「泛指来源」——"
+    "意为暂未取到可点开的链接，<strong>不代表没有出处</strong>。"
+    "</blockquote>"
+)
+
+
+def _add_source_note(html):
+    """在「数据来源」章节标题后插入状态说明，解释为什么有些来源点不开。"""
+    return SRC_H2.sub(lambda m: m.group(1) + SRC_NOTE, html, count=1)
 
 
 def _badge(k):

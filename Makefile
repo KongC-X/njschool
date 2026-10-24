@@ -41,7 +41,7 @@ all: site export
 index:
 	$(PY) src/build_index.py
 
-site: index
+site: index sources
 	NJ_BASE_URL="$(BASE)" $(PY) src/build_website.py
 
 export: index
