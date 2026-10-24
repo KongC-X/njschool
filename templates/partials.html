@@ -21,6 +21,8 @@
      href="{{ w.site }}" target="_blank" rel="noopener noreferrer">访问学校官网{% if w.verify == 'unreachable_at_build' %}（核验时未响应）{% endif %} ↗</a>
   {%- elif w.site_state == 'exists_unreachable' %}
   <span class="nosite">该校有官网／平台页面，但当前无法访问{% if w.null_reason %}（{{ w.null_reason }}）{% endif %}{% if w.site_archived %}，原域名 {{ w.site_archived | host }}{% endif %}，故暂不提供跳转。</span>
+  {%- elif w.null_reason == '待核查' %}
+  <span class="nosite">官网与公众号信息待核查，暂不提供入口（2026-10 补录学校）。</span>
   {%- elif w.site_state == 'stale' %}
   <span class="nosite">该校官网内容长期未更新，参考价值有限，暂不提供跳转。</span>
   {%- else %}

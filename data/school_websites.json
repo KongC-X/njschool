@@ -2,20 +2,21 @@
  "updated": "2026-10-22",
  "note": "官网地址经检索核查并全量体检。统计按「学校」计数，各成因分母不同、不可相加：「历史域名被抢注」数 ≠ 「无官网」数。wechat=null 一律读作「未取得可确认 ID」，不代表该校无官方渠道。",
  "counts": {
-  "total": 204,
+  "total": 229,
   "with_site": 153,
   "site_state": {
    "exists_unreachable": 31,
-   "none": 15,
+   "none": 40,
    "ok": 153,
    "stale": 5
   },
   "wechat_id": 72,
   "wechat_exists_no_id": 12,
-  "wechat_unknown": 120,
+  "wechat_unknown": 145,
   "null_by_reason": {
    "源站下线": 26,
    "未检索到": 11,
+   "待核查": 25,
    "内容停更": 5,
    "平台槽位空置": 5,
    "被抢注": 2,
@@ -161,6 +162,17 @@
    "basis": "站点标题即「南京仙林外国语学校」，发布该校中学部2026-2027学年周工作安排、总务动态等；另有域名 nxfls.com 标题同为该校名，nflsxl.com 内容更新更完整，故取此站",
    "site_state": "ok"
   },
+  "初中-栖霞区-南京仙林外国语学校华侨城中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
   "初中-栖霞区-南京市伯乐中学": {
    "site": "http://njblzx.site.qxteacher.com/",
    "site_archived": null,
@@ -171,6 +183,83 @@
    "level": "B",
    "basis": "该校已更名为「南京仙林外国语学校伯乐中学」，现用栖霞区教育站群子站，标题即新校名，发布2026年七年级招生公告与每周工作安排；旧域名 njblzx.com 已不再使用",
    "site_state": "ok"
+  },
+  "初中-栖霞区-南京市华电中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京市栖霞区实验初级中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京市栖霞区摄山初级中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京市第一中学思益学校": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京市第九中学教育集团中桥中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京市花园中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京市营防中学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
   },
   "初中-栖霞区-南京市迈皋桥初级中学": {
    "site": "http://www.mgqcjzx29.com/",
@@ -204,6 +293,28 @@
    "level": "B",
    "basis": "招生简章所列 www.nsfzdjz.com 当前返回 502 无法访问；现用栖霞区教育站群学校子站，页面标题「南京师范大学附属中学丁家庄初级中学」，发布本校招生简章、家长会等校区动态",
    "site_state": "ok"
+  },
+  "初中-栖霞区-南京师范大学附属中学仙林学校初中部": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "初中-栖霞区-南京师范大学附属中学燕子矶新城学校": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
   },
   "初中-江北新区-南京书人实验学校": {
    "site": null,
@@ -931,6 +1042,116 @@
    "basis": "学校微信公众号招生简章页脚明示「网址：www.nxfls.com」；同为官方站的 www.nflsxl.com 可正常访问并载有该校国际高中、中学部动态。注意 https 版 nxfls.com 证书不匹配，须用 http",
    "site_state": "ok"
   },
+  "小学-栖霞区-南京仙林外国语学校华侨城小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市丁家庄小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市丁家庄第三小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市丁家庄第二小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市中电颐和家园小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市南湾营小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市太阳城小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市栖霞区实验小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市栖霞区摄山星城小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市栖霞区石埠桥小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
   "小学-栖霞区-南京市炼油厂小学": {
    "site": "http://lyc.njqxzxxx.com/",
    "site_archived": null,
@@ -953,6 +1174,39 @@
    "basis": "原独立域名 www.yzjzxx.com（2019年该校招生通告自述）已过期被抢注，现标题为「股票配资财经网」，已弃用。改收栖霞区教育站群下该校专属子站，站点标题即「南京市燕子矶中心小学」，含该校2026年教学四表、集团干部培训等本校动态",
    "site_state": "ok"
   },
+  "小学-栖霞区-南京市紫金小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市花港第一小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市花港第二小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
   "小学-栖霞区-南京市迈皋桥中心小学": {
    "site": "http://www.mgqxx.cn/",
    "site_archived": null,
@@ -974,6 +1228,28 @@
    "level": "A",
    "basis": "该校2024年一年级招生公告明文「本公告在学校网站（http://www.njjzxx.com）和微信公众号（njjlxx）同步发布」；站点标题「南京市金陵小学」，含和园校区、仙林湖校区动态",
    "site_state": "ok"
+  },
+  "小学-栖霞区-南京市金陵小学靖安分校": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
+  },
+  "小学-栖霞区-南京市青秀城小学": {
+   "site": null,
+   "site_archived": null,
+   "null_reason": "待核查",
+   "repair": null,
+   "wechat": null,
+   "wechat_status": "unknown",
+   "level": "C",
+   "basis": "2026-10-24 栖霞区补录，官网与公众号尚未核查",
+   "site_state": "none"
   },
   "小学-栖霞区-南京市龙潭中心小学": {
    "site": "http://www.njltxx.com/",

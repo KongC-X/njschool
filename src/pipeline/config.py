@@ -29,6 +29,7 @@ TYPES = ["公办", "民办"]
 # 官网记录中的枚举值（与 merge_websites.py 保持一致）
 SITE_STATES = ["ok", "exists_unreachable", "stale", "none"]
 NULL_REASONS = ["源站下线", "平台槽位空置", "内容停更", "被抢注",
-                "域名彻底退役", "从未建站", "集团代管", "未检索到"]
+                "域名彻底退役", "从未建站", "集团代管", "未检索到",
+                "待核查"]
 WECHAT_STATUS = ["id", "exists_no_id", "unknown"]
 REPAIR = ["可复活", "需重启", "不可修复"]
