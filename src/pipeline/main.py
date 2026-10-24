@@ -3,6 +3,7 @@
 
 退出码：0 成功；1 校验或检查未通过（CI 据此中断发布）。
 """
+import json
 import os
 import shutil
 
@@ -31,6 +32,13 @@ def run():
         print("✗ 数据校验未通过，终止构建（未产生任何文件改动）")
         return 1
 
+    links = load.load_source_links()
+    src_stats = {}
+    stats_path = os.path.join(config.ROOT, "data", "sources_stats.json")
+    if os.path.isfile(stats_path):
+        src_stats = json.load(open(stats_path, encoding="utf-8"))
+    print(f"   来源链接：{len(links)} 个标题可点击")
+
     print("③ 渲染页面")
     env = render.make_env()
     outputs = {
@@ -39,13 +47,13 @@ def run():
         "compare.html": render.compare(env, schools),
         "compare.html": render.compare(env, schools),
         "policy.html": render.policy(env, pages),
-        "about.html": render.about(env, schools, pages, web_counts),
+        "about.html": render.about(env, schools, pages, web_counts, src_stats),
         "changelog.html": render.doc(env, pages, "changelog", title="更新日志",
                                      desc="数据与站点的重要变更记录。", eyebrow="记录"),
         "404.html": render.not_found(env),
     }
     for s in schools:
-        outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at)
+        outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at, links)
 
     print("④ 写入站点")
     if os.path.isdir(config.SITE):
@@ -89,6 +97,24 @@ def run():
         f.write(robots)
 
     print(f"   输出 {len(outputs)} 个页面 → {config.SITE}")
+
+    # 回归护栏：登记表里有 URL 却没渲染出任何来源链接，说明链接化链路断了
+    if links:
+        probe = list(links.values())
+        hit = sum(1 for h in outputs.values() if any(u in h for u in probe))
+        if hit == 0:
+            print("✗ 来源登记表非空，但没有任何页面渲染出来源链接")
+            return 1
+        print(f"   来源链接已渲染到 {hit} 个页面")
+
+    # 回归护栏：登记表里有 URL 却没渲染出任何来源链接，说明链接化链路断了
+    if links:
+        probe = list(links.values())
+        hit = sum(1 for h in outputs.values() if any(u in h for u in probe))
+        if hit == 0:
+            print("✗ 来源登记表非空，但没有任何页面渲染出来源链接")
+            return 1
+        print(f"   来源链接已渲染到 {hit} 个页面")
 
     print("⑤ 检查产物")
     rep2 = Report()

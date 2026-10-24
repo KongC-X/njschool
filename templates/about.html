@@ -24,6 +24,14 @@
     <p class="hint">关于公众号：<code>未取得微信号</code> 不等于「没有公众号」，多为仍在更新但未提取到 ID；
       页面会区分「已核实微信号」与「有渠道但未取到 ID」两种情况，不把已停用的账号列为有效渠道。</p>
 
+    <h2>来源可追溯性</h2>
+    {% if src_stats %}
+    <p>全库来源标注共 <strong>{{ src_stats.rows_total }}</strong> 行，去重后 {{ src_stats.titles }} 个来源；
+       其中 <strong>{{ src_stats.rows_with_url }}</strong> 行（{{ (src_stats.rows_with_url * 100 // src_stats.rows_total) if src_stats.rows_total else 0 }}%）
+       已关联可点击原文，可在各校档案的「数据来源」表中直接打开。</p>
+    <p class="hint">尚未关联的条目多为「家长圈公开讨论」「培训机构汇总」这类无单一出处的来源，已在档案中如实标注，不冒充可核验。</p>
+    {% endif %}
+
     {{ about_html | safe }}
   </article>
 </div>

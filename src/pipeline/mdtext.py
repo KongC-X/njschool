@@ -10,12 +10,14 @@ import markdown
 from markdown.extensions.toc import slugify_unicode
 
 
-def render(text, toc_depth=2):
+def render(text, toc_depth=2, links=None):
     """返回 (正文 HTML, 目录 HTML)。
 
     toc_depth 控制目录收录到几级标题：档案正文的 11 个章节为 h2，故默认 2。
     """
     text = _protect_bracket_annotations(text)
+    if links:
+        text = _linkify_sources(text, links)
     md = markdown.Markdown(
         extensions=["tables", "fenced_code", "sane_lists", "toc"],
         extension_configs={"toc": {
@@ -59,6 +61,29 @@ CONF_META = {
     "B": ("conf-b", "权威媒体转述"),
     "C": ("conf-c", "家长圈口径，需交叉验证"),
 }
+
+
+SRC_CELL = re.compile(r"^\|\s*([^|]{2,120}?)\s*\|")
+
+def _linkify_sources(text, links):
+    """把「数据来源」表首列的来源标题替换为 Markdown 链接。
+
+    只处理表格行，且要求标题在登记表中且有 URL；未登记的保持纯文本。
+    这样维护成本集中在 data/sources.csv，不必改 229 份档案。
+    """
+    out = []
+    for line in text.split("\n"):
+        s = line.strip()
+        if s.startswith("|") and not re.match(r"\|[-:\s|]+\|?$", s):
+            m = SRC_CELL.match(s)
+            if m:
+                title = m.group(1).strip()
+                clean = re.sub(r"[*`]", "", title)
+                url = links.get(clean)
+                if url:
+                    line = line.replace(title, f"[{title}]({url})", 1)
+        out.append(line)
+    return "\n".join(out)
 
 
 def _badge(k):

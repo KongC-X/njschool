@@ -71,11 +71,27 @@ def load_schools(index, webmap):
     return schools
 
 
-def load_body(school):
+SOURCES = os.path.join(config.ROOT, "data", "sources.csv")
+
+
+def load_source_links():
+    """来源标题 → URL（仅取已填 URL 的条目）。"""
+    if not os.path.isfile(SOURCES):
+        return {}
+    import csv
+    links = {}
+    for r in csv.DictReader(open(SOURCES, encoding="utf-8-sig")):
+        url = (r.get("URL") or "").strip()
+        if url.startswith("http"):
+            links[r["标题"].strip()] = url
+    return links
+
+
+def load_body(school, links=None):
     """读取并渲染档案正文，返回 (html, toc)。"""
     path = os.path.join(config.ROOT, school.file)
     text = open(path, encoding="utf-8").read()
-    return mdtext.render(mdtext.strip_leading_h1(text))
+    return mdtext.render(mdtext.strip_leading_h1(text), links=links)
 
 
 def load_pages():

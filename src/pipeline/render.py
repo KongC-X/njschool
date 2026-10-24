@@ -162,7 +162,7 @@ def compare(env, schools):
     )
 
 
-def about(env, schools, pages, web_counts):
+def about(env, schools, pages, web_counts, src_stats=None):
     total = len(schools)
     with_site = web_counts.get("with_site", 0)
     pct = round(with_site * 100 / total) if total else 0
@@ -172,6 +172,7 @@ def about(env, schools, pages, web_counts):
         canonical=canonical("about.html"), total=total,
         with_site=with_site, site_pct=pct,
         about_html=pages["about"]["html"] if "about" in pages else "",
+        src_stats=src_stats or {},
     )
 
 
@@ -187,8 +188,8 @@ def policy(env, pages):
     )
 
 
-def detail(env, school, verified_at):
-    body, toc = load.load_body(school)
+def detail(env, school, verified_at, links=None):
+    body, toc = load.load_body(school, links)
     jsonld = build_jsonld(school)
     return env.get_template("detail.html").render(
         base="../", active="schools", nav=nav(), title=school.name,

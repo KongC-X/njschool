@@ -17,7 +17,7 @@ PY := $(shell [ -x "$(VENV_PY)" ] && echo "$(VENV_PY)" || echo python3)
 BASE ?=
 PORT ?= 8788
 
-.PHONY: help all site export index validate check audit reconcile preview clean verify-web
+.PHONY: help all site export index validate check audit reconcile sources preview clean verify-web
 
 help:
 	@echo "可用命令："
@@ -30,6 +30,7 @@ help:
 	@echo "  make verify-web 体检全部学校官网链接"
 	@echo "  make audit      盘点数据缺口与收录遗漏"
 	@echo "  make reconcile  按官方名单对账收录完整性"
+	@echo "  make sources    重建来源登记表（data/sources.csv）"
 	@echo "  make preview    本地预览 127.0.0.1:$(PORT)"
 	@echo "  make clean      删除 site/ 与导出件"
 	@echo ""
@@ -52,6 +53,9 @@ validate:
 
 audit: index
 	$(PY) src/audit_data.py
+
+sources:
+	$(PY) src/build_sources.py
 
 reconcile:
 	$(PY) src/reconcile.py
