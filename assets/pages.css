@@ -175,7 +175,7 @@
    打印：家长打印施教区、招生计划是真实场景
    ------------------------------------------------------------ */
 @media print{
-  .nav,.toc,.filter-toggle,footer .cols,.skip{display:none!important}
+  .nav,.toc,.filter-toggle,footer .cols,.skip,.cmp-add{display:none!important}
   body{background:var(--bg);color:var(--text);font-size:11pt}
   .article,.detail-head,.callout,.table-wrap{box-shadow:none;border-color:var(--line)}
   .article a::after{content:" (" attr(href) ")";font-size:9pt;color:var(--muted)}
@@ -238,6 +238,18 @@
   font-family:inherit;cursor:pointer;min-height:40px}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent-text)}
 .btn-ghost[hidden]{display:none}
+
+/* 详情页「加入对比」
+   默认不显示，只有 html.js（base.html 首帧写入）才出现：
+   没有 JS 时这个按钮点了不会有任何反应，不如不显示。 */
+.cmp-add{display:none;gap:var(--s-3);align-items:center;flex-wrap:wrap;margin-top:var(--s-4)}
+html.js .cmp-add{display:flex}
+.cmp-add .btn-ghost[aria-pressed="true"]{border-color:var(--accent);
+  color:var(--accent-text);background:var(--accent-weak)}
+.cmp-add .btn-ghost:disabled{opacity:.55;cursor:not-allowed}
+.cmp-add .btn-ghost:disabled:hover{border-color:var(--line);color:var(--text)}
+.cmp-go{font-size:var(--f-sm);font-weight:600;color:var(--accent)}
+.cmp-go[hidden]{display:none}
 
 /* 搜索命中高亮 */
 mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3px}

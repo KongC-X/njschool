@@ -3,6 +3,7 @@
    1) 主题切换（localStorage 记忆，未选择时跟随系统）
    2) 详情页目录滚动联动
    3) 移动端筛选条件折叠
+   4) 详情页「加入对比」
    ============================================================ */
 
 /* ---------- 主题 ---------- */
@@ -107,4 +108,71 @@ function heroSearch() {
   });
 
   sync();
+})();
+
+/* ---------- 详情页「加入对比」 ----------
+   与 compare.js 共用 localStorage['nj-compare']，id 规则必须一致：学段-校名。
+   按钮是切换式的：已在列表里再点一次就是移除，避免「只能加不能撤」。
+   列表满 4 所时按钮置灰，指引用去对比页删——不在详情页再做一套管理界面。
+*/
+(function () {
+  var btn = document.getElementById('cmpAdd');
+  if (!btn) return;
+
+  var MAX = 4;
+  var STORE = 'nj-compare';
+  var id = btn.dataset.id;
+  var go = document.getElementById('cmpGo');
+
+  function read() {
+    try {
+      var v = JSON.parse(localStorage.getItem(STORE) || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+  }
+  /* 返回是否写入成功：隐私模式 / 存储被禁时 localStorage 会抛错 */
+  function write(list) {
+    try { localStorage.setItem(STORE, JSON.stringify(list)); return true; }
+    catch (e) { return false; }
+  }
+
+  function paint(list) {
+    var has = list.indexOf(id) !== -1;
+    var n = list.length;
+    btn.setAttribute('aria-pressed', String(has));
+    if (has) {
+      btn.textContent = '已在对比（' + n + '/' + MAX + '）· 点此移除';
+      btn.disabled = false;
+    } else if (n >= MAX) {
+      btn.textContent = '对比已满（' + MAX + '/' + MAX + '）';
+      btn.disabled = true;
+    } else {
+      btn.textContent = '＋ 加入对比';
+      btn.disabled = false;
+    }
+    if (go) {
+      go.hidden = n < 2;                       // 少于 2 所，对比页没有可看的东西
+      go.textContent = '去对比（' + n + '）→';
+    }
+  }
+
+  paint(read());
+
+  btn.addEventListener('click', function () {
+    var cur = read();
+    var i = cur.indexOf(id);
+    if (i !== -1) {
+      cur.splice(i, 1);
+    } else {
+      if (cur.length >= MAX) return;
+      cur.push(id);
+    }
+    if (!write(cur)) {
+      btn.textContent = '浏览器禁用了本地存储，无法加入对比';
+      btn.disabled = true;
+      if (go) go.hidden = true;
+      return;
+    }
+    paint(cur);
+  });
 })();

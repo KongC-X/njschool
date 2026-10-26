@@ -14,6 +14,13 @@
     <div class="tier">{{ s.tier }}</div>
     <div class="tag">{{ s.tagline }}</div>
     {{ official(s.website, verified_at) }}
+    {# 加入对比：无 JS 时整块不显示（.cmp-add 默认 display:none，html.js 才出现），
+       避免留下一个点了没反应的死按钮 #}
+    <div class="cmp-add">
+      <button type="button" class="btn-ghost" id="cmpAdd"
+              data-id="{{ cmp_id }}" aria-pressed="false">＋ 加入对比</button>
+      <a class="cmp-go" id="cmpGo" href="{{ base }}compare.html" hidden>去对比 →</a>
+    </div>
   </div>
 
   <div class="detail-grid">

@@ -208,6 +208,9 @@ def detail(env, school, verified_at, links=None, dup_names=()):
         desc=f"{school.name}（{school.district}{school.level}，{school.type}）：{school.tagline}",
         canonical=canonical(school.url), s=school, body=body, toc=toc,
         verified_at=verified_at, jsonld=jsonld,
+        # 对比页的 id 规则是「学段-校名」，必须与 compare.js 的 o.id 完全一致，
+        # 否则详情页加进去的学校在对比页认不出来（index.json 的 id 多了区，不能直接用）
+        cmp_id=f"{school.level}-{school.name}",
     )
 
 
