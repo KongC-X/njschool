@@ -102,22 +102,45 @@ def _md_text(school, _cache={}):
 
 
 def missing_data(schools):
-    """生成 assets/facts-missing.js。
+    """返回 {school.id: [field...]}：档案明确声明为数据缺口的字段。
 
     对比表的「未获取」与「—」必须分得开：
       - 未获取 = 该校档案的「数据缺口」小节**明确点名**过这一项
       - —      = 本站没抽到，不代表学校没有
     把两者混成一个符号，就是在替学校下结论，违反「不臆造」。
-    数据量很小（每校最多 7 个字符），但 schools-data.js 只剩 2KB 余量，
-    所以单独成一个只有对比页加载的小文件。
     """
-    fields = list(facts.FACT_LABELS.keys())
-    rows = []
+    out = {}
     for s in schools:
         miss = facts.extract_missing(_md_text(s))
-        rows.append("".join(str(fields.index(f)) for f in fields if f in miss))
-    payload = {"fields": fields, "rows": rows}
-    return "window.__FACTS_MISSING__ = " + json.dumps(
+        if miss:
+            # 必须用前端的派生 id（学段-校名），不能用 index.json 的 s.id
+            # ——后者多了「区」这一层（小学-鼓楼区-某某小学），前端认不出来。
+            # 这条曾一次性让 414 条缺口记录全部失效，靠 check.py 的守卫才拦住。
+            out[f"{s.level}-{s.name}"] = sorted(miss)
+    return out
+
+
+def compare_data(schools):
+    """生成 assets/schools-compare.js —— 只有对比页加载的数据。
+
+    拆出来的原因：schools-data.js 已经顶到 197/200 KB 预算，
+    再加字段根本加不进去。列表页不需要 facts / 官网有无 / 缺口，
+    把这些挪到独立文件后，列表页首屏下载量直接降下来。
+
+    rows 与 schools-data.js 的 rows **同序同长**，靠下标对齐；
+    check.py 有一条守卫核对这一点。
+    """
+    rows = []
+    for s in schools:
+        f = facts.extract(_md_text(s))
+        rows.append([f or None, 1 if s.website.site else 0])
+    payload = {
+        "cols": ["facts", "hasSite"],
+        "rows": rows,
+        "factLabels": facts.FACT_LABELS,
+        "missing": missing_data(schools),
+    }
+    return "window.__COMPARE_DATA__ = " + json.dumps(
         payload, ensure_ascii=False, separators=(",", ":")) + ";\n"
 
 
@@ -131,20 +154,18 @@ def schools_data(schools, districts):
 
     aliases 列单独放最后：搜索命中「拉力琅」「秦淮外校」这类俗称靠它，
     但 tagline 不进搜索索引（叙述性长文本，是误命中的唯一来源）。
+
+    facts / hasSite 不在这里：它们只有对比页要用，见 compare_data()。
     """
     alias = aliases.build(schools)
     rows = []
     for s in schools:
-        text = open(os.path.join(config.ROOT, s.file), encoding="utf-8").read()
-        f = facts.extract(text)
         rows.append([s.name, s.short, s.district, s.level, s.type, s.tier,
-                     s.tagline, f or None, 1 if s.website.site else 0,
-                     alias.get(s.id, "")])
+                     s.tagline, alias.get(s.id, "")])
     payload = {
-        "cols": list(LIST_COLS) + ["facts", "hasSite", "aliases"],
+        "cols": list(LIST_COLS) + ["aliases"],
         "rows": rows,
         "districts": districts,
-        "factLabels": facts.FACT_LABELS,
     }
     return "window.__SCHOOLS__ = " + json.dumps(
         payload, ensure_ascii=False, separators=(",", ":")) + ";\n"

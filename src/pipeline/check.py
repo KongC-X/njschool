@@ -22,7 +22,7 @@ PAGE_SIZE_WARN_KB = 120
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
 ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 24,
                    "responsive.css": 12, "app.js": 14, "schools-data.js": 200,
-                   "facts-missing.js": 24, "search-core.js": 16, "schools.js": 16,
+                   "schools-compare.js": 120, "search-core.js": 16, "schools.js": 16,
                    "compare-core.js": 16, "compare.js": 20}
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
 RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
@@ -55,7 +55,7 @@ def run(rep: Report, expected_pages):
 
     # 2) 资源文件
     for name in ("tokens.css", "site.css", "pages.css", "responsive.css",
-                 "app.js", "schools-data.js", "facts-missing.js",
+                 "app.js", "schools-data.js", "schools-compare.js",
                  "search-core.js", "schools.js", "compare-core.js", "compare.js"):
         p = os.path.join(config.SITE, "assets", name)
         if not os.path.isfile(p):
@@ -128,22 +128,26 @@ def run(rep: Report, expected_pages):
                 break
             seen[b] = True
 
-    # 2e) 前端数据契约（G1/G2/G3）
+    # 2e) 前端数据契约（G1/G2/G3/G5b）
     # 这一层是盲区：JSON 结构一旦漂移，前端不会报错，只会拿到 undefined，
     # 表现是「某校永远搜不到 / 对比页少一列」——最难查的一类 bug。
-    data_js = os.path.join(config.SITE, "assets", "schools-data.js")
-    payload = None
-    if os.path.isfile(data_js):
-        raw = open(data_js, encoding="utf-8").read()
+    def load_payload(name):
+        p = os.path.join(config.SITE, "assets", name)
+        if not os.path.isfile(p):
+            return None
+        raw = open(p, encoding="utf-8").read()
         try:
-            payload = json.loads(raw[raw.index("{"):raw.rindex("}") + 1])
+            return json.loads(raw[raw.index("{"):raw.rindex("}") + 1])
         except ValueError as e:
-            rep.error("assets/schools-data.js", f"不是合法 JSON：{e}")
+            rep.error(f"assets/{name}", f"不是合法 JSON：{e}")
+            return None
+
+    payload = load_payload("schools-data.js")
+    cpayload = load_payload("schools-compare.js")
 
     if payload:
         cols = payload.get("cols") or []
         rows = payload.get("rows") or []
-        labels = set((payload.get("factLabels") or {}).keys())
 
         # G1 每行长度必须等于 cols，且关键列非空
         mismatched = [i for i, r in enumerate(rows) if len(r) != len(cols)]
@@ -160,17 +164,6 @@ def run(rep: Report, expected_pages):
             if empty:
                 rep.error("assets/schools-data.js", f"{empty} 行的 {field} 为空")
 
-        # G2 facts 的 key 必须都在 factLabels 里，否则界面显示 undefined
-        if labels and "facts" in cols:
-            fi = cols.index("facts")
-            unknown = set()
-            for r in rows:
-                if isinstance(r[fi], dict):
-                    unknown |= set(r[fi]) - labels
-            if unknown:
-                rep.error("assets/schools-data.js",
-                          f"facts 出现未定义字段 {sorted(unknown)[:3]}，界面会显示 undefined")
-
         # G3 前端派生 id（学段-校名）必须唯一且能落到实际文件。
         # 对比页、详情页的「加入对比」都靠它，改拼法 = 历史分享链接静默失效。
         if "level" in cols and "name" in cols:
@@ -184,6 +177,37 @@ def run(rep: Report, expected_pages):
             if missing:
                 rep.error("assets/schools-data.js",
                           f"{len(missing)} 个派生 id 找不到详情页：{missing[:2]}")
+
+    if cpayload:
+        ccols = cpayload.get("cols") or []
+        crows = cpayload.get("rows") or []
+        clabels = set((cpayload.get("factLabels") or {}).keys())
+
+        # G2 facts 的 key 必须都在 factLabels 里，否则界面显示 undefined
+        if clabels and "facts" in ccols:
+            fi = ccols.index("facts")
+            unknown = set()
+            for r in crows:
+                if isinstance(r[fi], dict):
+                    unknown |= set(r[fi]) - clabels
+            if unknown:
+                rep.error("assets/schools-compare.js",
+                          f"facts 出现未定义字段 {sorted(unknown)[:3]}，界面会显示 undefined")
+
+        # G5b 两个数据文件必须同序同长——对比页靠下标对齐，错一位就是「张冠李戴」
+        if payload and len(crows) != len(payload.get("rows") or []):
+            rep.error("assets/schools-compare.js",
+                      f"行数 {len(crows)} 与 schools-data.js 的 "
+                      f"{len(payload.get('rows') or [])} 不一致，对比页会张冠李戴")
+
+        # missing 的 key 必须是真实存在的派生 id
+        if payload and "level" in (payload.get("cols") or []) and "name" in (payload.get("cols") or []):
+            pc = payload["cols"]
+            valid = {f"{r[pc.index('level')]}-{r[pc.index('name')]}" for r in payload["rows"]}
+            bad = [k for k in (cpayload.get("missing") or {}) if k not in valid]
+            if bad:
+                rep.error("assets/schools-compare.js",
+                          f"{len(bad)} 个缺口记录的 id 不存在：{bad[:2]}")
 
     # 2f) 脚本语法（G6）
     # 内联脚本时代这里是盲区：模板里的 JS 语法错误要到用户浏览器才炸。

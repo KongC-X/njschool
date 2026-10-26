@@ -68,6 +68,15 @@
     var rows = [];
 
     list.forEach(function (spec) {
+      /* spec.levels：只对某些学段有意义的行。
+         「2026 投档线」只存在于高中，四所小学并排时这一行永远是四个横线，
+         占位又误导。学段不匹配就整行不出——这是结构性的不适配，不是数据缺口。 */
+      if (spec.levels && !items.some(function (it) {
+        return spec.levels.indexOf(it.level) !== -1;
+      })) {
+        return;
+      }
+
       var cells = items.map(function (it) {
         return cellOf(spec, it, getMissing ? getMissing(it.id) : null);
       });

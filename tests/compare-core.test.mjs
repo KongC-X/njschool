@@ -16,7 +16,7 @@ const SPECS = [
 ];
 
 const mk = (over) => Object.assign({
-  id: 'x', name: 'X', type: '公办', tagline: '', facts: null, hasSite: 0
+  id: 'x', name: 'X', type: '公办', level: '小学', tagline: '', facts: null, hasSite: 0
 }, over);
 
 test('norm：全角转半角、空白归一、忽略大小写', () => {
@@ -108,4 +108,22 @@ test('toQuery：空数组不产生 ?ids=', () => {
   assert.equal(C.toQuery([]), '');
   assert.equal(C.toQuery(['a']), '?ids=a');
   assert.match(C.toQuery(['小学-甲']), /^\?ids=%E5%B0%8F/, '中文 id 必须编码进 URL');
+});
+
+test('levels 限定：该学段不适用的行整行不出现', () => {
+  const specs = [
+    { key: 'score', label: '投档线', group: 'path', source: 'facts',
+      field: 'score', diff: 'exact', priority: 10, levels: ['高中'] },
+    { key: 'type', label: '性质', group: 'identity', source: 'index',
+      field: 'type', diff: 'exact', priority: 20 }
+  ];
+  const primary = [mk({ level: '小学' }), mk({ level: '小学' })];
+  assert.deepEqual(C.buildRows(specs, primary, null).map((r) => r.key), ['type'],
+    '四所小学对比不该出现投档线这一行');
+
+  const hs = [mk({ level: '高中' }), mk({ level: '高中' })];
+  assert.deepEqual(C.buildRows(specs, hs, null).map((r) => r.key), ['score', 'type']);
+
+  const mixed = [mk({ level: '小学' }), mk({ level: '高中' })];
+  assert.equal(C.buildRows(specs, mixed, null).length, 2, '混合学段时应保留该行');
 });

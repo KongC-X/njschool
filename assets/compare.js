@@ -8,27 +8,21 @@ const CORE = window.__NJ_COMPARE__;
 const SCH = window.__NJ_SEARCH__;
 const SPECS = window.__CMP_ROWS__;
 const COLS = window.__SCHOOLS__.cols;
-const MISS = window.__FACTS_MISSING__;
+const CD = window.__COMPARE_DATA__;
 
-/* 缺口的字段码 → 字段名。__FACTS_MISSING__.rows 与 __SCHOOLS__.rows 同序同长 */
-const MISSING = {};
-(function () {
-  if (!MISS) return;
-  const F = MISS.fields;
-  window.__SCHOOLS__.rows.forEach(function (row, i) {
-    const codes = MISS.rows[i] || '';
-    if (!codes) return;
-    const list = [];
-    for (let k = 0; k < codes.length; k++) list.push(F[Number(codes.charAt(k))]);
-    MISSING[row[COLS.indexOf('level')] + '-' + row[COLS.indexOf('name')]] = list;
-  });
-})();
-
-const DATA = window.__SCHOOLS__.rows.map(function (row) {
+/* 两个数据文件按下标对齐：
+   schools-data.js 给列表页要的（校名/区/学段/性质/梯队/一句话），
+   schools-compare.js 给对比页专属的（facts/官网有无/已声明缺口）。
+   这样列表页不用为对比字段买单——它此前已经顶到 197/200KB 预算。 */
+const DATA = window.__SCHOOLS__.rows.map(function (row, i) {
   const o = {};
-  COLS.forEach(function (k, i) { o[k] = row[i]; });
+  COLS.forEach(function (k, k2) { o[k] = row[k2]; });
+  const extra = (CD && CD.rows[i]) || [null, 0];
+  o.facts = extra[0];
+  o.hasSite = extra[1];
   o.id = o.level + '-' + o.name;
   o.url = 'schools/' + encodeURIComponent(o.id) + '.html';
+  o.missing = (CD && CD.missing && CD.missing[o.id]) || null;
   return o;
 });
 const BY_ID = {};
@@ -282,7 +276,9 @@ function render() {
   }
 
   const items = ids.map(function (id) { return BY_ID[id]; });
-  const rows = CORE.buildRows(SPECS, items, function (id) { return MISSING[id]; });
+  const rows = CORE.buildRows(SPECS, items, function (id) {
+    return BY_ID[id] && BY_ID[id].missing;
+  });
   const diffN = rows.filter(function (r) { return r.hasDiff; }).length;
 
   if (diffBtn) {

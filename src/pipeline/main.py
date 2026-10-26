@@ -83,13 +83,14 @@ def run():
 
     # sitemap 只在有基址时生成：协议要求绝对地址，宁缺勿假
     # 列表 / 对比 / 搜索共用一份数据资产（浏览器只下载一次）
+    # 列表页数据：不含 facts / 官网有无，那些只有对比页要
     with open(os.path.join(config.SITE, "assets", "schools-data.js"), "w",
               encoding="utf-8") as f:
         f.write(render.schools_data(schools, index["districts"]))
-    # 只有对比页需要：区分「未获取」与「未收录」
-    with open(os.path.join(config.SITE, "assets", "facts-missing.js"), "w",
+    # 只有对比页加载：facts / 官网有无 /「未获取」判定
+    with open(os.path.join(config.SITE, "assets", "schools-compare.js"), "w",
               encoding="utf-8") as f:
-        f.write(render.missing_data(schools))
+        f.write(render.compare_data(schools))
 
     urls = ["", "schools.html", "compare.html", "policy.html", "changelog.html",
             "about.html"] + [s.url for s in schools]

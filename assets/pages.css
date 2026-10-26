@@ -251,6 +251,8 @@
 .cmp-fill{display:block;margin-top:2px;font-size:var(--f-2xs);
   font-weight:400;opacity:.75}
 .cmp-cell{color:var(--text);line-height:1.6;word-break:break-word}
+/* 一所都没有值的行：留着是诚实（说明这一项我们没收到），但不必和有的行一样重 */
+.cmp-row.is-blank .cmp-cell{opacity:.55}
 /* 「未获取」= 该校档案自己声明了这一项是缺口；「—」= 本站没抽到。
    两者必须看得出区别，否则等于替学校下结论。 */
 .cmp-cell.is-gap{color:var(--muted);font-style:italic}
