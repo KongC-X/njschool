@@ -8,6 +8,8 @@
   <div class="picker">
     <label class="sr-only" for="pick">添加学校</label>
     <input id="pick" type="search" autocomplete="off"
+           role="combobox" aria-expanded="false" aria-controls="pickList"
+           aria-autocomplete="list" aria-label="输入校名添加对比"
            placeholder="输入校名添加对比（如「琅琊路」「金中」「拉力琅」）">
     <ul class="pick-list" id="pickList" role="listbox" aria-label="候选学校" hidden></ul>
     {# 独立状态区：候选数量、上限提示都走这里，避免覆盖用户正在看的候选列表 #}
@@ -36,6 +38,7 @@
 <script src="{{ base }}assets/facts-missing.js"></script>
 {# 行定义由 data/compare_rows.json 注入：加一行是加数据，不是改前端 #}
 <script>window.__CMP_ROWS__ = {{ row_specs | safe }};</script>
+<script src="{{ base }}assets/search-core.js"></script>
 <script src="{{ base }}assets/compare-core.js"></script>
 <script src="{{ base }}assets/compare.js"></script>
 {% endblock %}

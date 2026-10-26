@@ -5,6 +5,7 @@
    纯逻辑：assets/compare-core.js。
    ============================================================ */
 const CORE = window.__NJ_COMPARE__;
+const SCH = window.__NJ_SEARCH__;
 const SPECS = window.__CMP_ROWS__;
 const COLS = window.__SCHOOLS__.cols;
 const MISS = window.__FACTS_MISSING__;
@@ -73,32 +74,65 @@ function save() {
   } catch (e) { /* file:// 下可能抛错，忽略 */ }
 }
 
-/* ---------- 候选 ---------- */
-/* 候选索引刻意与学校库保持一致的口径：含简称与俗称别名，
-   否则「学校库能搜到拉力琅，对比页搜不到」这种割裂会一直在。 */
-function suggest(q) {
-  q = q.trim().toLowerCase();
-  if (!q) { list.hidden = true; status.textContent = ''; return; }
+/* ---------- 候选（combobox 语义 + 键盘可达） ---------- */
+/* 候选匹配不再自己实现一套：调 assets/search-core.js，与学校库同一口径。
+   之前这里是全站第 4 份搜索实现，连俗称别名都不查——
+   「学校库能搜到拉力琅，对比页搜不到」就是这么来的。 */
+let activeIdx = -1;
 
-  const hits = DATA.filter(function (s) {
-    if (ids.indexOf(s.id) !== -1) return false;
-    const hay = (s.name + ' ' + (s.short || '') + ' ' + (s.aliases || '') + ' '
-                 + s.type + ' ' + s.district + ' ' + (s.tier || '')).toLowerCase();
-    return hay.indexOf(q) !== -1;
-  }).slice(0, 8);
+function options() {
+  return Array.prototype.slice.call(list.querySelectorAll('li[data-id]'));
+}
+
+function setActive(i) {
+  const items = options();
+  if (!items.length) { activeIdx = -1; pick.removeAttribute('aria-activedescendant'); return; }
+  activeIdx = Math.max(0, Math.min(i, items.length - 1));
+  items.forEach(function (li, k) {
+    const on = k === activeIdx;
+    li.classList.toggle('is-active', on);
+    li.setAttribute('aria-selected', String(on));
+    if (on) {
+      li.id = 'pickOpt';                       // 单一 id 跟着活动项走，避免每次重建
+      pick.setAttribute('aria-activedescendant', 'pickOpt');
+      if (li.scrollIntoView) li.scrollIntoView({ block: 'nearest' });
+    } else if (li.id === 'pickOpt') {
+      li.removeAttribute('id');
+    }
+  });
+}
+
+function closeList() {
+  list.hidden = true;
+  pick.setAttribute('aria-expanded', 'false');
+  pick.removeAttribute('aria-activedescendant');
+  activeIdx = -1;
+}
+
+function suggest(q) {
+  if (!q.trim()) { closeList(); status.textContent = ''; return; }
+
+  const pool = DATA.filter(function (s) { return ids.indexOf(s.id) === -1; });
+  const res = SCH.query(pool, q, null, { limit: 8 });
+  const hits = res.rows;
 
   if (!hits.length) {
     list.innerHTML = '<li class="pick-empty">没有匹配的学校</li>';
     status.textContent = '没有匹配的学校';
   } else {
     list.innerHTML = hits.map(function (s) {
-      return '<li role="option" tabindex="0" data-id="' + esc(s.id) + '">'
+      return '<li role="option" aria-selected="false" tabindex="-1" data-id="' + esc(s.id) + '">'
         + '<span>' + esc(s.name) + '</span>'
         + '<em>' + esc(s.district) + ' · ' + esc(s.level) + '</em></li>';
     }).join('');
-    status.textContent = '找到 ' + hits.length + ' 所';
+    status.textContent = '找到 ' + hits.length + ' 所，↑↓ 选择，回车加入';
   }
   list.hidden = false;
+  pick.setAttribute('aria-expanded', 'true');
+  /* 默认高亮第一条：否则有 2 个以上候选时按回车毫无反应，用户会以为坏了。
+     高亮也顺带告诉用户「现在按回车会选中哪个」。 */
+  if (hits.length) setActive(0);
+  else { activeIdx = -1; pick.removeAttribute('aria-activedescendant'); }
 }
 
 function add(id) {
@@ -111,7 +145,7 @@ function add(id) {
   }
   ids.push(id);
   pick.value = '';
-  list.hidden = true;
+  closeList();
   status.textContent = '';
   save();
   render();
@@ -286,19 +320,57 @@ function render() {
 /* ---------- 事件 ---------- */
 pick.addEventListener('input', function () { suggest(pick.value); });
 pick.addEventListener('focus', function () { suggest(pick.value); });
+
 pick.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') { list.hidden = true; status.textContent = ''; }
+  const items = options();
+
+  if (e.key === 'ArrowDown') {
+    if (list.hidden) { suggest(pick.value); return; }
+    e.preventDefault();                       // 否则整页跟着滚
+    setActive(activeIdx < 0 ? 0 : activeIdx + 1);
+    return;
+  }
+  if (e.key === 'ArrowUp') {
+    if (list.hidden || !items.length) return;
+    e.preventDefault();
+    setActive(activeIdx < 0 ? items.length - 1 : activeIdx - 1);
+    return;
+  }
+  if (e.key === 'Enter') {
+    if (!list.hidden && activeIdx >= 0 && items[activeIdx]) {
+      e.preventDefault();
+      add(items[activeIdx].dataset.id);
+      return;
+    }
+    /* 没手动选中但只有一个候选时，回车即选——这是搜索框的普遍预期 */
+    if (!list.hidden && items.length === 1) {
+      e.preventDefault();
+      add(items[0].dataset.id);
+    }
+    return;
+  }
+  if (e.key === 'Escape') {
+    closeList();
+    status.textContent = '';
+  }
+});
+
+pick.addEventListener('blur', function () {
+  /* 延迟：先让候选的 click 落地，否则点选时列表先消失 */
+  setTimeout(closeList, 120);
+});
+
+list.addEventListener('mousedown', function (e) {
+  e.preventDefault();                         // 保住输入框焦点，别让 blur 抢先
 });
 
 list.addEventListener('click', function (e) {
   const li = e.target.closest('li[data-id]');
   if (li) add(li.dataset.id);
 });
-list.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') {
-    const li = e.target.closest('li[data-id]');
-    if (li) add(li.dataset.id);
-  }
+list.addEventListener('mouseover', function (e) {
+  const li = e.target.closest('li[data-id]');
+  if (li) setActive(options().indexOf(li));
 });
 
 pickedBox.addEventListener('click', function (e) {

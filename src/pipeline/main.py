@@ -67,6 +67,7 @@ def run():
     os.makedirs(os.path.join(config.SITE, "schools"), exist_ok=True)
 
     for name in ("tokens.css", "site.css", "pages.css", "responsive.css", "app.js",
+                 "search-core.js", "schools.js",
                  "compare-core.js", "compare.js"):
         src = os.path.join(config.ASSETS, name)
         if not os.path.isfile(src):

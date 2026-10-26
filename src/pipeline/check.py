@@ -7,8 +7,9 @@
 import os
 import re
 import collections
-
-from urllib.parse import urlparse
+import json
+import shutil
+import subprocess
 
 from urllib.parse import urlparse
 
@@ -19,10 +20,10 @@ MIN_H2_FOR_TOC = 3
 PAGE_SIZE_WARN_KB = 120
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
-# 超出预算说明在往同一文件堆样式，应拆分（如 components.css / pages.css）而非继续增长
 ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 24,
                    "responsive.css": 12, "app.js": 14, "schools-data.js": 200,
-                   "facts-missing.js": 24, "compare-core.js": 16, "compare.js": 20}
+                   "facts-missing.js": 24, "search-core.js": 16, "schools.js": 16,
+                   "compare-core.js": 16, "compare.js": 20}
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
 RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
 
@@ -33,9 +34,6 @@ RE_LOCAL = re.compile(r'(?:href|src)="([^"]+)"')
 RE_PLACEHOLDER = re.compile(r"\{BASE\}")
 RE_DOUBLE_ENC = re.compile(r"%25[0-9A-Fa-f]{2}")
 RE_SCRIPT = re.compile(r"<script[^>]*>.*?</script>", re.S)
-
-# 404 是错误页，不应被索引，因此不要求 canonical
-NO_CANONICAL = {"404.html"}
 
 # 404 是错误页，不应被索引，因此不要求 canonical
 NO_CANONICAL = {"404.html"}
@@ -58,7 +56,7 @@ def run(rep: Report, expected_pages):
     # 2) 资源文件
     for name in ("tokens.css", "site.css", "pages.css", "responsive.css",
                  "app.js", "schools-data.js", "facts-missing.js",
-                 "compare-core.js", "compare.js"):
+                 "search-core.js", "schools.js", "compare-core.js", "compare.js"):
         p = os.path.join(config.SITE, "assets", name)
         if not os.path.isfile(p):
             rep.error("产物", f"缺少资源文件 assets/{name}")
@@ -113,8 +111,9 @@ def run(rep: Report, expected_pages):
         if dups:
             rep.warn(f"assets/{sheet}", f"同一文件内重复定义 {len(dups)} 个选择器：{dups[:3]}")
 
-    js = os.path.join(config.SITE, "assets", "app.js")
-    if os.path.isfile(js):
+    for js_name in sorted(n for n in os.listdir(os.path.join(config.SITE, "assets"))
+                          if n.endswith(".js") and n != "schools-data.js"):
+        js = os.path.join(config.SITE, "assets", js_name)
         lines = [ln.rstrip() for ln in open(js, encoding="utf-8").read().splitlines()]
         blocks = [tuple(lines[i:i + 8]) for i in range(len(lines) - 8)
                   if lines[i].strip() and lines[i].lstrip().startswith(("(function", "/*", "var ", "function "))]
@@ -123,43 +122,83 @@ def run(rep: Report, expected_pages):
             if len(set(x for x in b if x.strip())) < 6:
                 continue
             if b in seen:
-                rep.error("assets/app.js",
+                rep.error(f"assets/{js_name}",
                           f"检测到重复代码块（约第 {lines.index(b[0]) + 1} 行起），"
                           f"重复绑定监听器会导致交互失效")
                 break
             seen[b] = True
 
-    # 2d) 源文件卫生：重复定义检测
-    # 反复踩过的坑：用追加方式改文件时，同一段 CSS 或 JS 被写入两次。
-    # CSS 重复只是冗余；JS 重复会绑定两个监听器，同一次点击里互相抵消
-    # （筛选按钮点不动就是这么来的）。故 JS 重复按错误处理。
-    import collections as _c
+    # 2e) 前端数据契约（G1/G2/G3）
+    # 这一层是盲区：JSON 结构一旦漂移，前端不会报错，只会拿到 undefined，
+    # 表现是「某校永远搜不到 / 对比页少一列」——最难查的一类 bug。
+    data_js = os.path.join(config.SITE, "assets", "schools-data.js")
+    payload = None
+    if os.path.isfile(data_js):
+        raw = open(data_js, encoding="utf-8").read()
+        try:
+            payload = json.loads(raw[raw.index("{"):raw.rindex("}") + 1])
+        except ValueError as e:
+            rep.error("assets/schools-data.js", f"不是合法 JSON：{e}")
 
-    for sheet in ("site.css", "pages.css", "responsive.css"):
-        f = os.path.join(config.SITE, "assets", sheet)
-        if not os.path.isfile(f):
-            continue
-        text = open(f, encoding="utf-8").read()
-        sels = re.findall(r"(?m)^([.#][^{\n]+)\{", text)
-        dups = [sel for sel, n in _c.Counter(x.strip() for x in sels).items() if n > 1]
-        if dups:
-            rep.warn(f"assets/{sheet}", f"同一文件内重复定义 {len(dups)} 个选择器：{dups[:3]}")
+    if payload:
+        cols = payload.get("cols") or []
+        rows = payload.get("rows") or []
+        labels = set((payload.get("factLabels") or {}).keys())
 
-    js = os.path.join(config.SITE, "assets", "app.js")
-    if os.path.isfile(js):
-        lines = [ln.rstrip() for ln in open(js, encoding="utf-8").read().splitlines()]
-        blocks = [tuple(lines[i:i + 8]) for i in range(len(lines) - 8)
-                  if lines[i].strip() and lines[i].lstrip().startswith(("(function", "/*", "var ", "function "))]
-        seen = {}
-        for b in blocks:
-            if len(set(x for x in b if x.strip())) < 6:
+        # G1 每行长度必须等于 cols，且关键列非空
+        mismatched = [i for i, r in enumerate(rows) if len(r) != len(cols)]
+        if mismatched:
+            rep.error("assets/schools-data.js",
+                      f"{len(mismatched)} 行长度与 cols({len(cols)}) 不一致，"
+                      f"前端会拿到 undefined")
+        for field in ("name", "level"):
+            if field not in cols:
+                rep.error("assets/schools-data.js", f"缺少 {field} 列")
                 continue
-            if b in seen:
-                rep.error("assets/app.js",
-                          f"检测到重复代码块（约第 {lines.index(b[0]) + 1} 行起），"
-                          f"重复绑定监听器会导致交互失效")
-                break
-            seen[b] = True
+            idx = cols.index(field)
+            empty = sum(1 for r in rows if not str(r[idx] or "").strip())
+            if empty:
+                rep.error("assets/schools-data.js", f"{empty} 行的 {field} 为空")
+
+        # G2 facts 的 key 必须都在 factLabels 里，否则界面显示 undefined
+        if labels and "facts" in cols:
+            fi = cols.index("facts")
+            unknown = set()
+            for r in rows:
+                if isinstance(r[fi], dict):
+                    unknown |= set(r[fi]) - labels
+            if unknown:
+                rep.error("assets/schools-data.js",
+                          f"facts 出现未定义字段 {sorted(unknown)[:3]}，界面会显示 undefined")
+
+        # G3 前端派生 id（学段-校名）必须唯一且能落到实际文件。
+        # 对比页、详情页的「加入对比」都靠它，改拼法 = 历史分享链接静默失效。
+        if "level" in cols and "name" in cols:
+            li, ni = cols.index("level"), cols.index("name")
+            derived = [f"{r[li]}-{r[ni]}" for r in rows]
+            dup = [i for i, n in collections.Counter(derived).items() if n > 1]
+            if dup:
+                rep.error("assets/schools-data.js", f"派生 id 重复：{dup[:3]}")
+            missing = [i for i in derived if not os.path.isfile(
+                os.path.join(config.SITE, "schools", i + ".html"))]
+            if missing:
+                rep.error("assets/schools-data.js",
+                          f"{len(missing)} 个派生 id 找不到详情页：{missing[:2]}")
+
+    # 2f) 脚本语法（G6）
+    # 内联脚本时代这里是盲区：模板里的 JS 语法错误要到用户浏览器才炸。
+    # 现在脚本全部外置到 assets/，构建期就能拦。
+    node = shutil.which("node")
+    if not node:
+        rep.warn("assets/*.js", "未找到 node，跳过脚本语法检查")
+    else:
+        for js_name in sorted(n for n in os.listdir(os.path.join(config.SITE, "assets"))
+                              if n.endswith(".js")):
+            r = subprocess.run([node, "--check", os.path.join(config.SITE, "assets", js_name)],
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                detail = [x for x in (r.stderr or "").splitlines() if x.strip()]
+                rep.error(f"assets/{js_name}", "脚本语法错误：" + (detail[0] if detail else "未知"))
 
     for path in html_files:
         rel = os.path.relpath(path, config.SITE)
@@ -233,13 +272,6 @@ def run(rep: Report, expected_pages):
             if dup:
                 rep.error(rel, f"存在重复章节标题：{dup[:2]}")
 
-        # 内容页不允许重复章节标题（曾因重复写入导致同一条日志出现两次）
-        if rel in ("changelog.html",):
-            heads = re.findall(r"<h2[^>]*>(.*?)</h2>", html)
-            dup = [h for h in set(heads) if heads.count(h) > 1]
-            if dup:
-                rep.error(rel, f"存在重复章节标题：{dup[:2]}")
-
         # 内部链接可达性
         # 注意：先剔除 <script> 内容——列表页把数据内嵌在 JS 里，
         # 其中 `href="' + s.url + '"` 这类拼接片段会被正则误判为死链。
@@ -249,15 +281,6 @@ def run(rep: Report, expected_pages):
             if target.startswith(("http://", "https://", "mailto:", "data:", "#", "//")):
                 continue
             clean = target.split("#")[0].split("?")[0]
-            # 从站点根算起的绝对链接（404 页使用）：按配置的基址路径裁剪后再校验
-            if clean.startswith("/"):
-                base_path = urlparse(config.BASE_URL).path.rstrip("/") if config.BASE_URL else ""
-                if base_path and clean.startswith(base_path + "/"):
-                    clean = clean[len(base_path) + 1:]
-                elif base_path == "":
-                    clean = clean.lstrip("/")
-                else:
-                    continue
             # 从站点根算起的绝对链接（404 页使用）：按配置的基址路径裁剪后再校验
             if clean.startswith("/"):
                 base_path = urlparse(config.BASE_URL).path.rstrip("/") if config.BASE_URL else ""

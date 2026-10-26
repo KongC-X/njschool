@@ -210,6 +210,9 @@
    对比页
    ------------------------------------------------------------ */
 .picker{position:relative;margin:var(--s-4) 0}
+/* site.css 给输入框写了 outline:none，键盘聚焦只剩一圈淡阴影。
+   这里把可见焦点补回来（只在键盘导航时出现，鼠标点击不显示）。 */
+.picker input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pick-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);
   margin:0;padding:var(--s-1);list-style:none;background:var(--surface);
   border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh-2);
@@ -217,7 +220,9 @@
 .pick-list li{display:flex;justify-content:space-between;align-items:baseline;
   gap:var(--s-3);padding:9px var(--s-3);border-radius:var(--r-sm);
   cursor:pointer;font-size:var(--f-sm)}
-.pick-list li:hover,.pick-list li:focus{background:var(--accent-weak);outline:none}
+.pick-list li:hover,.pick-list li:focus,.pick-list li.is-active{background:var(--accent-weak)}
+/* 键盘活动项必须看得见：只靠鼠标 hover 的列表，键盘用户是盲的 */
+.pick-list li.is-active{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-sm)}
 .pick-list em{color:var(--muted);font-style:normal;font-size:var(--f-xs);white-space:nowrap}
 .pick-empty{color:var(--muted);cursor:default}
 

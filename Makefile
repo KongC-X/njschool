@@ -17,7 +17,7 @@ PY := $(shell [ -x "$(VENV_PY)" ] && echo "$(VENV_PY)" || echo python3)
 BASE ?=
 PORT ?= 8788
 
-.PHONY: help all site export index validate check audit reconcile sources preview clean verify-web
+.PHONY: help all site export index validate check audit reconcile sources preview clean verify-web test
 
 help:
 	@echo "可用命令："
@@ -27,6 +27,7 @@ help:
 	@echo "  make index      仅重建 index.json"
 	@echo "  make validate   仅校验数据（不写文件）"
 	@echo "  make check      语法检查 + 数据校验"
+	@echo "  make test       前端核心单测（node --test）"
 	@echo "  make verify-web 体检全部学校官网链接"
 	@echo "  make audit      盘点数据缺口与收录遗漏"
 	@echo "  make reconcile  按官方名单对账收录完整性"
@@ -67,6 +68,13 @@ check:
 verify-web:
 	$(PY) src/merge_websites.py
 	$(PY) src/verify_websites.py --apply
+
+# 前端单测：只用固定样本，不依赖 site/ 产物，fresh clone 也能跑
+# 传具体文件而不是目录：Node 22 会把目录当模块入口去 require，直接报 MODULE_NOT_FOUND
+NODE := $(shell command -v node 2>/dev/null || echo node)
+
+test:
+	@$(NODE) --test tests/*.test.mjs
 
 preview:
 	@echo "预览地址：http://127.0.0.1:$(PORT)/"
