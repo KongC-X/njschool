@@ -6,6 +6,7 @@
 import json
 import os
 import shutil
+from collections import Counter
 
 from . import check, config, load, render
 from .schema import Report, validate_counts, validate_pages, validate_schools, validate_websites
@@ -41,6 +42,10 @@ def run():
 
     print("③ 渲染页面")
     env = render.make_env()
+    # 跨学段同名的校名（小学部/初中部共用校名）：详情页 title 需补学段才能区分
+    dup_names = {n for n, c in Counter(s.name for s in schools).items() if c > 1}
+    if dup_names:
+        print(f"   {len(dup_names)} 组同名档案，详情页标题将补上学段")
     outputs = {
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
@@ -53,7 +58,7 @@ def run():
         "404.html": render.not_found(env),
     }
     for s in schools:
-        outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at, links)
+        outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at, links, dup_names)
 
     print("④ 写入站点")
     if os.path.isdir(config.SITE):

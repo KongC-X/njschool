@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import config, facts, load
+from . import aliases, config, facts, load
 
 NAV = [
     ("index.html", "首页", "home"),
@@ -85,7 +85,7 @@ def home(env, schools, districts, pages, web_counts):
     )
 
 
-# 列表页数据列顺序（前端按此顺序解包）。用数组而非对象：204 条记录下可省约 30KB。
+# 列表页数据列顺序（前端按此顺序解包）。用数组而非对象：545 条记录下可省约 30KB。
 LIST_COLS = ("name", "short", "district", "level", "type", "tier", "tagline")
 
 
@@ -96,15 +96,20 @@ def schools_data(schools, districts):
       - 学校库与对比页共用同一份数据，浏览器只下载一次；
       - HTML 从 50KB 降到几 KB；
       - <script src> 不受 file:// 的 fetch 限制，双击打开仍可用。
+
+    aliases 列单独放最后：搜索命中「拉力琅」「秦淮外校」这类俗称靠它，
+    但 tagline 不进搜索索引（叙述性长文本，是误命中的唯一来源）。
     """
+    alias = aliases.build(schools)
     rows = []
     for s in schools:
         text = open(os.path.join(config.ROOT, s.file), encoding="utf-8").read()
         f = facts.extract(text)
         rows.append([s.name, s.short, s.district, s.level, s.type, s.tier,
-                     s.tagline, f or None, 1 if s.website.site else 0])
+                     s.tagline, f or None, 1 if s.website.site else 0,
+                     alias.get(s.id, "")])
     payload = {
-        "cols": list(LIST_COLS) + ["facts", "hasSite"],
+        "cols": list(LIST_COLS) + ["facts", "hasSite", "aliases"],
         "rows": rows,
         "districts": districts,
         "factLabels": facts.FACT_LABELS,
@@ -188,11 +193,18 @@ def policy(env, pages):
     )
 
 
-def detail(env, school, verified_at, links=None):
+def detail(env, school, verified_at, links=None, dup_names=()):
+    """dup_names：跨学段重名的校名集合。
+
+    南京有 10 所「小学部 / 初中部」共用同一校名的学校（如南京仙林外国语学校），
+    若 title 只写校名，会出现 10 组完全相同的 <title>——浏览器多标签页、收藏夹、
+    搜索结果里都无法区分。重名时补上学段，如「南京仙林外国语学校（小学）」。
+    """
     body, toc = load.load_body(school, links)
     jsonld = build_jsonld(school)
+    title = f"{school.name}（{school.level}）" if school.name in dup_names else school.name
     return env.get_template("detail.html").render(
-        base="../", active="schools", nav=nav(), title=school.name,
+        base="../", active="schools", nav=nav(), title=title,
         desc=f"{school.name}（{school.district}{school.level}，{school.type}）：{school.tagline}",
         canonical=canonical(school.url), s=school, body=body, toc=toc,
         verified_at=verified_at, jsonld=jsonld,

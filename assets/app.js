@@ -15,7 +15,11 @@
   }
 
   var saved = read();
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  /* 首帧的主题已由 base.html <head> 里的内联脚本写好（避免翻页白闪），
+     这里不再重复设置，只在「浏览器未预置」时兜底一次。 */
+  if (saved && !document.documentElement.getAttribute('data-theme')) {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
 
   function current() {
     return document.documentElement.getAttribute('data-theme')

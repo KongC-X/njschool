@@ -6,6 +6,7 @@
 """
 import os
 import re
+import collections
 
 from urllib.parse import urlparse
 
@@ -189,6 +190,18 @@ def run(rep: Report, expected_pages):
                 rep.error(rel, f"未引用 {need}")
         if RE_STYLE.search(html):
             rep.error(rel, "存在内联 <style>，样式应只在 assets/ 维护")
+
+        # 同一份样式表只允许引入一次。
+        # responsive.css 靠「最后加载」来覆盖基础规则，重复引入会让 pages.css
+        # 排到它后面，断点内的覆盖静默失效——这类问题极难定位，故按错误处理。
+        hrefs = re.findall(r'<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"', html)
+        dup_css = [h for h, n in collections.Counter(hrefs).items() if n > 1]
+        if dup_css:
+            rep.error(rel, f"同一份样式表被重复引入：{dup_css[:2]}，会打乱层叠顺序")
+
+        # 主题必须在首帧之前落到 <html> 上，否则深色模式用户每次翻页都会白闪
+        if "data-theme" not in html.split("</head>")[0]:
+            rep.error(rel, "缺少首帧主题预置脚本（深色模式会翻页白闪）")
 
         # 占位符与编码
         if RE_PLACEHOLDER.search(html):

@@ -21,13 +21,15 @@
 {% endif %}<meta name="twitter:card" content="summary">
 <!-- 浏览器地址栏配色；与 tokens.css 的 --accent 保持一致 -->
 <meta name="theme-color" content="#2563eb"><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+{# 主题预置：必须在样式表之前执行。写在 app.js 里太晚（脚本在 body 末尾加载，
+   执行时首帧已经绘制完成），深色模式用户每次翻页都会看到一次白闪。 #}
+<script>document.documentElement.className += ' js';
+try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAttribute('data-theme',_t)}catch(e){}</script>
+{# 顺序即层叠顺序：responsive.css 必须最后，断点内的覆盖规则才能盖住基础规则 #}
 <link rel="stylesheet" href="{{ base }}assets/tokens.css">
 <link rel="stylesheet" href="{{ base }}assets/site.css">
 <link rel="stylesheet" href="{{ base }}assets/pages.css">
 <link rel="stylesheet" href="{{ base }}assets/responsive.css">
-<link rel="stylesheet" href="{{ base }}assets/pages.css">
-<link rel="stylesheet" href="{{ base }}assets/responsive.css">
-<script>document.documentElement.className += ' js';</script>
 {% block head %}{% endblock %}
 </head>
 <body>
