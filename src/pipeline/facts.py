@@ -36,6 +36,52 @@ FACT_LABELS = {
 
 _EMPTY = {"", "—", "-", "–", "未获取", "未公开", "暂无"}
 
+# ---- 「数据缺口」小节的字段级判定 ----
+# 只在这一个小节里找关键词：该小节的语义就是「以下内容未能从公开渠道获得」，
+# 所以在这里被点名过的字段，才可以负责任地标成「未获取」；否则只能标「未收录」。
+#
+# 关键词刻意收窄。最初 classes 用了（"班型", "班级"），
+# 结果把「学校占地面积、建筑面积、班级与学生总数」也算成「班型缺口」——
+# 那句讲的是办学规模，不是班型，属误标。宁少不滥。
+MISSING_HEAD = re.compile(r"^#{2,4}\s*.*数据缺口.*$", re.M)
+MISSING_NEXT = re.compile(r"^#{1,4}\s", re.M)
+MISSING_KW = {
+    "founded": ("创办", "建校"),
+    "address": ("校址", "地址"),
+    "feeder": ("对口初中",),
+    "tuition": ("学费", "收费"),
+    "score": ("投档线", "录取线", "分数线"),
+    "plan": ("招生计划",),
+    "classes": ("班型",),
+}
+# 讲「成绩 / 升学结果」的行不算这一项的缺口。
+# 典型误标：「对口初中（二十九中初中部）的完整中考数据」——
+# 缺的是中考数据，不是对口关系本身，整节匹配会把它算成 feeder 缺口（实测多出 36 所）。
+MISSING_NEG = ("中考", "成绩", "升学率", "录取", "分数", "排名", "高考")
+
+
+def extract_missing(text):
+    """返回档案**明确声明**为数据缺口的字段集合。
+
+    逐行判定，并跳过讲成绩的行——整节通篇匹配会造成误标。
+    找不到「数据缺口」小节时返回空集——不猜。
+    """
+    m = MISSING_HEAD.search(text)
+    if not m:
+        return set()
+    rest = text[m.end():]
+    n = MISSING_NEXT.search(rest)
+    sec = rest[:n.start()] if n else rest[:2000]
+
+    out = set()
+    for line in sec.splitlines():
+        if not line.strip() or any(w in line for w in MISSING_NEG):
+            continue
+        for field, words in MISSING_KW.items():
+            if any(w in line for w in words):
+                out.add(field)
+    return out
+
 
 def extract(text):
     """返回 {field: value}；只保留有实际内容的项。"""

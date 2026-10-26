@@ -66,7 +66,8 @@ def run():
     os.makedirs(os.path.join(config.SITE, "assets"))
     os.makedirs(os.path.join(config.SITE, "schools"), exist_ok=True)
 
-    for name in ("tokens.css", "site.css", "pages.css", "responsive.css", "app.js"):
+    for name in ("tokens.css", "site.css", "pages.css", "responsive.css", "app.js",
+                 "compare-core.js", "compare.js"):
         src = os.path.join(config.ASSETS, name)
         if not os.path.isfile(src):
             print(f"✗ 缺少资源文件：{src}")
@@ -84,6 +85,10 @@ def run():
     with open(os.path.join(config.SITE, "assets", "schools-data.js"), "w",
               encoding="utf-8") as f:
         f.write(render.schools_data(schools, index["districts"]))
+    # 只有对比页需要：区分「未获取」与「未收录」
+    with open(os.path.join(config.SITE, "assets", "facts-missing.js"), "w",
+              encoding="utf-8") as f:
+        f.write(render.missing_data(schools))
 
     urls = ["", "schools.html", "compare.html", "policy.html", "changelog.html",
             "about.html"] + [s.url for s in schools]

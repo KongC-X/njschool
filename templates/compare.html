@@ -2,13 +2,16 @@
 {% block content %}
 <div class="wrap">
   <h1 class="page-title">对比</h1>
-  <p class="page-sub">选 2–4 所学校并排看：性质、梯队、关键数据与官方渠道。选择会保存在本机，可复制链接分享。</p>
+  <p class="page-sub">选 2–4 所学校并排看。只标「不同」，不标「更好」——本站不构成任何择校建议。
+    选择会保存在本机，可复制链接分享。</p>
 
   <div class="picker">
     <label class="sr-only" for="pick">添加学校</label>
     <input id="pick" type="search" autocomplete="off"
-           placeholder="输入校名添加对比（如「琅琊路」「金中」）">
+           placeholder="输入校名添加对比（如「琅琊路」「金中」「拉力琅」）">
     <ul class="pick-list" id="pickList" role="listbox" aria-label="候选学校" hidden></ul>
+    {# 独立状态区：候选数量、上限提示都走这里，避免覆盖用户正在看的候选列表 #}
+    <p class="pick-status" id="pickStatus" role="status" aria-live="polite"></p>
   </div>
 
   <div class="chips" id="picked" aria-label="已选学校"></div>
@@ -16,10 +19,23 @@
   <div id="cmp"></div>
 
   <div class="cmp-actions">
+    <button type="button" class="btn-ghost" id="onlyDiff" aria-pressed="false" hidden>只看差异</button>
     <button type="button" class="btn-ghost" id="copyLink">复制分享链接</button>
     <button type="button" class="btn-ghost" id="clearAll" hidden>清空</button>
   </div>
+
+  <noscript>
+    <div class="callout">
+      <p><strong>对比功能需要 JavaScript</strong>（要按你的选择实时重排表格）。
+         不开启也能用：学校库按学段与行政区筛选，每所学校都有完整档案页。</p>
+      <p><a href="schools.html">去学校库 →</a></p>
+    </div>
+  </noscript>
 </div>
 <script src="{{ base }}assets/schools-data.js"></script>
-<script>{% include "compare.js" %}</script>
+<script src="{{ base }}assets/facts-missing.js"></script>
+{# 行定义由 data/compare_rows.json 注入：加一行是加数据，不是改前端 #}
+<script>window.__CMP_ROWS__ = {{ row_specs | safe }};</script>
+<script src="{{ base }}assets/compare-core.js"></script>
+<script src="{{ base }}assets/compare.js"></script>
 {% endblock %}

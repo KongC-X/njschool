@@ -89,6 +89,38 @@ def home(env, schools, districts, pages, web_counts):
 LIST_COLS = ("name", "short", "district", "level", "type", "tier", "tagline")
 
 
+def _md_text(school, _cache={}):
+    """读档案原文并缓存。
+
+    对比页要的 facts 与「已声明缺口」都来自同一份 md，两次构建期扫描会各读一遍
+    545 个文件；这里按路径缓存，一次构建内只读一次。
+    """
+    path = os.path.join(config.ROOT, school.file)
+    if path not in _cache:
+        _cache[path] = open(path, encoding="utf-8").read()
+    return _cache[path]
+
+
+def missing_data(schools):
+    """生成 assets/facts-missing.js。
+
+    对比表的「未获取」与「—」必须分得开：
+      - 未获取 = 该校档案的「数据缺口」小节**明确点名**过这一项
+      - —      = 本站没抽到，不代表学校没有
+    把两者混成一个符号，就是在替学校下结论，违反「不臆造」。
+    数据量很小（每校最多 7 个字符），但 schools-data.js 只剩 2KB 余量，
+    所以单独成一个只有对比页加载的小文件。
+    """
+    fields = list(facts.FACT_LABELS.keys())
+    rows = []
+    for s in schools:
+        miss = facts.extract_missing(_md_text(s))
+        rows.append("".join(str(fields.index(f)) for f in fields if f in miss))
+    payload = {"fields": fields, "rows": rows}
+    return "window.__FACTS_MISSING__ = " + json.dumps(
+        payload, ensure_ascii=False, separators=(",", ":")) + ";\n"
+
+
 def schools_data(schools, districts):
     """生成 assets/schools-data.js。
 
@@ -159,11 +191,22 @@ def not_found(env):
     )
 
 
+COMPARE_ROWS = os.path.join(config.ROOT, "data", "compare_rows.json")
+
+
 def compare(env, schools):
+    """对比页。
+
+    行定义外置在 data/compare_rows.json：加一行 = 加一条数据，
+    前端 compare-core.js 不用改（渲染层只认 group / source / diff 三个字段）。
+    """
+    with open(COMPARE_ROWS, encoding="utf-8") as f:
+        row_specs = json.load(f)
     return env.get_template("compare.html").render(
         base="", active="compare", nav=nav(), title="对比",
         desc="自选 2–4 所学校并排对比：性质、梯队、关键数据与官方渠道。",
         canonical=canonical("compare.html"), total=len(schools),
+        row_specs=json.dumps(row_specs, ensure_ascii=False, separators=(",", ":")),
     )
 
 

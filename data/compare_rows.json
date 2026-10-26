@@ -1,0 +1,16 @@
+[
+  {"key": "level",    "label": "学段",        "group": "identity", "source": "index",   "field": "level",    "diff": "exact", "priority": 10},
+  {"key": "type",     "label": "性质",        "group": "identity", "source": "index",   "field": "type",     "diff": "exact", "priority": 20},
+  {"key": "district", "label": "行政区",      "group": "identity", "source": "index",   "field": "district", "diff": "exact", "priority": 30},
+  {"key": "tier",     "label": "梯队",        "group": "identity", "source": "index",   "field": "tier",     "diff": "exact", "priority": 40},
+  {"key": "channel",  "label": "官方渠道",    "group": "identity", "source": "channel", "field": "hasSite",  "diff": "exact", "priority": 50},
+
+  {"key": "feeder",   "label": "对口初中",    "group": "path",     "source": "facts",   "field": "feeder",   "diff": "none",  "priority": 60},
+  {"key": "plan",     "label": "2026 招生计划", "group": "path",   "source": "facts",   "field": "plan",     "diff": "exact", "priority": 70},
+  {"key": "tuition",  "label": "学费",        "group": "path",     "source": "facts",   "field": "tuition",  "diff": "exact", "priority": 80},
+  {"key": "score",    "label": "2026 投档线", "group": "path",     "source": "facts",   "field": "score",    "diff": "exact", "priority": 90},
+  {"key": "classes",  "label": "班型",        "group": "path",     "source": "facts",   "field": "classes",  "diff": "none",  "priority": 100},
+
+  {"key": "address",  "label": "校址",        "group": "evidence", "source": "facts",   "field": "address",  "diff": "none",  "priority": 110},
+  {"key": "tagline",  "label": "一句话定位",  "group": "evidence", "source": "tagline", "field": "tagline",  "diff": "none",  "priority": 120}
+]

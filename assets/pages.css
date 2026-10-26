@@ -175,7 +175,14 @@
    打印：家长打印施教区、招生计划是真实场景
    ------------------------------------------------------------ */
 @media print{
-  .nav,.toc,.filter-toggle,footer .cols,.skip,.cmp-add{display:none!important}
+  .nav,.toc,.filter-toggle,footer .cols,.skip,.cmp-add,
+  .picker,.chips,.cmp-actions,.cmp-gtoggle .cmp-gcaret{display:none!important}
+  .cmp-wrap{overflow:visible}
+  .cmp-table th,.cmp-table td{padding:4px 6px;font-size:9pt}
+  .cmp-cell.is-diff{background:transparent;color:var(--text);font-weight:700}
+  /* 打印时一律展开折叠组：纸面上没有「展开」按钮可按。
+     需要 !important，因为折叠规则写在本块之后，同权重下会盖掉这里。 */
+  tbody.is-collapsed tr:not(.cmp-ghead){display:table-row!important}
   body{background:var(--bg);color:var(--text);font-size:11pt}
   .article,.detail-head,.callout,.table-wrap{box-shadow:none;border-color:var(--line)}
   .article a::after{content:" (" attr(href) ")";font-size:9pt;color:var(--muted)}
@@ -215,22 +222,59 @@
 .pick-empty{color:var(--muted);cursor:default}
 
 #picked{margin:0 0 var(--s-4)}
-/* 每列上限 560px：2 所对比时不会拉到 1000px 宽导致行长失控，
-   整体居中而不是贴左留白 */
-.cmp{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));
-  gap:var(--s-4);align-items:start;
-  max-width:calc(var(--n,2) * 560px + (var(--n,2) - 1) * var(--s-4));
-  margin-inline:auto}
-.cmp-col{background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-lg);padding:var(--s-5);box-shadow:var(--sh-1)}
-.cmp-name{font-size:var(--f-md);margin-bottom:var(--s-2);line-height:1.4}
-.cmp-name a{color:var(--ink)}
-.cmp-name a:hover{color:var(--accent-text);text-decoration:none}
-.cmp-dl{margin:var(--s-3) 0 0}
-.cmp-dl dt{font-size:var(--f-2xs);color:var(--muted);margin-top:var(--s-2)}
-.cmp-dl dd{margin:2px 0 0;font-size:var(--f-sm);color:var(--text);line-height:1.6}
-.cmp .more{display:inline-block;margin-top:var(--s-4);font-size:var(--f-xs);
-  font-weight:600;color:var(--accent)}
+/* ---- 对比表 ----
+   真表格：th[scope=row] + 每校一列，行天然对齐。
+   之前是每列各自一个 <dl>，只要某格换行，该列后续所有行整体下移，
+   「第三行是投档线」这个对位关系就没了——那不是美化问题，是读不出来。 */
+.cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cmp-table{width:100%;border-collapse:collapse;table-layout:fixed;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;font-size:var(--f-sm)}
+.cmp-table th,.cmp-table td{padding:10px var(--s-4);text-align:left;
+  vertical-align:top;border-bottom:1px solid var(--line)}
+.cmp-table tbody:last-child tr:last-child th,
+.cmp-table tbody:last-child tr:last-child td{border-bottom:0}
+.cmp-table thead th{background:var(--surface-2);border-bottom:1px solid var(--line-strong)}
+.cmp-corner{width:128px;font-size:var(--f-2xs);color:var(--muted);
+  font-weight:600;letter-spacing:.02em}
+.cmp-head a{color:var(--ink);font-weight:600}
+.cmp-head a:hover{color:var(--accent-text)}
+.cmp-head-meta{display:block;margin-top:2px;font-size:var(--f-2xs);
+  color:var(--muted);font-weight:400}
+.cmp-rowhead{width:128px;font-size:var(--f-xs);color:var(--muted);
+  font-weight:600;position:relative}
+.cmp-fill{display:block;margin-top:2px;font-size:var(--f-2xs);
+  font-weight:400;opacity:.75}
+.cmp-cell{color:var(--text);line-height:1.6;word-break:break-word}
+/* 「未获取」= 该校档案自己声明了这一项是缺口；「—」= 本站没抽到。
+   两者必须看得出区别，否则等于替学校下结论。 */
+.cmp-cell.is-gap{color:var(--muted);font-style:italic}
+.cmp-cell.is-na{color:var(--line-strong)}
+
+/* 差异标记：只标「不同」，不标「更好」。禁用红绿——语义色留给信度徽章 */
+.cmp-row.has-diff > .cmp-rowhead::before{content:"";position:absolute;
+  left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--accent)}
+.cmp-cell.is-diff{background:var(--amber-bg);color:var(--amber)}
+
+/* 分组标题行（可折叠） */
+.cmp-ghead th{padding:var(--s-3) var(--s-4) var(--s-2);background:transparent;
+  border-bottom:1px solid var(--line)}
+.cmp-gtoggle{display:inline-flex;align-items:center;gap:var(--s-2);
+  padding:0;border:0;background:none;font-family:inherit;cursor:pointer;
+  font-size:var(--f-xs);font-weight:700;color:var(--ink)}
+.cmp-gcount{color:var(--muted);font-weight:400}
+.cmp-gcaret{color:var(--muted);font-size:var(--f-2xs)}
+tbody.is-collapsed tr:not(.cmp-ghead){display:none}
+
+/* 只看差异：收起「各处都一样」和「一所都没有值」两类行 */
+.only-diff .cmp-row.is-same,
+.only-diff .cmp-row.is-blank,
+.only-diff .cmp-crow.is-same,
+.only-diff .cmp-crow.is-blank{display:none}
+.cmp-note{margin:var(--s-4) 0 0;font-size:var(--f-sm);color:var(--muted)}
+.cmp-note-btn{margin-left:var(--s-2);padding:0;border:0;background:none;
+  font-family:inherit;font-size:inherit;color:var(--accent);cursor:pointer;
+  text-decoration:underline}
 
 .cmp-actions{display:flex;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-5)}
 .btn-ghost{padding:9px 16px;border-radius:var(--r-md);border:1px solid var(--line);
@@ -254,9 +298,28 @@ html.js .cmp-add{display:flex}
 /* 搜索命中高亮 */
 mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3px}
 
+/* 窄屏专用的「一校一卡」结构：桌面隐藏 */
+.cmp-cards{display:none}
+.cmp-card{background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:var(--s-4);margin-bottom:var(--s-4)}
+.cmp-card .cmp-head{margin:0 0 2px}
+.cmp-card dl{margin:var(--s-3) 0 0}
+.cmp-crow{display:grid;grid-template-columns:100px minmax(0,1fr);
+  gap:var(--s-3);padding:6px 0;border-top:1px solid var(--line);
+  position:relative;align-items:start}
+.cmp-crow:first-child{border-top:0}
+.cmp-crow dt{font-size:var(--f-2xs);color:var(--muted);font-weight:600;padding-top:2px}
+.cmp-crow dd{margin:0;min-width:0}
+.cmp-crow.has-diff::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;
+  width:3px;border-radius:2px;background:var(--accent)}
+
+/* 窄屏：表格改为「行标签吸附 + 容器内横向滚动」。
+   容器自己滚，不会把整页撑宽（站内硬约束）。
+   列宽用 data-n 定档，2 所时不滚、4 所时滚大约一半。 */
 @media (max-width:720px){
-  .cmp{grid-template-columns:1fr}
-  .cmp-col{padding:var(--s-4)}
+  .cmp-wrap{display:none}
+  .cmp-cards{display:block}
+  .cmp-add{flex-wrap:wrap}
 }
 
 /* ------------------------------------------------------------
