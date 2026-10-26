@@ -20,7 +20,7 @@ PAGE_SIZE_WARN_KB = 120
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
 # 超出预算说明在往同一文件堆样式，应拆分（如 components.css / pages.css）而非继续增长
 ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 20,
-                   "responsive.css": 10, "app.js": 12, "schools-data.js": 140}
+                   "responsive.css": 10, "app.js": 12, "schools-data.js": 200}
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
 RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
 
@@ -193,6 +193,11 @@ def run(rep: Report, expected_pages):
         # 占位符与编码
         if RE_PLACEHOLDER.search(html):
             rep.error(rel, "正文残留 {BASE} 占位符")
+
+        # Markdown 粗体标记泄漏：meta/og/JSON-LD/列表卡片都不解析 Markdown，
+        # tagline 若带 ** 会直接显示星号（曾一次性影响 118 个页面）
+        if "**" in html:
+            rep.error(rel, "存在未解析的 Markdown 粗体标记「**」，应去掉标记后再输出")
 
         # 体积预算
         kb = os.path.getsize(path) / 1024

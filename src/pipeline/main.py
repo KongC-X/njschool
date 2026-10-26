@@ -107,15 +107,6 @@ def run():
             return 1
         print(f"   来源链接已渲染到 {hit} 个页面")
 
-    # 回归护栏：登记表里有 URL 却没渲染出任何来源链接，说明链接化链路断了
-    if links:
-        probe = list(links.values())
-        hit = sum(1 for h in outputs.values() if any(u in h for u in probe))
-        if hit == 0:
-            print("✗ 来源登记表非空，但没有任何页面渲染出来源链接")
-            return 1
-        print(f"   来源链接已渲染到 {hit} 个页面")
-
     print("⑤ 检查产物")
     rep2 = Report()
     rep2, stats = check.run(rep2, expected_pages=len(outputs))
