@@ -15,9 +15,31 @@
   /* 不用 grid：1fr 的自动最小宽度会被内容撑开，导致整页横向溢出 */
   .detail-grid{display:block}
   .detail-grid > *{min-width:0}
-  /* 横向目录条在窄屏只有一两个半章节可见，且其 nowrap 布局会撑宽页面，直接隐藏；
-     正文各章节标题本身足以导航 */
-  .toc{display:none}
+
+  /* 目录从「竖排侧栏」改成「贴在导航下方的横滑条」。
+     这里原来是 display:none，理由是「正文各章节标题本身足以导航」——
+     那在 3 屏的短档案上成立，在 92KB、10 个 h2 的长档案上不成立，
+     而移动端恰恰最需要目录。 */
+  .toc{position:sticky;top:58px;z-index:40;margin:0 0 var(--s-4);
+    background:var(--bg);border-bottom:1px solid var(--line);font-size:var(--f-xs)}
+  .toc-title{display:none}
+  .toc ol{display:flex;gap:var(--s-2);margin:0;padding:var(--s-2) 0;
+    border-left:0;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none}
+  .toc ol::-webkit-scrollbar{display:none}
+  /* nowrap + 不参与弹性收缩：否则每个 li 都会被压到同宽，标题全变成省略号 */
+  .toc li{flex:0 0 auto}
+  .toc li a{display:block;padding:6px 10px;border-left:0;
+    border-bottom:2px solid transparent;white-space:nowrap;
+    max-width:11em;overflow:hidden;text-overflow:ellipsis}
+  .toc li a:hover{border-left-color:transparent;border-bottom-color:var(--line-strong);
+    background:var(--surface-2)}
+  .toc li a[aria-current="true"]{border-left-color:transparent;
+    border-bottom-color:var(--accent);color:var(--accent-text);background:var(--accent-weak)}
+
+  /* 锚点落点要同时避开固定导航（58px）与目录条（约 44px），否则跳过去标题在框外 */
+  html{scroll-padding-top:112px}
+
   .cards3{grid-template-columns:1fr}
 }
 

@@ -61,29 +61,70 @@ function heroSearch() {
 /* ---------- 详情页目录联动 ---------- */
 (function () {
   var toc = document.querySelector('.toc');
-  if (!toc || !('IntersectionObserver' in window)) return;
+  if (!toc) return;
 
   var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
   if (!links.length) return;
 
-  var map = {};
+  var map = {}, items = [];
   links.forEach(function (a) {
     var id = decodeURIComponent(a.getAttribute('href').slice(1));
     var el = document.getElementById(id);
-    if (el) map[id] = a;
+    if (el) { map[id] = a; items.push(el); }
   });
-  var ids = Object.keys(map);
-  if (!ids.length) return;
+  if (!items.length) return;
 
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      links.forEach(function (a) { a.removeAttribute('aria-current'); });
-      if (map[e.target.id]) map[e.target.id].setAttribute('aria-current', 'true');
-    });
-  }, { rootMargin: '-72px 0px -70% 0px', threshold: 0 });
+  /* 判定线：吸顶元素的下沿再往下一点。
+     桌面端目录在侧边，只让开导航；窄屏目录变成横条压在正文上，还要再让开它。
+     算少了会让高亮永远「提前一节」。 */
+  function lineY() {
+    var nav = document.querySelector('.nav');
+    var navH = nav ? nav.offsetHeight : 58;
+    var isBar = matchMedia('(max-width:1023px)').matches;
+    return navH + (isBar ? toc.offsetHeight : 0) + 16;
+  }
 
-  ids.forEach(function (id) { io.observe(document.getElementById(id)); });
+  /* 窄屏的目录是横滑条，章节多时活动项会滑出可视区。
+     把它滚回中间——否则用户看到的高亮永远停在最左边那几项。 */
+  var bar = toc.querySelector('ol');
+  function revealInBar(a) {
+    if (!bar || bar.scrollWidth <= bar.clientWidth + 1) return;   // 桌面竖排不处理
+    var ar = a.getBoundingClientRect(), br = bar.getBoundingClientRect();
+    if (ar.left < br.left || ar.right > br.right) {
+      bar.scrollLeft += (ar.left - br.left) - (br.width - ar.width) / 2;
+    }
+  }
+
+  /* 改成按滚动位置判定「当前读到哪一节」。
+     原先用 IntersectionObserver + rootMargin 划一条百来像素的窄带，
+     章节一长就没有任何标题落在这条带里，于是回调不触发、活动项停在第一节不动
+     ——窄屏滑到一半时高亮还挂在「学校速览」上。
+     现在的做法是「取最后一个已经越过判定线的标题」，任何滚动位置都有确定答案。 */
+  var ticking = false;
+  function updateActive() {
+    ticking = false;
+    var line = lineY(), current = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].getBoundingClientRect().top <= line) current = items[i].id;
+      else break;                                  // 标题按文档顺序排列，可以提前收工
+    }
+    for (var k = 0; k < links.length; k++) links[k].removeAttribute('aria-current');
+    if (!current) return;
+    var active = map[current];
+    if (!active) return;
+    active.setAttribute('aria-current', 'true');
+    revealInBar(active);
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateActive);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', updateActive);
+  updateActive();
 })();
 
 /* ---------- 移动端筛选条件折叠 ----------
