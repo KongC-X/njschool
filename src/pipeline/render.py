@@ -10,13 +10,15 @@ import re
 from urllib.parse import quote, urlparse
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 
-from . import aliases, config, facts, load, marks
+from . import aliases, config, facts, load, marks, mdtext
 
 NAV = [
     ("index.html", "首页", "home"),
     ("schools.html", "学校库", "schools"),
     ("compare.html", "对比", "compare"),
+    ("talent.html", "特长生", "talent"),
     ("policy.html", "政策", "policy"),
     ("about.html", "数据说明", "about"),
 ]
@@ -34,6 +36,9 @@ def make_env():
     # 分享卡片图。必须是绝对地址，社交平台不会解析相对路径；
     # 未配置基址（本地 file:// 预览）时返回空串，模板据此整块省略。
     env.globals["og_image"] = canonical("assets/og/site.png")
+    # 信度徽章：让模板与 Markdown 正文用同一套 HTML，不各写一份样式。
+    # 必须包 Markup —— 否则 autoescape 会把 <span> 转义成字面量显示出来。
+    env.globals["conf"] = lambda k: Markup(mdtext.badge(k))
     return env
 
 
@@ -249,6 +254,45 @@ def all_page(env, schools, districts):
         base="", active="schools", nav=nav(), title="全部学校索引",
         desc=f"南京 {len(schools)} 所中小学的完整清单，按行政区与学段排列。",
         canonical=canonical("all.html"), total=len(schools), groups=groups,
+    )
+
+
+TALENT_SCHOOLS = os.path.join(config.ROOT, "data", "talent_schools.json")
+
+
+def talent(env, schools):
+    """特长生页：科技特长生 + 学科特长生中的信息学方向。
+
+    招生校清单外置在 data/talent_schools.json。构建期校验每个校名都能在
+    545 所里找到——写错校名会让页面挂一个点不进去的名字，比漏列更难发现。
+    """
+    with open(TALENT_SCHOOLS, encoding="utf-8") as f:
+        data = json.load(f)
+
+    known = {s.name for s in schools}
+    for group in ("tech", "info"):
+        for row in data.get(group, []):
+            if row["name"] not in known:
+                raise SystemExit(
+                    f"✗ talent_schools.json 里的「{row['name']}」不在 index.json 中，"
+                    f"请核对校名（写错会渲染出一个点不进去的链接）")
+
+    # 给每条挂上详情页地址；不在档案里的（如新设校区）留空，不硬凑
+    url_of = {}
+    for s in schools:
+        url_of.setdefault(s.name, s.url)
+    for group in ("tech", "info"):
+        for row in data.get(group, []):
+            row["url"] = url_of.get(row["name"], "")
+
+    return env.get_template("talent.html").render(
+        base="", active="talent", nav=nav(), title="科技特长生与信息学",
+        desc="南京中考科技特长生与学科特长生（信息学方向）：报名条件、时间节点、"
+             f"各校招生计划与升学路径。共 {len(data['tech'])} 所招科技特长生、"
+             f"{len(data['info'])} 所招信息学方向。",
+        canonical=canonical("talent.html"),
+        tech=data.get("tech", []), info=data.get("info", []),
+        updated=data.get("updated", ""),
     )
 
 

@@ -23,7 +23,7 @@ PAGE_SIZE_WARN_KB = 120
 PAGE_SIZE_EXEMPT_KB = {"all.html": 200}
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
-ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 24,
+ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 24, "talent.css": 8,
                    "responsive.css": 12, "app.js": 14, "schools-data.js": 200,
                    "schools-compare.js": 120, "search-core.js": 16, "schools.js": 16,
                    "compare-core.js": 16, "compare.js": 20}

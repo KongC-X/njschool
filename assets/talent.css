@@ -1,0 +1,54 @@
+/* ============================================================
+   特长生页专属样式（只在 talent.html 加载）
+   ------------------------------------------------------------
+   为什么单独成文件：这几个模块（置顶提示、时间线、误解清单）
+   只有这一页用。放进 pages.css 会把那个文件顶过体积预算——
+   而那份预算的意义就是提醒「该拆了」。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   特长生页
+   ------------------------------------------------------------ */
+/* 置顶提示：小升初没有这条通道。用琥珀（=需要注意），不动红绿——
+   红绿已被民办/公办占用，而且这不是错误，是必须先知道的前提 */
+.keybox{background:var(--amber-bg);border:1px solid var(--amber);
+  border-radius:var(--r-lg);padding:var(--s-4) var(--s-5) var(--s-5);
+  margin:var(--s-5) 0 var(--s-6)}
+.article .keybox-title{margin:0 0 var(--s-3);padding-left:0;border-left:0;
+  font-size:var(--f-md);color:var(--ink)}
+.keybox p{font-size:var(--f-sm);line-height:var(--lh-base);margin:var(--s-2) 0;color:var(--text)}
+.keybox blockquote{margin:var(--s-3) 0;padding:var(--s-3) var(--s-4);
+  background:var(--surface);border-left:3px solid var(--amber);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--text);font-size:var(--f-sm)}
+.keybox-conclusion{margin-top:var(--s-3);padding-top:var(--s-3);
+  border-top:1px dashed var(--amber)}
+
+/* 时间线：左列日期、右列事项，比纯列表更容易竖着扫 */
+.timeline{list-style:none;margin:var(--s-4) 0;padding:0}
+.timeline li{display:grid;grid-template-columns:132px minmax(0,1fr);gap:var(--s-4);
+  padding:var(--s-3) 0;border-top:1px solid var(--line);font-size:var(--f-sm)}
+.timeline li:first-child{border-top:0}
+.timeline b{color:var(--ink);font-size:var(--f-xs);line-height:1.7;
+  font-variant-numeric:tabular-nums}
+.timeline span{color:var(--text);line-height:var(--lh-base)}
+
+/* 常见误解：用 ✗ 起头，一眼看出是「错的说法」 */
+.myths{list-style:none;padding:0;margin:var(--s-3) 0}
+.myths li{position:relative;padding:var(--s-3) 0 var(--s-3) var(--s-5);
+  border-top:1px solid var(--line);font-size:var(--f-sm);line-height:var(--lh-base)}
+.myths li:first-child{border-top:0}
+.myths li::before{content:"✗";position:absolute;left:0;top:var(--s-3);
+  color:var(--red);font-weight:700}
+.myths b{color:var(--ink)}
+
+/* 表格里的数字列：等宽数字 + 不换行，人数竖着对齐 */
+.article td.num{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* 时间线在窄屏改成上下两行：132px 的日期列会把事项挤扁 */
+@media (max-width:720px){
+  .timeline li{grid-template-columns:1fr;gap:2px}
+}
+
+/* 类别名与分数很短，不该被挤成两行（「学科特长/生」） */
+.article .col-kind{white-space:nowrap}
+.article .col-score{white-space:nowrap}

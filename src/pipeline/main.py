@@ -50,6 +50,7 @@ def run():
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
         "all.html": render.all_page(env, schools, index["districts"]),
+        "talent.html": render.talent(env, schools),
         "compare.html": render.compare(env, schools),
         "compare.html": render.compare(env, schools),
         "policy.html": render.policy(env, pages),
@@ -69,7 +70,7 @@ def run():
 
     for name in ("tokens.css", "site.css", "pages.css", "responsive.css", "app.js",
                  "search-core.js", "schools.js",
-                 "compare-core.js", "compare.js"):
+                 "compare-core.js", "compare.js", "talent.css"):
         src = os.path.join(config.ASSETS, name)
         if not os.path.isfile(src):
             print(f"✗ 缺少资源文件：{src}")
@@ -102,8 +103,8 @@ def run():
               encoding="utf-8") as f:
         f.write(render.compare_data(schools))
 
-    urls = ["", "schools.html", "all.html", "compare.html", "policy.html",
-            "changelog.html", "about.html"] + [s.url for s in schools]
+    urls = ["", "schools.html", "all.html", "compare.html", "talent.html",
+            "policy.html", "changelog.html", "about.html"] + [s.url for s in schools]
     if config.BASE_URL:
         xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

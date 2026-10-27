@@ -103,9 +103,14 @@ def _add_source_note(html):
     return SRC_H2.sub(lambda m: m.group(1) + SRC_NOTE, html, count=1)
 
 
-def _badge(k):
+def badge(k):
+    """信度徽章的 HTML。模板也要用同一套，避免两处样式各写一份。"""
     cls, title = CONF_META[k]
     return f'<span class="conf {cls}" title="{title}">{k}</span>'
+
+
+def _badge(k):
+    return badge(k)
 
 
 def _mark_confidence(html):
