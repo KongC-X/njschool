@@ -59,13 +59,18 @@ def home(env, schools, districts, pages, web_counts):
     for s in schools:
         by_key[(s.level, s.district)] = by_key.get((s.level, s.district), 0) + 1
 
+    # 统计条只讲「这个站有多大」，不复述学段构成——
+    # 小学/初中/高中 的数字紧接着就出现在学段卡片上，同一屏说两遍是冗余。
+    # 第三格换成 2026 政策变化条数，把用户引向下面那个区块。
+    hl_html = (pages.get("home-highlights") or {}).get("html", "")
+    n_changes = hl_html.count("<li>")
     stats = [
         ("收录学校", f"{len(schools)} 所"),
         ("覆盖行政区", f"{len(districts)} 个"),
-        ("小学", f"{sum(1 for s in schools if s.level == '小学')} 所"),
-        ("初中", f"{sum(1 for s in schools if s.level == '初中')} 所"),
-        ("高中", f"{sum(1 for s in schools if s.level == '高中')} 所"),
     ]
+    if n_changes:
+        stats.append(("2026 政策变化", f"{n_changes} 项"))
+
     level_cards = [{
         "level": lv,
         "count": sum(1 for s in schools if s.level == lv),

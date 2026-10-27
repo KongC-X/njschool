@@ -15,6 +15,14 @@
              placeholder="搜索学校，如「琅琊路」「金中」「江北」">
       <button type="submit">搜索</button>
     </form>
+    {# 常搜词：既当示例又当入口。都走别名表能命中的真实说法 #}
+    <p class="hero-quick">常搜：
+      <a href="schools.html?q=%E6%8B%89%E5%8A%9B%E7%8B%BC">拉力琅</a>
+      <a href="schools.html?q=%E7%8E%84%E5%A4%96">玄外</a>
+      <a href="schools.html?q=%E4%BA%8C%E5%8D%81%E4%B9%9D%E4%B8%AD">二十九中</a>
+      <a href="schools.html?q=%E9%BC%93%E6%A5%BC">鼓楼</a>
+      <a href="schools.html?q=%E6%B0%91%E5%8A%9E">民办</a>
+    </p>
   </section>
 
   <div class="stats">
@@ -25,9 +33,8 @@
 
   <section class="sec">
     <div class="sec-head">
-      <div class="eyebrow">按学段</div>
-      <h2 class="sec-title">先选学段</h2>
-      <p class="hint">点击进入学校库并自动筛选该学段</p>
+      <h2 class="sec-title">按学段查找</h2>
+      <p class="hint">点进去自动筛选该学段</p>
     </div>
     <div class="cards3">
       {%- for item in level_cards %}
@@ -41,9 +48,10 @@
 
   <section class="sec">
     <div class="sec-head">
-      <div class="eyebrow">按行政区</div>
       <h2 class="sec-title">{{ districts | length }} 个区，就近查看</h2>
-      <p class="hint">括号内为该区收录数量分布</p>
+      {# 原提示写「括号内为该区收录数量分布」，但卡上并没有括号——
+         显示的是「小学 29 · 初中 22 · 高中 2」。按实际呈现改文案。 #}
+      <p class="hint">卡上第二行是该区的学段构成</p>
     </div>
     <div class="dist-grid">
       {%- for d in district_cards %}
@@ -51,12 +59,16 @@
         <b>{{ d.name }}</b><span>{{ d.total }} 所</span>
         <small>{{ d.detail }}</small></a>
       {%- endfor %}
+      {# 11 个区在 4 列下必然剩 3 个空位。补一张「全部学校」卡：
+         既把网格补成 12 = 4×3，也顺手给出一个不按区筛的入口 #}
+      <a class="dist dist-all" href="all.html">
+        <b>全部学校</b><span>{{ total }} 所</span>
+        <small>按区与学段排列的完整清单</small></a>
     </div>
   </section>
 
   <section class="sec">
     <div class="sec-head">
-      <div class="eyebrow">2026 变化</div>
       <h2 class="sec-title">{{ pages['home-highlights'].title if 'home-highlights' in pages else '今年的主要变化' }}</h2>
       <p class="hint">
         <a href="policy.html">查看完整政策与更名对照 →</a>

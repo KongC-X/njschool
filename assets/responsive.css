@@ -14,6 +14,9 @@
 
 
 @media (max-width:1023px){
+  /* 区卡：4 列在平板上太窄，退到 2 列 */
+  .dist-grid{grid-template-columns:repeat(2,1fr)}
+
 
   /* 不用 grid：1fr 的自动最小宽度会被内容撑开，导致整页横向溢出 */
   .detail-grid{display:block}
@@ -48,6 +51,14 @@
 
 
 @media (max-width:720px){
+  /* 手机仍保留 2 列：11 个区排 1 列会多出 700px 滚动，得不偿失。
+     列宽只有约 170px，字号退回一档才放得下「江北新区 + 94 所」 */
+  .dist-grid{grid-template-columns:repeat(2,1fr)}
+  .dist{padding:var(--s-3)}
+  .dist b{font-size:var(--f-sm)}
+  .stat{padding:var(--s-4) var(--s-2)}
+  .hero-quick{line-height:2.4}
+
 
   /* 硬约束：任何情况下都不允许整页横向溢出 */
   html,body{max-width:100%;overflow-x:hidden}
@@ -61,15 +72,11 @@
   .hero-search{padding:5px}
   .hero-search button{padding:10px var(--s-4)}
 
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .stat{border-left:0;border-top:1px solid var(--line);padding:var(--s-4)}
-  .stat:nth-child(-n+2){border-top:0}
-  .stat:nth-child(even){border-left:1px solid var(--line)}
+  /* 统计条已从 5 格 grid 改成 flex 自适应格数（现在 3 格）。
+     原来那套 border-top / nth-child 是给方格布局写的，在 flex 下会把分隔线弄乱，删掉。 */
   .stat b{font-size:var(--f-xl)}
-  .stat:last-child:nth-child(odd){grid-column:span 2;border-left:0}
 
   .grid{grid-template-columns:1fr}
-  .dist-grid{grid-template-columns:repeat(2,1fr)}
 
   .filter-toggle{display:flex;align-items:center;justify-content:space-between;
     gap:var(--s-2);width:100%;margin:var(--s-2) 0 var(--s-3);padding:11px var(--s-4);
