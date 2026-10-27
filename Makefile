@@ -74,7 +74,10 @@ verify-web:
 NODE := $(shell command -v node 2>/dev/null || echo node)
 
 test:
+	@echo "── 前端核心（node --test）──"
 	@$(NODE) --test tests/*.test.mjs
+	@echo "── 数据管道（unittest）──"
+	@$(PY) -m unittest discover -s tests -p "test_*.py" 2>&1 | tail -3
 
 preview:
 	@echo "预览地址：http://127.0.0.1:$(PORT)/"

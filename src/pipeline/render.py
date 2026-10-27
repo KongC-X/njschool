@@ -7,11 +7,11 @@
 import json
 import os
 import re
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import aliases, config, facts, load
+from . import aliases, config, facts, load, marks
 
 NAV = [
     ("index.html", "首页", "home"),
@@ -31,6 +31,9 @@ def make_env():
     )
     env.filters["host"] = host_of
     env.globals["today"] = config.TODAY
+    # 分享卡片图。必须是绝对地址，社交平台不会解析相对路径；
+    # 未配置基址（本地 file:// 预览）时返回空串，模板据此整块省略。
+    env.globals["og_image"] = canonical("assets/og/site.png")
     return env
 
 
@@ -161,9 +164,10 @@ def schools_data(schools, districts):
     rows = []
     for s in schools:
         rows.append([s.name, s.short, s.district, s.level, s.type, s.tier,
-                     s.tagline, alias.get(s.id, "")])
+                     s.tagline, alias.get(s.id, ""),
+                     " ".join(marks.labels(_md_text(s), s.name))])
     payload = {
-        "cols": list(LIST_COLS) + ["aliases"],
+        "cols": list(LIST_COLS) + ["aliases", "marks"],
         "rows": rows,
         "districts": districts,
     }
@@ -213,6 +217,33 @@ def not_found(env):
 
 
 COMPARE_ROWS = os.path.join(config.ROOT, "data", "compare_rows.json")
+
+
+def all_page(env, schools, districts):
+    """全部学校索引页（all.html）。
+
+    存在的理由有两个，都不是「多一个页面」：
+      1. 学校库靠 JS 渲染 545 张卡片，关掉 JS 就一条学校链接都没有。
+         这里给出纯静态、可直接点的完整清单。
+      2. 站内此前没有任何静态链接指向 545 个详情页，
+         搜索引擎只能靠 sitemap 摸进来，拿不到内链权重。
+    """
+    groups = []
+    for d in districts:
+        levels = []
+        for lv in config.LEVELS:
+            items = sorted((s for s in schools if s.district == d and s.level == lv),
+                           key=lambda s: s.name)
+            if items:
+                levels.append({"level": lv, "schools": items})
+        if levels:
+            groups.append({"name": d, "levels": levels,
+                           "total": sum(len(g["schools"]) for g in levels)})
+    return env.get_template("all.html").render(
+        base="", active="schools", nav=nav(), title="全部学校索引",
+        desc=f"南京 {len(schools)} 所中小学的完整清单，按行政区与学段排列。",
+        canonical=canonical("all.html"), total=len(schools), groups=groups,
+    )
 
 
 def compare(env, schools):
@@ -275,6 +306,8 @@ def detail(env, school, verified_at, links=None, dup_names=()):
         # 对比页的 id 规则是「学段-校名」，必须与 compare.js 的 o.id 完全一致，
         # 否则详情页加进去的学校在对比页认不出来（index.json 的 id 多了区，不能直接用）
         cmp_id=f"{school.level}-{school.name}",
+        # 「官方还没说死」的标记要放在页头，不能只埋在正文里
+        warn=marks.badges(_md_text(school), school.name),
     )
 
 
@@ -302,10 +335,18 @@ def build_jsonld(school):
         "@type": "BreadcrumbList",
         "itemListElement": [],
     }
-    for pos, (name, path) in enumerate(
-            [("首页", ""), ("学校库", "schools.html"), (school.name, school.url)], start=1):
+    # 与页面里 <nav class="crumb"> 的层级保持一致：首页 / 学校库 / 学段 / 区 / 校名。
+    # 两边对不上时，搜索结果里显示的路径会和页面上的不一样。
+    crumbs = [("首页", canonical("")), ("学校库", canonical("schools.html"))]
+    if config.BASE_URL:
+        crumbs.append((school.level,
+                       f"{config.BASE_URL}/schools.html?lv={quote(school.level)}"))
+        crumbs.append((school.district,
+                       f"{config.BASE_URL}/schools.html?dist={quote(school.district)}"))
+    crumbs.append((school.name, canonical(school.url)))
+
+    for pos, (name, url) in enumerate(crumbs, start=1):
         item = {"@type": "ListItem", "position": pos, "name": name}
-        url = canonical(path)
         if url:                      # 未配置基址时不写空的 item，避免产出无效地址
             item["item"] = url
         crumb["itemListElement"].append(item)

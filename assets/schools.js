@@ -100,6 +100,9 @@ function render() {
 
   grid.innerHTML = rows.map(function (s) {
     const t = s.type === '民办' ? 'b-pri' : 'b-pub';
+    /* 「官方还没说死」的标记：只在正文里写，用户会把暂定校名当确定信息用 */
+    const warn = (s.marks || '').split(' ').filter(Boolean)
+      .map(function (m) { return '<span class="b b-warn">' + esc(m) + '</span>'; }).join('');
     return '<div class="card">'
       + '<h3><a href="' + s.url + '">' + highlight(s.name, ts) + '</a></h3>'
       + '<div class="badges">'
@@ -107,6 +110,7 @@ function render() {
       +   '<span class="b ' + t + '">' + esc(s.type) + '</span>'
       +   '<span class="b b-d">' + esc(s.district) + '</span>'
       +   (s.short ? '<span class="b b-d">' + esc(s.short) + '</span>' : '')
+      +   warn
       + '</div>'
       + '<div class="tier">' + esc(s.tier || '') + '</div>'
       + '<div class="tag">' + highlight(s.tagline || '', ts) + '</div>'

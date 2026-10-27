@@ -6,12 +6,14 @@
     <h1>把每所学校的公开信息，整理清楚</h1>
     <p>{{ total }} 所中小学的施教区、招生计划、投档线与班型，
        逐条标注信息来源，查不到的就写「未获取」。</p>
-    <div class="hero-search">
+    {# 真表单：回车由浏览器提交，JS 挂了照样能搜。
+       之前用 onkeydown 手写回车，脚本一出错搜索就整个失效。 #}
+    <form class="hero-search" role="search" action="schools.html" method="get">
       <label class="sr-only" for="hq">搜索学校</label>
-      <input id="hq" type="search" placeholder="搜索学校，如「琅琊路」「金中」「江北」"
-             onkeydown="if(event.key==='Enter')heroSearch()">
-      <button type="button" onclick="heroSearch()">搜索</button>
-    </div>
+      <input id="hq" name="q" type="search" autocomplete="off"
+             placeholder="搜索学校，如「琅琊路」「金中」「江北」">
+      <button type="submit">搜索</button>
+    </form>
   </section>
 
   <div class="stats">

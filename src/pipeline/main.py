@@ -49,6 +49,7 @@ def run():
     outputs = {
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
+        "all.html": render.all_page(env, schools, index["districts"]),
         "compare.html": render.compare(env, schools),
         "compare.html": render.compare(env, schools),
         "policy.html": render.policy(env, pages),
@@ -75,6 +76,15 @@ def run():
             return 1
         shutil.copyfile(src, os.path.join(config.SITE, "assets", name))
 
+    # 分享卡片图（src/gen_og_image.py 一次性生成，产物入库）
+    og_src = os.path.join(config.ASSETS, "og")
+    if os.path.isdir(og_src):
+        og_dst = os.path.join(config.SITE, "assets", "og")
+        os.makedirs(og_dst, exist_ok=True)
+        for f in sorted(os.listdir(og_src)):
+            if f.endswith(".png"):
+                shutil.copyfile(os.path.join(og_src, f), os.path.join(og_dst, f))
+
     for rel, html in outputs.items():
         path = os.path.join(config.SITE, rel)
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -92,8 +102,8 @@ def run():
               encoding="utf-8") as f:
         f.write(render.compare_data(schools))
 
-    urls = ["", "schools.html", "compare.html", "policy.html", "changelog.html",
-            "about.html"] + [s.url for s in schools]
+    urls = ["", "schools.html", "all.html", "compare.html", "policy.html",
+            "changelog.html", "about.html"] + [s.url for s in schools]
     if config.BASE_URL:
         xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

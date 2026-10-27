@@ -72,8 +72,15 @@
    详情页
    ------------------------------------------------------------ */
 .crumb{font-size:var(--f-xs);color:var(--muted);padding:var(--s-5) 0 var(--s-3)}
+.crumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:0;
+  list-style:none;margin:0;padding:0}
+.crumb li{display:inline-flex;align-items:center;min-width:0}
+.crumb li + li::before{content:"/";margin:0 7px;color:var(--line-strong)}
 .crumb a{color:var(--muted)}
 .crumb a:hover{color:var(--accent-text)}
+/* 当前页（校名）不做成链接，用截断防止长校名把这一行撑破 */
+.crumb li:last-child span{color:var(--text);max-width:22em;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
 
 .detail-head{background:var(--surface);border:1px solid var(--line);
   border-top:3px solid var(--accent);
@@ -246,6 +253,7 @@
 .cmp-head a:hover{color:var(--accent-text)}
 .cmp-head-meta{display:block;margin-top:2px;font-size:var(--f-2xs);
   color:var(--muted);font-weight:400}
+.cmp-head-warn{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
 .cmp-rowhead{width:128px;font-size:var(--f-xs);color:var(--muted);
   font-weight:600;position:relative}
 .cmp-fill{display:block;margin-top:2px;font-size:var(--f-2xs);
@@ -301,6 +309,25 @@ html.js .cmp-add{display:flex}
 .cmp-add .btn-ghost:disabled:hover{border-color:var(--line);color:var(--text)}
 .cmp-go{font-size:var(--f-sm);font-weight:600;color:var(--accent)}
 .cmp-go[hidden]{display:none}
+
+/* ---- 全部学校索引（all.html）----
+   纯静态清单：不依赖 JS，也是站内指向 545 个详情页的爬虫入口 */
+.all-group{margin:var(--s-6) 0 var(--s-7)}
+.all-h2{display:flex;align-items:baseline;gap:var(--s-2);margin:0 0 var(--s-3);
+  padding-bottom:var(--s-2);border-bottom:1px solid var(--line);font-size:var(--f-md)}
+.all-h3{margin:var(--s-4) 0 var(--s-2);font-size:var(--f-xs);
+  color:var(--muted);font-weight:600}
+.all-count{font-size:var(--f-2xs);color:var(--muted);font-weight:400}
+.all-list{display:grid;gap:0 16px;margin:0;padding:0;list-style:none;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.all-list li{display:flex;align-items:baseline;gap:6px;min-width:0;padding:4px 0}
+/* 校名允许折行：这一页的全部价值就是让人把名字读全，
+   截成「南京市六合区东沟…」等于没写 */
+.all-list a{font-size:var(--f-sm);color:var(--text);line-height:1.45;
+  overflow-wrap:anywhere}
+.all-list a:hover{color:var(--accent-text)}
+.all-list em{font-style:normal;font-size:var(--f-2xs);color:var(--muted);
+  white-space:nowrap;flex:0 0 auto}
 
 /* 搜索命中高亮 */
 mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3px}

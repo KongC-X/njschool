@@ -4,6 +4,16 @@
   <h1 class="page-title">学校库</h1>
   <p class="page-sub">{{ total }} 所学校。支持多关键词（空格分隔）、按学段/行政区/性质筛选。</p>
 
+  {# 学校库靠脚本渲染卡片，关掉 JS 就一条学校链接都没有。
+       这里必须给一条能走的静态出路，顺便也是站内指向 545 个详情页的爬虫入口。 #}
+  <noscript>
+    <div class="callout">
+      <p><strong>筛选与搜索需要 JavaScript。</strong>不开启也能用——
+         全部 {{ total }} 所学校已经按行政区与学段列在一个静态页面里，可以直接点进任何一所。</p>
+      <p><a href="all.html">查看全部学校索引 →</a></p>
+    </div>
+  </noscript>
+
   <button type="button" class="filter-toggle" id="filterToggle"
           aria-expanded="false" aria-controls="filters">
     筛选条件 <span class="filter-count" id="filterCount" hidden></span>

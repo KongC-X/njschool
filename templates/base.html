@@ -18,7 +18,13 @@
 <meta property="og:description" content="{{ desc or '南京市中小学公开信息汇编' }}">
 <meta property="og:type" content="website">
 {% if canonical %}<meta property="og:url" content="{{ canonical }}">
-{% endif %}<meta name="twitter:card" content="summary">
+{% endif %}{# 分享卡片图：没有它，转发到群里只有一行灰字。
+   og:image 必须是绝对地址，所以只在配置了 NJ_BASE_URL 时才输出。 #}
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="南京中小学档案：545 所中小学公开信息汇编">
+{% endif %}<meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}">
 <!-- 浏览器地址栏配色；与 tokens.css 的 --accent 保持一致 -->
 <meta name="theme-color" content="#2563eb"><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
 {# 主题预置：必须在样式表之前执行。写在 app.js 里太晚（脚本在 body 末尾加载，
@@ -58,6 +64,7 @@ try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAt
         公开信息汇编 · 数据版本 v2026-10 · 更新 {{ today }}</div>
       <div><h4>导航</h4>
         <a href="{{ base }}schools.html">学校库</a><br>
+        <a href="{{ base }}all.html">全部学校索引</a><br>
         <a href="{{ base }}policy.html">政策与更名</a><br>
         <a href="{{ base }}about.html">数据说明</a><br>
         <a href="{{ base }}changelog.html">更新日志</a></div>

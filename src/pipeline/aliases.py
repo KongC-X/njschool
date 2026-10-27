@@ -47,17 +47,19 @@ def _norm(name):
     return RE_PREFIX.sub("", name).strip()
 
 
-def build(schools):
+def build(schools, table=None):
     """返回 {school.id: "别名 别名"}。
 
     同一所学校可以命中多条别名（如琅小既有「拉力琅」又有「拉力琅芳」）。
+    table 可传入自定义别名表，供单元测试用——默认走真实表，
+    而真实表要求每条别名都命中至少一所学校，小样本跑不通。
     """
     by_name = {}
     for s in schools:
         by_name.setdefault(_norm(s.name), []).append(s)
 
     out = {}
-    for alias, keys in ALIASES:
+    for alias, keys in (ALIASES if table is None else table):
         hit = 0
         for key in keys:
             for s in by_name.get(key, []):

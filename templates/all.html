@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap">
+  <h1 class="page-title">全部学校索引</h1>
+  <p class="page-sub">{{ total }} 所学校，按行政区与学段排列。
+    这一页是纯静态清单，不依赖 JavaScript——学校库的筛选和搜索需要脚本，
+    这里保证任何情况下都能找到并点进每一所学校的档案。</p>
+
+  {%- for g in groups %}
+  <section class="all-group">
+    <h2 class="all-h2">{{ g.name }}<span class="all-count">{{ g.total }} 所</span></h2>
+    {%- for lv in g.levels %}
+    <h3 class="all-h3">{{ lv.level }}<span class="all-count">{{ lv.schools | length }}</span></h3>
+    <ul class="all-list">
+      {# 简称只在它真的提供新信息时才显示：
+         545 所里有 331 所的简称就是全名去掉「南京市」，并排显示纯属噪声 #}
+      {%- for s in lv.schools %}
+      <li><a href="{{ base }}{{ s.url }}">{{ s.name }}</a>{% if s.short and s.short not in s.name %}<em>{{ s.short }}</em>{% endif %}</li>
+      {%- endfor %}
+    </ul>
+    {%- endfor %}
+  </section>
+  {%- endfor %}
+</div>
+{% endblock %}

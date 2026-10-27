@@ -50,13 +50,20 @@
   }
 })();
 
-/* ---------- 首页搜索跳转 ---------- */
-function heroSearch() {
-  var el = document.getElementById('hq');
-  if (!el) return;
-  var q = el.value.trim();
-  location.href = 'schools.html' + (q ? '?q=' + encodeURIComponent(q) : '');
-}
+/* ---------- 「/」快速聚焦搜索框 ----------
+   首页与学校库都适用。输入框里按 / 不拦截，否则打不出斜杠。 */
+(function () {
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    var el = document.getElementById('hq') || document.getElementById('q');
+    if (!el) return;
+    e.preventDefault();
+    el.focus();
+    if (el.select) el.select();
+  });
+})();
 
 /* ---------- 详情页目录联动 ---------- */
 (function () {

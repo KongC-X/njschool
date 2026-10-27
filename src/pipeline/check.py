@@ -11,13 +11,16 @@ import json
 import shutil
 import subprocess
 
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from . import config
 from .schema import Report
 
 MIN_H2_FOR_TOC = 3
 PAGE_SIZE_WARN_KB = 120
+# 索引页天生比档案页大：它的全部价值就是把 545 条一次列全，
+# 用同一把尺子量它没有意义，给单独的上限。
+PAGE_SIZE_EXEMPT_KB = {"all.html": 200}
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
 ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 24,
@@ -242,6 +245,8 @@ def run(rep: Report, expected_pages):
         # 分享卡片：og 缺失时转发只显示裸链接，体验明显变差
         if 'property="og:title"' not in html or 'property="og:description"' not in html:
             rep.error(rel, "缺少 og:title / og:description")
+        if config.BASE_URL and 'property="og:image"' not in html:
+            rep.error(rel, "已配置 BASE_URL 但缺少 og:image（转发出去会是裸链接）")
         if 'name="theme-color"' not in html:
             rep.warn(rel, "缺少 theme-color")
         if 'class="skip"' not in html:
@@ -279,8 +284,9 @@ def run(rep: Report, expected_pages):
 
         # 体积预算
         kb = os.path.getsize(path) / 1024
-        if kb > PAGE_SIZE_WARN_KB:
-            rep.warn(rel, f"页面体积 {kb:.0f}KB 超过预算 {PAGE_SIZE_WARN_KB}KB")
+        limit = PAGE_SIZE_EXEMPT_KB.get(rel.replace(os.sep, "/"), PAGE_SIZE_WARN_KB)
+        if kb > limit:
+            rep.warn(rel, f"页面体积 {kb:.0f}KB 超过预算 {limit}KB")
 
         # 详情页的目录：正文章节足够多时应生成 TOC
         if rel.startswith("schools" + os.sep) and rel.count(os.sep) == 1:
@@ -316,7 +322,11 @@ def run(rep: Report, expected_pages):
                     continue
             if not clean:
                 continue
-            resolved = os.path.normpath(os.path.join(base_dir, clean))
+            # 链接里的中文是百分号编码的（schools/%E5%B0%8F%E5%AD%A6-…html），
+            # 磁盘上的文件名是原样中文。不先解码就比对，会把每一条中文链接都判成死链。
+            # 这个盲区此前一直存在——只是学校库靠 JS 渲染，站内没有静态的中文链接，
+            # 直到 all.html 出现才暴露。
+            resolved = os.path.normpath(os.path.join(base_dir, unquote(clean)))
             if not os.path.exists(resolved):
                 rep.error(rel, f"内部链接指向不存在的文件：{target}")
 

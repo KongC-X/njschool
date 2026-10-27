@@ -77,7 +77,8 @@
   .filter-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
 
   #q{font-size:var(--f-md);padding:12px 14px}
-  .chip{min-height:38px;padding:8px 14px;font-size:var(--f-sm)}
+  /* 触屏上 44px 是 Apple HIG 的下限，原 38px 点起来容易偏 */
+  .chip{min-height:44px;padding:8px 14px;font-size:var(--f-sm)}
 
   .detail-head{padding:var(--s-4)}
   .detail-head h1{font-size:var(--f-xl)}

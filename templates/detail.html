@@ -4,13 +4,30 @@
 {# 结构化数据：便于搜索引擎识别「这是一所什么学校」，放在 body 内亦被支持 #}
 <script type="application/ld+json">{{ jsonld | safe }}</script>
 <div class="wrap">
-  <div class="crumb"><a href="{{ base }}index.html">首页</a> / <a href="{{ base }}schools.html">学校库</a> /
-    <a href="{{ base }}schools.html?lv={{ s.level | urlencode }}">{{ s.level }}</a> /
-    <a href="{{ base }}schools.html?dist={{ s.district | urlencode }}">{{ s.district }}</a></div>
+  {# 面包屑用 nav+ol：读屏能把整条路径当导航读出来，搜索引擎也能识别层级。
+     分隔符交给 CSS 的 ::before，别写成文本「/」——那样键盘会依次停在 5 个孤立链接上。 #}
+  <nav class="crumb" aria-label="面包屑">
+    <ol>
+      <li><a href="{{ base }}index.html">首页</a></li>
+      <li><a href="{{ base }}schools.html">学校库</a></li>
+      <li><a href="{{ base }}schools.html?lv={{ s.level | urlencode }}">{{ s.level }}</a></li>
+      <li><a href="{{ base }}schools.html?dist={{ s.district | urlencode }}">{{ s.district }}</a></li>
+      <li><span aria-current="page">{{ s.name }}</span></li>
+    </ol>
+  </nav>
 
   <div class="detail-head">
     <h1>{{ s.name }}</h1>
     {{ badges(s) }}
+    {# 「官方还没说死」的标记：这类不是「查不到」，是「查到了、官方没说死」，
+       只在正文里写会被当成确定信息使用，所以提到页头 #}
+    {%- if warn %}
+    <div class="warn-badges">
+      {%- for w in warn %}
+      <span class="b b-warn" title="{{ w.title }}">{{ w.label }}</span>
+      {%- endfor %}
+    </div>
+    {%- endif %}
     <div class="tier">{{ s.tier }}</div>
     <div class="tag">{{ s.tagline }}</div>
     {{ official(s.website, verified_at) }}

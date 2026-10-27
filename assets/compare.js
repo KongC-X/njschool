@@ -46,6 +46,16 @@ function esc(s) {
   });
 }
 
+/* 「官方还没说死」的标记（校名暂定 / 施教区含过渡）。
+   这类信息如果只在档案正文里，用户并排对比时会把它当确定信息用。 */
+function warnHtml(s) {
+  const list = (s.marks || '').split(' ').filter(Boolean);
+  if (!list.length) return '';
+  return '<span class="cmp-head-warn">' + list.map(function (m) {
+    return '<span class="b b-warn">' + esc(m) + '</span>';
+  }).join('') + '</span>';
+}
+
 /* ---------- 状态 ---------- */
 let ids = [];
 let broken = false;
@@ -183,7 +193,8 @@ function tableHtml(items, rows) {
     out += '<th scope="col" class="cmp-head">'
       + '<a href="' + s.url + '">' + esc(s.name) + '</a>'
       + '<span class="cmp-head-meta">' + esc(s.level) + ' · ' + esc(s.type)
-      + ' · ' + esc(s.district) + '</span></th>';
+      + ' · ' + esc(s.district) + '</span>'
+      + warnHtml(s) + '</th>';
   });
   out += '</tr></thead>';
 
@@ -250,6 +261,7 @@ function cardsHtml(items, rows) {
       + '<h2 class="cmp-head"><a href="' + s.url + '">' + esc(s.name) + '</a></h2>'
       + '<span class="cmp-head-meta">' + esc(s.level) + ' · ' + esc(s.type)
       + ' · ' + esc(s.district) + '</span>'
+      + warnHtml(s)
       + '<dl>' + body + '</dl></article>';
   }).join('') + '</div>';
 }
