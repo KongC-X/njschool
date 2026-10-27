@@ -126,7 +126,10 @@
 .vnote{font-size:var(--f-2xs);color:var(--muted);opacity:.85;margin-left:auto}
 
 .detail-grid{display:grid;grid-template-columns:var(--toc-w) minmax(0,1fr);gap:var(--s-8);
-  align-items:start}
+  align-items:start;
+  /* 目录 + 正文整体居中，否则正文卡居中后与目录之间空一道 */
+  max-width:calc(var(--toc-w) + var(--s-8) + 46em + 2 * var(--s-6));
+  margin-inline:auto}
 .toc{position:sticky;top:76px;font-size:var(--f-sm)}
 .toc-title{font-size:var(--f-2xs);letter-spacing:.1em;color:var(--muted);
   margin-bottom:var(--s-2)}
@@ -140,11 +143,11 @@
 
 .article{background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:var(--s-2) var(--s-6) var(--s-6);
-  box-shadow:var(--sh-1)}
-/* 正文行宽：原先是全宽 1035px @16px = 每行 65 汉字，远超中文舒适区（30–40），
-   长档案读到第三行就串行。限到 34em（约 36 汉字）。
-   只约束文字块——表格、代码、图片仍走全宽，否则表格会被挤成两行文字。 */
-.article > p,.article > ul,.article > ol,.article > blockquote{max-width:34em}
+  box-shadow:var(--sh-1);
+  /* 卡片定宽居中：.wrap 是满宽的，只限段落宽会变成「卡片很宽、字只占左半」 */
+  max-width:calc(46em + 2 * var(--s-6));margin-inline:auto}
+/* 行宽统一由 .article 的 max-width 控制（约 44 汉字/行），文字块填满卡片 */
+.article > p,.article > ul,.article > ol,.article > blockquote{max-width:none}
 .article h2{font-size:var(--f-lg);margin:var(--s-7) 0 var(--s-3);
   padding-left:var(--s-3);border-left:3px solid var(--accent);line-height:1.4}
 .article h3{font-size:var(--f-md);margin:var(--s-6) 0 var(--s-2)}
