@@ -89,20 +89,23 @@ img{max-width:100%;height:auto}
   transition:color var(--t-fast),background var(--t-fast)}
 .nav-drop-btn:hover{color:var(--text);background:var(--surface-2)}
 .nav-drop:hover .nav-drop-btn{color:var(--text)}
-.nav-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:60;
-  min-width:164px;margin:0;padding:var(--s-1);list-style:none;
+.nav-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;z-index:60;
+  min-width:168px;margin:0;padding:var(--s-1);list-style:none;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
   box-shadow:var(--sh-2)}
+/* 隐形桥接：菜单与按钮之间有 4px 空隙，指针穿过时既不在按钮上也不在菜单上，
+   悬停会断、菜单会收起来——这是下拉菜单「选不中」的经典原因。
+   这块看不见的区域把空隙补上。 */
+.nav-menu::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px}
 /* 只用 data-open 控制展开。原先还加了 :focus-within，结果按 Esc 后
    焦点回到按钮、:focus-within 仍成立，菜单又显示出来，Esc 等于无效。 */
 .nav-drop[data-open="true"] .nav-menu{display:block}
-/* 只有真正支持悬停的设备才用 hover 展开，触屏点一下不会「粘住」 */
-@media (hover:hover){
-  .nav-drop:hover .nav-menu{display:block}
-}
+/* 展开与否只由 data-open 决定（JS 控制，带关闭延迟）。
+   不再用 :hover 直接开合——那样指针跨过菜单与按钮之间的空隙时悬停会断，
+   菜单瞬间收起，用户根本点不到选项。 */
 .nav-menu li{margin:0}
-.nav-menu a{display:block;padding:8px 12px;border-radius:var(--r-sm);
-  font-size:var(--f-sm);color:var(--text);white-space:nowrap}
+.nav-menu a{display:block;padding:10px 12px;border-radius:var(--r-sm);
+  font-size:var(--f-sm);line-height:1.5;color:var(--text);white-space:nowrap}
 .nav-menu a:hover{background:var(--surface-2);text-decoration:none}
 .nav-menu a.on{color:var(--accent-text);background:var(--accent-weak);font-weight:600}
 

@@ -226,28 +226,63 @@
 })();
 
 /* ---------- 导航下拉 ----------
-   桌面端的 hover 展开由 CSS 负责；这里管点击、Esc 与点击外部关闭。
-   标签本身是链接（进总览页），只有 ▾ 按钮负责展开。 */
+   开合全部由 JS 控制，并给关闭留 200ms 宽限。
+
+   为什么不用 CSS :hover 直接开合：指针从标签滑到菜单要跨过几像素空隙，
+   悬停在这几像素里会断，菜单立刻收起——表现就是「选项点不中、一闪就没」。
+   实测复现：空隙 6px，指针落进去 display 立即变 none。
+
+   鼠标设备：移入即开、移出延后 200ms 关（手抖一下也不关）。
+   触屏/无悬停设备：点 ▾ 切换；悬停事件不挂，避免 tap 触发 mouseenter 后
+   又被 click 切换成关闭。
+*/
 (function () {
+  var GRACE = 200;
+  var canHover = window.matchMedia && window.matchMedia('(hover:hover)').matches;
   var drops = document.querySelectorAll('.nav-drop');
   if (!drops.length) return;
 
   Array.prototype.forEach.call(drops, function (drop) {
     var btn = drop.querySelector('.nav-drop-btn');
     if (!btn) return;
+    var timer = null;
 
     function set(open) {
+      if (timer) { clearTimeout(timer); timer = null; }
       drop.dataset.open = open ? 'true' : 'false';
       btn.setAttribute('aria-expanded', String(open));
     }
 
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();               // 别让下面的「点外部关闭」立刻把它关掉
-      set(drop.dataset.open !== 'true');
+    if (canHover) {
+      drop.addEventListener('mouseenter', function () { set(true); });
+      drop.addEventListener('mouseleave', function () {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () { set(false); }, GRACE);
+      });
+    }
+
+    /* 焦点离开就收起。刻意不在 focusin 时自动展开：
+       触屏上 tap 会先触发 focus 再触发 click，若 focus 就展开，
+       紧接着的 click 会把它切换成关闭，表现为「点了没反应」。
+       键盘用户按 Enter/Space 激活按钮即可展开（原生 button 行为）。 */
+    drop.addEventListener('focusout', function (e) {
+      if (!drop.contains(e.relatedTarget)) set(false);
     });
 
-    drop.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { set(false); btn.focus(); }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();          // 否则会被下面的「点外部关闭」当场关掉
+      /* 鼠标设备上点击只负责「开」：悬停已经开着了，再切换成关反而别扭 */
+      set(canHover ? true : drop.dataset.open !== 'true');
+    });
+
+    /* Esc 挂在 document 上而不是 drop 上：
+       挂在 drop 上时，只有焦点在下拉内部才收得到——鼠标用户把菜单悬停出来、
+       焦点还在别处，按 Esc 就毫无反应。 */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || drop.dataset.open !== 'true') return;
+      var inside = drop.contains(document.activeElement);
+      set(false);
+      if (inside) btn.focus();
     });
 
     document.addEventListener('click', function (e) {
