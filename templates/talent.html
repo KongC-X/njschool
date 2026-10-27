@@ -40,26 +40,34 @@
     <p class="hint">控制线为全市统一口径，多份学校档案与招生简章互相印证 {{ conf('A') }}。
       总分按 700 分计，80% 即 560 分。</p>
 
-    <h2>二、三条路，通向三个页面</h2>
-    <div class="cards3">
+    <h2>二、四条路，通向四个页面</h2>
+    <div class="cards4">
       <a class="lv-card" href="{{ base }}talent-xueke.html">
         <h3>学科特长生</h3>
         <div class="n">{{ counts.academic }} 所学校</div>
-        <p>看单科深度。信息学是其中的一个科目 · 控制线 560</p>
+        <p>数学、物理、化学、生物四大奥赛学科 · 控制线 560</p>
       </a>
       <a class="lv-card" href="{{ base }}talent-keji.html">
         <h3>科技特长生</h3>
         <div class="n">{{ counts.tech }} 所学校</div>
-        <p>看科创实践。人工智能、机器人、航模、无线电测向 · 控制线 560</p>
+        <p>人工智能、机器人、航模、无线电测向，含信息学（信奥） · 控制线 560</p>
       </a>
       <a class="lv-card" href="{{ base }}talent-yishu.html">
         <h3>艺术特长生</h3>
         <div class="n">{{ counts.arts }} 所学校</div>
-        <p>看专业成绩。美术、音乐、书法 · 控制线 490，按合成成绩排序</p>
+        <p>美术、音乐、书法 · 控制线 490，按合成成绩排序</p>
+      </a>
+      <a class="lv-card" href="{{ base }}talent-tiyu.html">
+        <h3>体育特长生</h3>
+        <div class="n">{{ counts.tiyu }} 所学校</div>
+        <p>足球、篮球、田径、击剑、跆拳道 · 控制线 455，按合成成绩排序</p>
       </a>
     </div>
-    <p class="hint">三类的报名入口是同一天同一时刻，且<strong>只能报一个</strong>——
+    <p class="hint">四类的报名入口是同一天同一时刻，且<strong>只能报一个</strong>——
       所以这一步不是「先都看看」，是「现在就选」。</p>
+    <p class="hint">学科与<strong>信息学</strong>的关系容易搞混：信息学在官方口径里属学科特长生，
+      但本站把它并在科技页讲。报名时仍要选「学科特长生」、科目选信息学——
+      详见 <a href="{{ base }}talent-keji.html">科技特长生 · 信息学方向</a>。</p>
 
     <h2>三、四类共通的四条规则</h2>
     <div class="callout">
@@ -86,8 +94,9 @@
         并与学校签协议确认意向。</li>
       <li><b>「信奥拿奖就能保送」</b>——只有进入国家集训队（NOI 前 50）才有保送资格。
         省一等奖、全国决赛银牌都不保送。</li>
-      <li><b>「特长生就是降分录取」</b>——更准确的说法是<strong>提前锁定</strong>。
-        控制线是硬门槛，不是「降分录取」那种弹性空间。</li>
+      <li><b>「特长生就是降分录取」</b>——要分两类看。学科与科技的 560 分是硬门槛，
+        达线即<strong>提前锁定</strong>；艺术与体育的 490 / 455 分只是门槛，
+        还要按「专业 + 文化」合成后<strong>择优</strong>，专业分不够一样不录。</li>
     </ul>
 
     {{ reminder() }}

@@ -25,6 +25,7 @@ NAV = [
         ("talent-xueke.html", "学科特长生", "talent-xueke"),
         ("talent-keji.html", "科技特长生", "talent-keji"),
         ("talent-yishu.html", "艺术特长生", "talent-yishu"),
+        ("talent-tiyu.html", "体育特长生", "talent-tiyu"),
     )),
     ("policy.html", "政策", "policy", ()),
     ("about.html", "数据说明", "about", ()),
@@ -271,14 +272,17 @@ TALENT_SCHOOLS = os.path.join(config.ROOT, "data", "talent_schools.json")
 # 三个分类页：(模板名, 输出文件, 标题, 摘要, 数据键)
 TALENT_SUBS = [
     ("talent_xueke.html", "talent-xueke.html", "学科特长生",
-     "南京中考学科特长生：招哪些科目、谁能报、各校招生计划，以及学科里的信息学方向。",
+     "南京中考学科特长生：覆盖数学、物理、化学、生物四大奥赛学科，含招生科目、报名条件与各校计划。",
      "academic"),
     ("talent_keji.html", "talent-keji.html", "科技特长生",
-     "南京中考科技特长生：人工智能、机器人、航模、无线电测向等方向，报名条件与各校计划。",
+     "南京中考科技特长生：人工智能、机器人、航模、无线电测向等方向，以及信息学（信奥）方向。",
      "tech"),
     ("talent_yishu.html", "talent-yishu.html", "艺术特长生",
      "南京中考艺术特长生：美术、音乐、舞蹈、书法，控制线 490 分与各校招生计划。",
      "arts"),
+    ("talent_tiyu.html", "talent-tiyu.html", "体育特长生",
+     "南京中考体育特长生：足球、篮球、排球、田径、击剑、跆拳道等，控制线 455 分与各校计划。",
+     "tiyu"),
 ]
 
 
@@ -295,7 +299,7 @@ def _talent_data(schools):
     for s in schools:
         url_of.setdefault(s.name, s.url)
 
-    for group in ("tech", "info", "academic", "arts"):
+    for group in ("tech", "info", "academic", "arts", "tiyu"):
         for row in data.get(group, []):
             if row["name"] not in known:
                 raise SystemExit(
@@ -314,7 +318,7 @@ def talent(env, schools):
     data = _talent_data(schools)
     # 入口卡上写「几所学校」，按校名去重——同一所学校可能有多个校区各占一行
     counts = {k: len({r["name"] for r in data.get(k, [])})
-              for k in ("academic", "tech", "arts", "info")}
+              for k in ("academic", "tech", "arts", "tiyu", "info")}
     return env.get_template("talent.html").render(
         base="", active="talent", nav=nav(), title="特长生",
         desc="南京中考特长生总览：学科、科技、艺术三类的差别、控制线、"

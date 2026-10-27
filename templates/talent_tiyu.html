@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% from "talent_shared.html" import four_kinds, school_table, reminder, teenage_only %}
+{% block head %}<link rel="stylesheet" href="{{ base }}assets/talent.css">{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumb" aria-label="面包屑">
+    <ol>
+      <li><a href="{{ base }}index.html">首页</a></li>
+      <li><a href="{{ base }}talent.html">特长生</a></li>
+      <li><span aria-current="page">体育特长生</span></li>
+    </ol>
+  </nav>
+
+  <article class="article">
+    <div class="eyebrow">特长生 · 体育</div>
+    <h1 class="doc-title">体育特长生</h1>
+    <p class="hint">面向南京中考。政策来源：市教育局《体育特长生招生项目、计划和范围》与各校简章，
+      招生计划来自本站各校档案；每条都标了信度。更新于 {{ updated }}。</p>
+
+    {{ teenage_only() }}
+
+    <div class="keybox">
+      <h2 class="keybox-title">控制线最低的一类，但专业分最重</h2>
+      <p>体育特长生的中考控制线是 <strong>455 分（总分 65%）</strong>，四类里最低，
+        比艺术低 35 分、比学科和科技低 105 分。</p>
+      <p class="keybox-conclusion">
+        但它是<strong>专业定胜负</strong>的一类：加试考专项体能与专项技能，
+        录取看专业成绩与文化成绩的合成，而不是学科、科技那种「达线即零志愿录取」。
+        换句话说：<strong>文化分门槛低，专业分门槛高一截</strong>。
+      </p>
+    </div>
+
+    <h2>一、四类特长生里，它站在哪</h2>
+    {{ four_kinds() }}
+    <p class="hint">控制线为全市统一口径，多份学校档案与招生简章互相印证 {{ conf('A') }}。
+      总分按 700 分计，65% 即 455 分。</p>
+
+    <h2>二、体育类都考什么</h2>
+    <table>
+      <thead>
+        <tr><th class="col-kind">项目类型</th><th>加试内容</th><th>2026 年南京设点的项目</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-kind">田径</td>
+          <td>短跑、长跑、跳跃、投掷等，考核速度、耐力、爆发力与动作规范性</td>
+          <td>江苏省溧水高级中学 5 人、六合区实验高级中学 6 人、栖霞中学 6 人、
+            秦淮中学女子田径 5 人</td>
+        </tr>
+        <tr>
+          <td class="col-kind">球类</td>
+          <td>基础技术、战术配合、赛场实战能力</td>
+          <td>足球：天印高中男足 6 + 女足 6、建邺高中女足 15、六合实验男足 6、
+            板桥中学男足 5、秦淮中学男足 5；篮球：板桥中学男篮 8、二十七中女篮 6；
+            排球：玄武高中男排 8；橄榄球：溧水二高女子橄榄球 6</td>
+        </tr>
+        <tr>
+          <td class="col-kind">特色项目</td>
+          <td>各自专项技能与对抗规则</td>
+          <td>击剑：大厂高中 3 人；跆拳道：田家炳 18 人、栖霞中学 4 人；
+            拳击：田家炳 3 人；射箭：二十七中 6 人；乒乓球：栖霞中学 4 人</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">加试内容为通行口径 {{ conf('B') }}，具体项目、评分标准与考场由市教育局与考点学校
+      当年公布，以官方文件为准。</p>
+
+    <h2>三、南京各校的体育特长生计划</h2>
+    <p>下表每一条都对应本站某份学校档案里的原文，点击校名可看到完整档案与来源。
+      统计口径是学校公布的总人数。</p>
+    {{ school_table(rows) }}
+    <p class="hint">全部为 {{ conf('A') }} 官方发布（市教育局《2026 年南京市普通高中体育特长生招生项目、
+      计划和范围》与学校简章）。「含省运会保障」指该名额中包含为省运动会备战保留的指标。</p>
+
+    <h2>四、录取方式：专业分定胜负</h2>
+    <div class="callout">
+      <ul>
+        <li><strong>455 分是门槛，不是唯一条件。</strong>专业加试合格 + 中考成绩达标，两者都要满足。</li>
+        <li><strong>按专业与文化合成排序</strong>，与学科、科技的「达线即零志愿录取」不同——
+          这一点与艺术类一致。</li>
+        <li><strong>专业分权重高。</strong>文化分低但专项拔尖，在体育类是常态；反过来，文化分高但专业弱，
+          录不上。</li>
+        <li>体育类<strong>同样受「一校一项、四类互斥」约束</strong>，不能与学科、科技、艺术兼报。</li>
+      </ul>
+    </div>
+    <p class="hint">「按合成排序」为通行口径 {{ conf('B') }}。本站未取得全市统一的体育类合成公式
+      （专业分与文化分各占多少），各校规则可能不同——见文末数据缺口。</p>
+
+    <h2>五、加试时间与考点：分项目、分考点</h2>
+    <p>这一点与学科、科技差别最大。学科与科技是 <strong>5 月 10 日全市统一</strong>；
+      体育则是<strong>按项目分考点、分日期</strong>安排。</p>
+    <table>
+      <thead>
+        <tr><th class="col-kind">环节</th><th>学科 / 科技</th><th>体育</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-kind">报名窗口</td><td>4 月 28 日 9:00 — 29 日 17:00</td><td>同期，市教育局官网同一入口</td></tr>
+        <tr><td class="col-kind">专业加试</td><td><strong>5 月 10 日</strong>（全市统一）</td>
+          <td><strong>分项目、分考点</strong>。已核到的例子：六合区实验高级中学男子足球
+            5 月 22—24 日（考点在<strong>南京市雨花台中学</strong>）、田径 5 月 23 日下午 13:00
+            （考点在<strong>本校</strong>延安北路 23 号）</td></tr>
+        <tr><td class="col-kind">录取方式</td><td>达线即零志愿录取</td><td>专业 + 文化合成后择优</td></tr>
+      </tbody>
+    </table>
+    <p class="hint">体育加试的日期与考点由市教育局按项目统一安排，同一所学校的两个项目可能在不同地点、
+      不同日期考试——报名后务必看清加试通知书上的考点，别按学校地址跑错地方。</p>
+
+    <h2>六、四个常见误解</h2>
+    <ul class="myths">
+      <li><b>「455 分就能上，专业随便考考」</b>——控制线低不等于好录。录取比的是合成成绩，
+        专业分不够一样落榜；热门项目（足球、篮球）报的人很多。</li>
+      <li><b>「体育生不用管文化课」</b>——455 分也是硬门槛，且合成里中考分占一定比重。</li>
+      <li><b>「加试就在本校考」</b>——不一定。已核到的例子是足球在雨花台中学考、田径在本校考。
+        考点以加试通知书为准。</li>
+      <li><b>「和学科特长生一起报，多一条保险」</b>——不行。一校一项、四类互斥。</li>
+    </ul>
+
+    <h2>七、这份页面的数据缺口</h2>
+    <p>按本站惯例，查不到的东西写「未获取」，不做推测：</p>
+    <ul>
+      <li><strong>全市统一的体育类报名条件未取得</strong>。第三方汇总提到「专项水平接近或达到国家二级运动员标准」
+        与「市级及以上体育竞赛个人项目前六名、集体项目前三名」，但本站未拿到官方文件原文，<strong>不转述为定论</strong>。</li>
+      <li><strong>专业分与文化分的合成公式未公开</strong>，各校规则可能不同。</li>
+      <li><strong>加试日期与考点只核到一所学校</strong>（六合区实验高级中学两个项目），其余未逐一核实。</li>
+      <li><strong>部分学校的体育计划数未公开</strong>：南京市第五高级中学的体育特长生具体计划数
+        在公开渠道未获取（艺术类已确认美术 40 人）。</li>
+      <li><strong>2027 年的计划与政策未发布</strong>。本页所有数字均为 2026 年口径。</li>
+    </ul>
+
+    {{ reminder() }}
+  </article>
+</div>
+{% endblock %}

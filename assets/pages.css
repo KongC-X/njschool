@@ -60,6 +60,8 @@
    首页 · 学段与行政区
    ------------------------------------------------------------ */
 .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-4)}
+/* 四个入口（特长生的四类）：三列排会剩一个落单 */
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-4)}
 .lv-card{display:block;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:var(--s-5);color:var(--text);
   transition:border-color var(--t-base),box-shadow var(--t-base),transform var(--t-base)}

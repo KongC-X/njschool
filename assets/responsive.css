@@ -14,6 +14,8 @@
 
 
 @media (max-width:1023px){
+  .cards4{grid-template-columns:repeat(2,1fr)}
+
   /* 区卡：4 列在平板上太窄，退到 2 列 */
   .dist-grid{grid-template-columns:repeat(2,1fr)}
 
@@ -51,6 +53,8 @@
 
 
 @media (max-width:720px){
+  .cards4{grid-template-columns:1fr}
+
   /* 手机仍保留 2 列：11 个区排 1 列会多出 700px 滚动，得不偿失。
      列宽只有约 170px，字号退回一档才放得下「江北新区 + 94 所」 */
   .dist-grid{grid-template-columns:repeat(2,1fr)}
