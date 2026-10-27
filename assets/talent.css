@@ -52,3 +52,7 @@
 /* 类别名与分数很短，不该被挤成两行（「学科特长/生」） */
 .article .col-kind{white-space:nowrap}
 .article .col-score{white-space:nowrap}
+
+/* 分类页顶部的一行提醒：比正式 keybox 轻一档 */
+.keybox-sm{padding:var(--s-3) var(--s-4)}
+.keybox-sm p{margin:0;font-size:var(--f-sm)}

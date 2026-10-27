@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% from "talent_shared.html" import four_kinds, school_table, reminder, teenage_only %}
+{% block head %}<link rel="stylesheet" href="{{ base }}assets/talent.css">{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumb" aria-label="面包屑">
+    <ol>
+      <li><a href="{{ base }}index.html">首页</a></li>
+      <li><a href="{{ base }}talent.html">特长生</a></li>
+      <li><span aria-current="page">艺术特长生</span></li>
+    </ol>
+  </nav>
+
+  <article class="article">
+    <div class="eyebrow">特长生 · 艺术</div>
+    <h1 class="doc-title">艺术特长生</h1>
+    <p class="hint">面向南京中考。政策来源：市教育局、各校招生简章与党报报道，招生计划来自本站各校档案；
+      每条都标了信度。更新于 {{ updated }}。</p>
+
+    {{ teenage_only() }}
+
+    <div class="keybox">
+      <h2 class="keybox-title">艺术是另一套标准：看「专业 + 文化」的合成</h2>
+      <p>控制线是 <strong>490 分（总分 70%）</strong>，比学科、科技的 560 分低 70 分。
+        但录取方式不同——艺术类<strong>不是零志愿录取</strong>，而是
+        「专业加试合格 + 文化达标」后，按学校规则把两项成绩合成排序择优。</p>
+      <p class="keybox-conclusion">
+        换句话说：学科、科技是<strong>过了线就锁死</strong>；
+        艺术是<strong>过了线还要比专业分</strong>。文化分低一档，但专业分的权重更高。
+      </p>
+    </div>
+
+    <h2>一、四类特长生里，它站在哪</h2>
+    {{ four_kinds() }}
+    <p class="hint">控制线为全市统一口径，多份学校档案与招生简章互相印证 {{ conf('A') }}。
+      总分按 700 分计，70% 即 490 分。</p>
+
+    <h2>二、艺术类都考什么</h2>
+    <table>
+      <thead>
+        <tr><th class="col-kind">类别</th><th>加试内容</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-kind">美术</td>
+          <td>素描、色彩写生或主题创作。南京美术类招生规模最大的一档，
+            宁海中学单独招生 240 人、板桥中学 60 人、秦淮中学 40 人（限江宁区）</td>
+        </tr>
+        <tr>
+          <td class="col-kind">音乐</td>
+          <td>器乐/声乐曲目演唱演奏、视唱练耳；部分学校加试才艺展示作为参考。
+            板桥中学 10 人、栖霞中学声乐 4 人 + 民乐 5 人</td>
+        </tr>
+        <tr>
+          <td class="col-kind">书法</td>
+          <td>栖霞中学 8 人、六合区实验高级中学 20 人</td>
+        </tr>
+        <tr>
+          <td class="col-kind">舞蹈</td>
+          <td>成品剧目表演、形体条件、基本功软开度与舞蹈素养测试。
+            本站档案中<strong>未检索到</strong> 2026 年南京高中的舞蹈类计划</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">考试内容为通行口径 {{ conf('B') }}，具体科目、分值与时长为各校自定，
+      以当年招生简章为准。本站未取得全市统一的艺术类加试大纲。</p>
+
+    <h2>三、南京各校的艺术特长生计划</h2>
+    <p>下表每一条都对应本站某份学校档案里的原文，点击校名可看到完整档案与来源。</p>
+    {{ school_table(rows) }}
+    <p class="hint">未标信度的为 {{ conf('A') }} 官方发布；标 {{ conf('B') }} 的为权威媒体口径。
+      招生范围差异很大：有的面向全市，有的只面向本区，报之前先确认。</p>
+
+    <h2>四、录取方式：不是过了线就行</h2>
+    <p>艺术类的录取规则与学科、科技有实质区别：</p>
+    <div class="callout">
+      <ul>
+        <li><strong>控制线 490 分</strong>（总分 70%）是<strong>报名与录取的门槛</strong>，不是唯一条件。</li>
+        <li><strong>按合成成绩排序</strong>。以宁海中学美术类为例：录取在提前批次按
+          「专业加试成绩 + 中考成绩之和」从高到低进行 {{ conf('A') }}。</li>
+        <li><strong>专业分权重更高</strong>。文化分低一档但专业强，在艺术类里是常见优势；
+          反过来，文化分高但专业弱，未必录得上。</li>
+        <li>艺术类<strong>同样受「一校一项、四类互斥」约束</strong>，不能与学科、科技、体育兼报。</li>
+      </ul>
+    </div>
+
+    <h2>五、加试时间与学科、科技不同</h2>
+    <p>学科与科技特长生的专业加试是<strong>5 月 10 日全市统一</strong>；
+      艺术类的专业加试<strong>由各校自行安排</strong>，时间不同步。</p>
+    <table>
+      <thead>
+        <tr><th class="col-kind">环节</th><th>学科 / 科技</th><th>艺术</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-kind">报名窗口</td><td>4 月 28 日 9:00 — 29 日 17:00</td><td>同期，市教育局官网同一入口</td></tr>
+        <tr><td class="col-kind">专业加试</td><td><strong>5 月 10 日</strong>（全市统一）</td><td><strong>各校自定</strong>，已知如六合区实验高级中学为 5 月 23 日</td></tr>
+        <tr><td class="col-kind">录取方式</td><td>达线即零志愿录取</td><td>专业 + 文化合成后择优</td></tr>
+      </tbody>
+    </table>
+    <p class="hint">艺术类的加试日期分散在各校简章里，本站只在档案中核到了六合区实验高级中学一家
+      （5 月 23 日，艺体楼四楼画室）{{ conf('A') }}，其余学校未逐一核实——见文末数据缺口。</p>
+
+    <h2>六、四个常见误解</h2>
+    <ul class="myths">
+      <li><b>「艺术类分数要求低很多，是条捷径」</b>——控制线确实低 70 分，但录取比的是合成成绩。
+        专业分不够，文化分再高也未必录；而且美术类的专业竞争本身就激烈。</li>
+      <li><b>「美术招生人数多，好考」</b>——宁海一家 240 人看着多，但报的人更多，
+        且该校是清华美院生源基地，专业门槛不低。</li>
+      <li><b>「艺术生不用管文化课」</b>——490 分也是硬门槛，且合成成绩里中考分占一半左右。</li>
+      <li><b>「和学科特长生一起报，多一条保险」</b>——不行。一校一项、四类互斥，
+        报了艺术就不能报学科或科技。</li>
+    </ul>
+
+    <h2>七、这份页面的数据缺口</h2>
+    <p>按本站惯例，查不到的东西写「未获取」，不做推测：</p>
+    <ul>
+      <li><strong>全市统一的艺术类报名条件未取得</strong>。学科与科技有两份公开简章可对照，
+        艺术类的条件散在各校简章里，表述不一。本页不转述未经核实的「区级一等奖」类说法。</li>
+      <li><strong>各校加试日期只核到一家</strong>（六合区实验高级中学 5 月 23 日），其余未逐一核实。</li>
+      <li><strong>舞蹈类计划未检索到</strong>。2026 年南京高中的舞蹈方向，本站档案中没有记录。</li>
+      <li><strong>2027 年的计划与政策未发布</strong>。本页所有数字均为 2026 年口径。</li>
+    </ul>
+
+    {{ reminder() }}
+  </article>
+</div>
+{% endblock %}

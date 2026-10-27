@@ -14,13 +14,20 @@ from markupsafe import Markup
 
 from . import aliases, config, facts, load, marks, mdtext
 
+# (href, label, key, children) —— children 非空则渲染成下拉菜单。
+# 「特长生」的父项本身指向总览页，右侧单独的 ▾ 按钮才展开子菜单，
+# 这样桌面点标签能进总览、触屏也能展开子项。
 NAV = [
-    ("index.html", "首页", "home"),
-    ("schools.html", "学校库", "schools"),
-    ("compare.html", "对比", "compare"),
-    ("talent.html", "特长生", "talent"),
-    ("policy.html", "政策", "policy"),
-    ("about.html", "数据说明", "about"),
+    ("index.html", "首页", "home", ()),
+    ("schools.html", "学校库", "schools", ()),
+    ("compare.html", "对比", "compare", ()),
+    ("talent.html", "特长生", "talent", (
+        ("talent-xueke.html", "学科特长生", "talent-xueke"),
+        ("talent-keji.html", "科技特长生", "talent-keji"),
+        ("talent-yishu.html", "艺术特长生", "talent-yishu"),
+    )),
+    ("policy.html", "政策", "policy", ()),
+    ("about.html", "数据说明", "about", ()),
 ]
 
 
@@ -56,7 +63,9 @@ def canonical(path=""):
 
 
 def nav():
-    return [{"href": h, "label": l, "key": k} for h, l, k in NAV]
+    return [{"href": h, "label": l, "key": k,
+             "children": [{"href": ch, "label": cl, "key": ck} for ch, cl, ck in kids]}
+            for h, l, k, kids in NAV]
 
 
 def home(env, schools, districts, pages, web_counts):
@@ -259,40 +268,72 @@ def all_page(env, schools, districts):
 
 TALENT_SCHOOLS = os.path.join(config.ROOT, "data", "talent_schools.json")
 
+# 三个分类页：(模板名, 输出文件, 标题, 摘要, 数据键)
+TALENT_SUBS = [
+    ("talent_xueke.html", "talent-xueke.html", "学科特长生",
+     "南京中考学科特长生：招哪些科目、谁能报、各校招生计划，以及学科里的信息学方向。",
+     "academic"),
+    ("talent_keji.html", "talent-keji.html", "科技特长生",
+     "南京中考科技特长生：人工智能、机器人、航模、无线电测向等方向，报名条件与各校计划。",
+     "tech"),
+    ("talent_yishu.html", "talent-yishu.html", "艺术特长生",
+     "南京中考艺术特长生：美术、音乐、舞蹈、书法，控制线 490 分与各校招生计划。",
+     "arts"),
+]
 
-def talent(env, schools):
-    """特长生页：科技特长生 + 学科特长生中的信息学方向。
 
-    招生校清单外置在 data/talent_schools.json。构建期校验每个校名都能在
-    545 所里找到——写错校名会让页面挂一个点不进去的名字，比漏列更难发现。
+def _talent_data(schools):
+    """读招生校清单并挂上详情页地址。
+
+    校名写错会渲染出一个点不进去的链接，比漏列更难发现，所以构建期就报错。
     """
     with open(TALENT_SCHOOLS, encoding="utf-8") as f:
         data = json.load(f)
 
     known = {s.name for s in schools}
-    for group in ("tech", "info"):
+    url_of = {}
+    for s in schools:
+        url_of.setdefault(s.name, s.url)
+
+    for group in ("tech", "info", "academic", "arts"):
         for row in data.get(group, []):
             if row["name"] not in known:
                 raise SystemExit(
                     f"✗ talent_schools.json 里的「{row['name']}」不在 index.json 中，"
                     f"请核对校名（写错会渲染出一个点不进去的链接）")
+            row["url"] = url_of[row["name"]]
+    return data
 
-    # 给每条挂上详情页地址；不在档案里的（如新设校区）留空，不硬凑
-    url_of = {}
-    for s in schools:
-        url_of.setdefault(s.name, s.url)
-    for group in ("tech", "info"):
-        for row in data.get(group, []):
-            row["url"] = url_of.get(row["name"], "")
 
+def talent(env, schools):
+    """特长生总览页。
+
+    跨类别的公共内容（四类对照、共同规则、常见误解、小升初无通道）放这里，
+    三个分类页只写各自的特有内容，不重复搬运。
+    """
+    data = _talent_data(schools)
+    # 入口卡上写「几所学校」，按校名去重——同一所学校可能有多个校区各占一行
+    counts = {k: len({r["name"] for r in data.get(k, [])})
+              for k in ("academic", "tech", "arts", "info")}
     return env.get_template("talent.html").render(
-        base="", active="talent", nav=nav(), title="科技特长生与信息学",
-        desc="南京中考科技特长生与学科特长生（信息学方向）：报名条件、时间节点、"
-             f"各校招生计划与升学路径。共 {len(data['tech'])} 所招科技特长生、"
-             f"{len(data['info'])} 所招信息学方向。",
-        canonical=canonical("talent.html"),
-        tech=data.get("tech", []), info=data.get("info", []),
-        updated=data.get("updated", ""),
+        base="", active="talent", nav=nav(), title="特长生",
+        desc="南京中考特长生总览：学科、科技、艺术三类的差别、控制线、"
+             "报名规则与时间节点，以及各类别的招生计划入口。",
+        canonical=canonical("talent.html"), updated=data.get("updated", ""),
+        counts=counts,
+    )
+
+
+def talent_sub(env, schools, spec):
+    """三个分类页共用。spec 取自 TALENT_SUBS。"""
+    tpl, out, title, desc, key = spec
+    data = _talent_data(schools)
+    active = out.replace(".html", "")
+    return env.get_template(tpl).render(
+        base="", active=active, nav=nav(), title=title, desc=desc,
+        canonical=canonical(out), updated=data.get("updated", ""),
+        rows=data.get(key, []), info=data.get("info", []),
+        tech=data.get("tech", []),
     )
 
 

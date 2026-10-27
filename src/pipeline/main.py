@@ -50,15 +50,17 @@ def run():
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
         "all.html": render.all_page(env, schools, index["districts"]),
+        "compare.html": render.compare(env, schools),
         "talent.html": render.talent(env, schools),
-        "compare.html": render.compare(env, schools),
-        "compare.html": render.compare(env, schools),
         "policy.html": render.policy(env, pages),
         "about.html": render.about(env, schools, pages, web_counts, src_stats),
         "changelog.html": render.doc(env, pages, "changelog", title="更新日志",
                                      desc="数据与站点的重要变更记录。", eyebrow="记录"),
         "404.html": render.not_found(env),
     }
+    # 三个特长生分类页（学科 / 科技 / 艺术），配置集中在 render.TALENT_SUBS
+    for spec in render.TALENT_SUBS:
+        outputs[spec[1]] = render.talent_sub(env, schools, spec)
     for s in schools:
         outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at, links, dup_names)
 
@@ -103,8 +105,9 @@ def run():
               encoding="utf-8") as f:
         f.write(render.compare_data(schools))
 
-    urls = ["", "schools.html", "all.html", "compare.html", "talent.html",
-            "policy.html", "changelog.html", "about.html"] + [s.url for s in schools]
+    urls = ["", "schools.html", "all.html", "compare.html", "talent.html"] \
+        + [spec[1] for spec in render.TALENT_SUBS] \
+        + ["policy.html", "changelog.html", "about.html"] + [s.url for s in schools]
     if config.BASE_URL:
         xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

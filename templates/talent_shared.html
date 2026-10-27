@@ -1,0 +1,90 @@
+{#
+  特长生四页共用的模块。
+  放在一处而不是各页复制：四类对照、时间节点、免责提醒三个模块在
+  学科/科技/艺术三页里完全一致，复制三份迟早会改漏其中一处。
+#}
+
+{# 四类特长生对照。学科与科技同批次同控制线，艺术、体育另一套 #}
+{% macro four_kinds() %}
+<table>
+  <thead>
+    <tr><th class="col-kind">类别</th><th>加试考什么</th><th class="col-score">中考控制线</th><th>录取方式</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="col-kind">学科特长生</td>
+      <td>对应单科拔高 + 公共卷。公共卷科目各校自定，已公开的如金陵中学为数学、物理、语文、外语，数理权重略高</td>
+      <td class="col-score"><strong>560 分</strong>（总分 80%）</td>
+      <td rowspan="2">加试合格并确认意向后，<strong>零志愿提前录取</strong>；录取后其他普通高中不得再录取</td>
+    </tr>
+    <tr>
+      <td class="col-kind">科技特长生</td>
+      <td>基础素养（语数英理化）+ 专业专项（机器人、人工智能、航空模型、无线电测向、科创发明等）</td>
+      <td class="col-score"><strong>560 分</strong>（总分 80%）</td>
+    </tr>
+    <tr>
+      <td class="col-kind">艺术特长生</td>
+      <td>美术（素描/色彩/创作）、音乐（演奏演唱 + 视唱练耳）、舞蹈、书法</td>
+      <td class="col-score">490 分（总分 70%）</td>
+      <td>专业加试合格 + 文化达标后，按学校规则择优</td>
+    </tr>
+    <tr>
+      <td class="col-kind">体育特长生</td>
+      <td>专项体能 + 专项技能</td>
+      <td class="col-score">455 分（总分 65%）</td>
+      <td>同上</td>
+    </tr>
+  </tbody>
+</table>
+{% endmacro %}
+
+{# 2026 年时间节点。四类走同一套报名与加试节点 #}
+{% macro timeline() %}
+<ol class="timeline">
+  <li><b>4 月 24 日</b><span>各高中公布当年特长生招生政策与计划</span></li>
+  <li><b>4 月 28 日 9:00<br>— 29 日 17:00</b><span>登录南京市教育局官网填写《招生报名表》。<strong>截止后不得更改志愿</strong></span></li>
+  <li><b>5 月 7—8 日</b><span>按学校通知到校现场确认、领取加试通知书（各校安排不同，以简章为准）</span></li>
+  <li><b>5 月 10 日</b><span>全市统一进行专业加试，凭加试通知书入场</span></li>
+  <li><b>5 月 12 日前</b><span>学校按招生计划 1:1 确定入围名单，公布加试成绩，完成意向确认</span></li>
+  <li><b>5 月 13—14 日</b><span>学校在校园网公示入围名单与成绩</span></li>
+  <li><b>6 月 8—12 日</b><span>市招考院在南京市教育局官网公示意向确认名单</span></li>
+  <li><b>中考之后</b><span>达到控制线即被录取；未录取者按正常流程升学</span></li>
+</ol>
+{% endmacro %}
+
+{# 招生校表。rows 每项含 name / url / plan / note / src #}
+{% macro school_table(rows, first_col="学校", second_col="计划", base="") %}
+<table>
+  <thead>
+    <tr><th>{{ first_col }}</th><th class="col-score">{{ second_col }}</th><th>方向与说明</th></tr>
+  </thead>
+  <tbody>
+    {%- for r in rows %}
+    <tr>
+      <td>{% if r.url %}<a href="{{ base }}{{ r.url }}">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}</td>
+      <td class="num">{{ r.plan }}</td>
+      <td>{% if r.note %}{{ r.note }}{% endif %}{% if r.src == 'B' %} {{ conf('B') }}{% endif %}</td>
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>
+{% endmacro %}
+
+{# 页尾统一提醒 #}
+{% macro reminder() %}
+<div class="callout">
+  <p><strong>这条通道每年 4 月下旬才有定论。</strong>
+    各校计划、加试科目、控制线都可能调整。做升学规划时请以当年
+    <a href="https://edu.nanjing.gov.cn/" target="_blank" rel="noopener noreferrer">南京市教育局</a>
+    与目标学校官网发布的招生简章为准，本页只做往年口径的整理与对照。</p>
+</div>
+{% endmacro %}
+
+{# 分类页顶部的一行提醒：最重要的前提不能因为换页就消失 #}
+{% macro teenage_only() %}
+<div class="keybox keybox-sm">
+  <p><strong>这是一条中考通道。</strong>义务教育阶段（小学、初中）已全面取消特长生招生——
+    小学阶段学编程、打信奥，不会带来小升初的加分或特长录取。
+    <a href="talent.html">依据与四类对照 →</a></p>
+</div>
+{% endmacro %}

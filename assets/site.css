@@ -74,6 +74,38 @@ img{max-width:100%;height:auto}
   border-radius:var(--r-pill);transition:color var(--t-fast),background var(--t-fast)}
 .nav-links a:hover{color:var(--text);background:var(--surface-2);text-decoration:none}
 .nav-links a.on{color:var(--accent-text);background:var(--accent-weak);font-weight:600}
+/* 导航下拉（特长生 → 学科 / 科技 / 艺术）
+   标签与 ▾ 分开：标签是链接（进总览），▾ 才是展开按钮，
+   这样桌面点标签能直达、触屏也能明确点开子菜单 */
+.nav-drop{position:relative;display:flex;align-items:center}
+.nav-drop-link{color:var(--muted);font-size:var(--f-sm);padding:7px 10px 7px 13px;
+  border-radius:var(--r-pill) 0 0 var(--r-pill);
+  transition:color var(--t-fast),background var(--t-fast)}
+.nav-drop-link:hover{color:var(--text);background:var(--surface-2);text-decoration:none}
+.nav-drop-link.on{color:var(--accent-text);background:var(--accent-weak);font-weight:600}
+.nav-drop-btn{width:24px;height:34px;margin-left:-4px;padding:0;border:0;background:none;
+  color:var(--muted);cursor:pointer;font-size:var(--f-2xs);line-height:1;
+  display:grid;place-items:center;border-radius:0 var(--r-pill) var(--r-pill) 0;
+  transition:color var(--t-fast),background var(--t-fast)}
+.nav-drop-btn:hover{color:var(--text);background:var(--surface-2)}
+.nav-drop:hover .nav-drop-btn{color:var(--text)}
+.nav-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:60;
+  min-width:164px;margin:0;padding:var(--s-1);list-style:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--sh-2)}
+/* 只用 data-open 控制展开。原先还加了 :focus-within，结果按 Esc 后
+   焦点回到按钮、:focus-within 仍成立，菜单又显示出来，Esc 等于无效。 */
+.nav-drop[data-open="true"] .nav-menu{display:block}
+/* 只有真正支持悬停的设备才用 hover 展开，触屏点一下不会「粘住」 */
+@media (hover:hover){
+  .nav-drop:hover .nav-menu{display:block}
+}
+.nav-menu li{margin:0}
+.nav-menu a{display:block;padding:8px 12px;border-radius:var(--r-sm);
+  font-size:var(--f-sm);color:var(--text);white-space:nowrap}
+.nav-menu a:hover{background:var(--surface-2);text-decoration:none}
+.nav-menu a.on{color:var(--accent-text);background:var(--accent-weak);font-weight:600}
+
 #themeBtn{width:36px;height:36px;margin-left:var(--s-2);border:1px solid var(--line);
   background:var(--surface);color:var(--text);border-radius:var(--r-sm);
   cursor:pointer;font-size:var(--f-base);line-height:1;display:grid;place-items:center;

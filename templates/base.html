@@ -48,7 +48,24 @@ try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAt
     </a>
     <div class="nav-links">
       {%- for item in nav %}
+      {%- if item.children %}
+      {# 下拉：标签是链接（进总览），右侧 ▾ 是独立按钮（展开子项）。
+         分开是为了桌面点标签能直达总览，触屏也能明确地点开子菜单。 #}
+      <div class="nav-drop" data-open="false">
+        <a class="nav-drop-link{% if item.key == active or item.children | selectattr('key', 'equalto', active) | list %} on{% endif %}"
+           href="{{ base }}{{ item.href }}"{% if item.key == active %} aria-current="page"{% endif %}>{{ item.label }}</a>
+        <button type="button" class="nav-drop-btn" id="navDropBtn-{{ item.key }}"
+                aria-expanded="false" aria-controls="navMenu-{{ item.key }}"
+                aria-label="{{ item.label }}分类"><span class="caret" aria-hidden="true">▾</span></button>
+        <ul class="nav-menu" id="navMenu-{{ item.key }}">
+          {%- for c in item.children %}
+          <li><a href="{{ base }}{{ c.href }}"{% if c.key == active %} class="on" aria-current="page"{% endif %}>{{ c.label }}</a></li>
+          {%- endfor %}
+        </ul>
+      </div>
+      {%- else %}
       <a href="{{ base }}{{ item.href }}"{% if item.key == active %} class="on" aria-current="page"{% endif %}>{{ item.label }}</a>
+      {%- endif %}
       {%- endfor %}
       <button id="themeBtn" type="button" onclick="toggleTheme()" aria-label="切换主题">🌙</button>
     </div>

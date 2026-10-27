@@ -224,3 +224,34 @@
     paint(cur);
   });
 })();
+
+/* ---------- 导航下拉 ----------
+   桌面端的 hover 展开由 CSS 负责；这里管点击、Esc 与点击外部关闭。
+   标签本身是链接（进总览页），只有 ▾ 按钮负责展开。 */
+(function () {
+  var drops = document.querySelectorAll('.nav-drop');
+  if (!drops.length) return;
+
+  Array.prototype.forEach.call(drops, function (drop) {
+    var btn = drop.querySelector('.nav-drop-btn');
+    if (!btn) return;
+
+    function set(open) {
+      drop.dataset.open = open ? 'true' : 'false';
+      btn.setAttribute('aria-expanded', String(open));
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();               // 别让下面的「点外部关闭」立刻把它关掉
+      set(drop.dataset.open !== 'true');
+    });
+
+    drop.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { set(false); btn.focus(); }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) set(false);
+    });
+  });
+})();

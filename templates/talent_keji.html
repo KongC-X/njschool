@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% from "talent_shared.html" import timeline, four_kinds, school_table, reminder, teenage_only %}
+{% block head %}<link rel="stylesheet" href="{{ base }}assets/talent.css">{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumb" aria-label="面包屑">
+    <ol>
+      <li><a href="{{ base }}index.html">首页</a></li>
+      <li><a href="{{ base }}talent.html">特长生</a></li>
+      <li><span aria-current="page">科技特长生</span></li>
+    </ol>
+  </nav>
+
+  <article class="article">
+    <div class="eyebrow">特长生 · 科技</div>
+    <h1 class="doc-title">科技特长生</h1>
+    <p class="hint">面向南京中考。政策来源：市教育局、各校招生简章与党报报道，招生计划来自本站各校档案；
+      每条都标了信度。更新于 {{ updated }}。</p>
+
+    {{ teenage_only() }}
+
+    <div class="keybox">
+      <h2 class="keybox-title">科技特长生看的是「做过什么」</h2>
+      <p>它不考某一科的分数，考的是科创实践、动手能力与项目经验。加试分两块：
+        <strong>基础素养</strong>（语文、数学、英语、理化）+ <strong>专业专项</strong>
+        （按报考方向考原理、实操与创新设计）。</p>
+      <p class="keybox-conclusion">
+        它与学科特长生<strong>同批次、同控制线</strong>（560 分，总分 80%，零志愿录取），
+        但<strong>两者不能兼报</strong>——想走这条路的，初二就得决定往哪边使劲。
+      </p>
+    </div>
+
+    <h2>一、四类特长生里，它站在哪</h2>
+    {{ four_kinds() }}
+    <p class="hint">控制线为全市统一口径，多份学校档案与招生简章互相印证 {{ conf('A') }}。
+      总分按 700 分计，80% 即 560 分。</p>
+
+    <h2>二、科技方向都有哪些</h2>
+    <p>「科技特长生」不是一个大科目，而是一批具体方向。2026 年南京各校公开的方向包括：</p>
+    <table>
+      <thead>
+        <tr><th class="col-kind">方向</th><th>代表学校与计划</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-kind">人工智能</td>
+          <td>南京师范大学附属中学 120 人（<strong>全国规模最大的单校 AI 特长计划之一</strong>）；
+            南京市第一中学思益科学高级中学设 100 人「人工智能」科技特长生加试</td>
+        </tr>
+        <tr>
+          <td class="col-kind">机器人</td>
+          <td>江苏省六合高级中学 10 人；南京市燕子矶中学 5 人（「智行」科技特色）</td>
+        </tr>
+        <tr>
+          <td class="col-kind">软件工程</td>
+          <td>南京师范大学附属中学 5 人</td>
+        </tr>
+        <tr>
+          <td class="col-kind">无线电测向</td>
+          <td>南京大学附属中学 10 人</td>
+        </tr>
+        <tr>
+          <td class="col-kind">科技创新（综合）</td>
+          <td>南京师范大学附属中学秦淮科技高中 43 人；南京外国语学校 93 人</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">方向名称各校自定，同一方向在不同学校可能叫「人工智能」「智能科技」「科创」。
+      报考前务必看目标学校当年的招生简章。</p>
+
+    <h2>三、谁能报</h2>
+
+    <h3>第一道门槛：综合素质评价</h3>
+    <p>道德品质、公民素养、交流与合作三项须为<strong>合格</strong>等第；学习能力、运动与健康、审美与表现三项须为
+      <strong>B 级及以上</strong>。</p>
+
+    <h3>科技特长生：满足其一即可</h3>
+    <ol>
+      <li>初中阶段对科技创新有浓厚兴趣，且文化成绩优秀；</li>
+      <li>在科技创新实践活动方面有一定特长，或在<strong>市级及以上</strong>相关项目竞赛中获
+        <strong>三等奖及以上</strong>。</li>
+    </ol>
+    <p class="hint">条件引自南师附中秦淮科技高中 2026 年招生简章，各校表述略有差异但门槛基本一致
+      {{ conf('A') }}。</p>
+
+    <h3>四条硬规则，踩了就直接出局</h3>
+    <div class="callout">
+      <ul>
+        <li><strong>一校一项。</strong>每名考生只能填报 <strong>1 所</strong>学校、<strong>1 个</strong>项目。</li>
+        <li><strong>四类互斥。</strong>科技与学科不能兼报，也不能与体育、艺术兼报。</li>
+        <li>报名截止后<strong>任何人不得更改志愿</strong>。</li>
+        <li>开考比例约 <strong>1:7</strong>，报名不等于能进考场。</li>
+      </ul>
+    </div>
+
+    <h2>四、南京各校的科技特长生计划</h2>
+    <p>下表每一条都对应本站某份学校档案里的原文，点击校名可看到完整档案与来源。</p>
+    {{ school_table(rows) }}
+    <p class="hint">未标信度的为 {{ conf('A') }} 官方发布；标 {{ conf('B') }} 的为权威媒体口径。
+      部分学校只公布「学科 + 科技」合计数，未拆分科技单列，见文末数据缺口。</p>
+
+    <h2>五、和学科特长生怎么选</h2>
+    <p>两类同批次、同控制线、不能兼报，所以这是一道单选题。判断标准不是「哪个更容易」，
+      而是「你的材料更像哪一种」：</p>
+    <div class="callout">
+      <ul>
+        <li><strong>走科技</strong>：有科创项目、机器人/航模/编程作品、市级以上科创竞赛奖项，
+          面试时能讲清自己做过什么。</li>
+        <li><strong>走学科</strong>：某一科成绩长期稳定靠前，或有学科竞赛奖项、三好学生等荣誉。
+          信息学竞赛（CSP-J/S）成绩在这里更吃香——见
+          <a href="talent-xueke.html">学科特长生 · 信息学方向</a>。</li>
+        <li><strong>两边都沾一点</strong>：优先选<strong>材料更硬</strong>的那边。加试是客观评分，
+          「兴趣」本身不加分，能拿出证据的才有用。</li>
+      </ul>
+    </div>
+
+    <h2>六、时间节点（2026 年）</h2>
+    {{ timeline() }}
+
+    <h2>七、四个常见误解</h2>
+    <ul class="myths">
+      <li><b>「科技特长生不用看文化课」</b>——要。加试里有基础素养卷（语数英理化），
+        且中考要达 560 分控制线。</li>
+      <li><b>「会写代码就能报人工智能方向」</b>——不一定。方向考的是原理、实操与创新设计，
+        不是纯编程题；各校加试内容差异很大。</li>
+      <li><b>「和学科特长生可以都报，多条路」</b>——不行。一校一项，四类互斥。</li>
+      <li><b>「科技特长生等于进科学高中」</b>——两件事。科学高中（如南师附中科学高中、
+        一中思益科学高中）是学校形态；特长生是招生通道。有些科学高中确实设了大额科技计划，
+        但录取规则仍按特长生那套走。</li>
+    </ul>
+
+    <h2>八、这份页面的数据缺口</h2>
+    <p>按本站惯例，查不到的东西写「未获取」，不做推测：</p>
+    <ul>
+      <li><strong>南师附中科学高中（2026 新设）</strong>的科技特长生计划，党报口径为 100 人，
+        与本部察哈尔路校区 125 人的口径是否重叠，未见官方说明——<strong>待核</strong>。</li>
+      <li><strong>三所学校只公布了合计数</strong>，未拆分科技单列：雨花台中学紫荆花路校区
+        （学科+科技 85 人）、江苏省六合高级中学（科技+学科 55 人）、南京市燕子矶中学（学科+科技 55 人）。</li>
+      <li><strong>各校加试的具体科目与权重多数未公开</strong>。</li>
+      <li><strong>2027 年的计划与政策未发布</strong>。本页所有数字均为 2026 年口径。</li>
+    </ul>
+
+    {{ reminder() }}
+  </article>
+</div>
+{% endblock %}
