@@ -213,13 +213,19 @@ def _wrap_tables(html):
     return re.sub(r"<table[^>]*>.*?</table>", wrap, html, flags=re.S)
 
 
+# 目录里去掉标题末尾的信度注释。312 份档案都有「八、家长口碑与评价（`[C]`，需自行甄别）」
+# 这种标题，放进目录会撑成两行，破坏等距节奏；正文标题本身保留注释不动。
+RE_TOC_ANNO = re.compile(r"（[^）]*(?:\[[ABC]\]|需自行甄别)[^）]*）")
+
+
 def _build_toc(tokens):
     if not tokens:
         return ""
     items = []
     for t in tokens:
         if t.get("level") == 2 and t.get("id"):
-            items.append(f'<li><a href="#{t["id"]}">{t["name"]}</a></li>')
+            label = RE_TOC_ANNO.sub("", t["name"]).strip() or t["name"]
+            items.append(f'<li><a href="#{t["id"]}">{label}</a></li>')
     if not items:
         return ""
     return '<ol>' + "".join(items) + "</ol>"

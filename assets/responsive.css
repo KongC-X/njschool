@@ -7,11 +7,14 @@
    ============================================================ */
 
 @media (prefers-reduced-motion:reduce){
+
   *{transition-duration:.01ms!important;animation-duration:.01ms!important}
   html{scroll-behavior:auto}
 }
 
+
 @media (max-width:1023px){
+
   /* 不用 grid：1fr 的自动最小宽度会被内容撑开，导致整页横向溢出 */
   .detail-grid{display:block}
   .detail-grid > *{min-width:0}
@@ -43,7 +46,9 @@
   .cards3{grid-template-columns:1fr}
 }
 
+
 @media (max-width:720px){
+
   /* 硬约束：任何情况下都不允许整页横向溢出 */
   html,body{max-width:100%;overflow-x:hidden}
   .wrap{max-width:100%}
@@ -108,9 +113,16 @@
 
   footer .cols{gap:var(--s-5)}
   .vnote{margin-left:0}
+
+  body{overflow-x:clip}
+  .article{overflow-wrap:anywhere}
+
+  .article .table-wrap td.kv-key{display:none}
 }
 
+
 @media (max-width:480px){
+
   .wrap{padding:0 var(--s-4)}
   .nav-in{gap:var(--s-2);padding:0 var(--s-4)}
   .brand{font-size:var(--f-sm)}
@@ -122,16 +134,20 @@
   .sec{padding:var(--s-6) 0}
 }
 
-@media (max-width:720px){
-  body{overflow-x:clip}
-  .article{overflow-wrap:anywhere}
-}
 
-@media (max-width:720px){
-  .article .table-wrap td.kv-key{display:none}
-}
+
+
+
 
 @media (min-width:1280px){
+
+  :root{
+    --gutter:clamp(24px, 2.6vw, 40px);
+    --toc-w:240px;
+    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
+    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
+  }
+
   :root{
     --gutter:clamp(24px, 2.6vw, 40px);
     --toc-w:240px;
@@ -140,7 +156,16 @@
   }
 }
 
+
 @media (min-width:1700px){
+
+  :root{
+    --gutter:clamp(32px, 3vw, 64px);
+    --toc-w:260px;
+    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
+    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
+  }
+
   :root{
     --gutter:clamp(32px, 3vw, 64px);
     --toc-w:260px;
@@ -149,23 +174,10 @@
   }
 }
 
-@media (min-width:1280px){
-  :root{
-    --gutter:clamp(24px, 2.6vw, 40px);
-    --toc-w:240px;
-    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
-    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
-  }
-}
 
-@media (min-width:1700px){
-  :root{
-    --gutter:clamp(32px, 3vw, 64px);
-    --toc-w:260px;
-    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
-    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
-  }
-}
+
+
+
 
 
 /* ------------------------------------------------------------
@@ -174,6 +186,23 @@
    且信度徽章离内容过远。改为每行一张小卡：字段名在上、值在下、信度靠右。
    ------------------------------------------------------------ */
 @media (min-width:1600px){
+
+  .table-wrap--kv{border:0;background:transparent;box-shadow:none;overflow:visible}
+  .table-wrap--kv table{display:block;min-width:0}
+  .table-wrap--kv thead{display:none}
+  .table-wrap--kv tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--s-3)}
+  .table-wrap--kv tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
+    gap:2px var(--s-3);align-items:start;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:var(--s-3) var(--s-4)}
+  .table-wrap--kv td{display:block;border:0;padding:0;min-width:0}
+  .table-wrap--kv td.kv-key{display:none}
+  .table-wrap--kv td[data-label]::before{content:attr(data-label);display:block;
+    font-size:var(--f-2xs);color:var(--muted);margin-bottom:3px}
+  .table-wrap--kv td[data-label="信度"]{grid-column:2;grid-row:1;justify-self:end}
+  .table-wrap--kv td[data-label="信度"]::before{display:none}
+
   .table-wrap--kv{border:0;background:transparent;box-shadow:none;overflow:visible}
   .table-wrap--kv table{display:block;min-width:0}
   .table-wrap--kv thead{display:none}
@@ -192,25 +221,10 @@
 }
 
 
+
 /* ------------------------------------------------------------
    宽屏（≥1600px）：键值表改为双列卡片
    三列表格在宽屏下「内容」列会拉到 1500px 以上，右侧大片空白，
    且信度徽章离内容过远。改为每行一张小卡：字段名在上、值在下、信度靠右。
    ------------------------------------------------------------ */
-@media (min-width:1600px){
-  .table-wrap--kv{border:0;background:transparent;box-shadow:none;overflow:visible}
-  .table-wrap--kv table{display:block;min-width:0}
-  .table-wrap--kv thead{display:none}
-  .table-wrap--kv tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:var(--s-3)}
-  .table-wrap--kv tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
-    gap:2px var(--s-3);align-items:start;
-    background:var(--surface);border:1px solid var(--line);
-    border-radius:var(--r-md);padding:var(--s-3) var(--s-4)}
-  .table-wrap--kv td{display:block;border:0;padding:0;min-width:0}
-  .table-wrap--kv td.kv-key{display:none}
-  .table-wrap--kv td[data-label]::before{content:attr(data-label);display:block;
-    font-size:var(--f-2xs);color:var(--muted);margin-bottom:3px}
-  .table-wrap--kv td[data-label="信度"]{grid-column:2;grid-row:1;justify-self:end}
-  .table-wrap--kv td[data-label="信度"]::before{display:none}
-}
+

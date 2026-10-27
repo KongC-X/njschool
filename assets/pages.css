@@ -17,7 +17,7 @@
 .hero > *{position:relative;z-index:1}
 .hero .eyebrow{margin-bottom:var(--s-3)}
 .hero h1{font-size:var(--f-3xl);margin:0 0 var(--s-3);letter-spacing:-.03em}
-.hero p{color:var(--muted);font-size:var(--f-md);max-width:64ch;
+.hero p{color:var(--muted);font-size:var(--f-md);max-width:46ch;
   margin:0 auto var(--s-6)}
 .hero-search{max-width:520px;margin:0 auto;display:flex;gap:var(--s-2);
   background:var(--surface);padding:6px;border-radius:var(--r-lg);
@@ -39,7 +39,9 @@
 .stat{padding:var(--s-5) var(--s-4);text-align:center;border-left:1px solid var(--line)}
 .stat:first-child{border-left:0}
 /* 收录总量是页面的核心数字，给它更高的视觉权重，其余四项作为构成说明 */
-.stat:first-child b{font-size:calc(var(--f-2xl) * 1.45);color:var(--accent)}
+/* 原来给第一格数字上强调色，但它不可点、也非当前状态——
+   同一行其余 4 格是 --ink，会造成「第一格能点」的错觉。层级靠字号就够了。 */
+.stat:first-child b{font-size:calc(var(--f-2xl) * 1.45)}
 .stat:first-child span{color:var(--text)}
 .stat b{display:block;font-size:var(--f-2xl);line-height:1.15;color:var(--ink);
   letter-spacing:-.02em}
@@ -112,9 +114,9 @@
   align-items:start}
 .toc{position:sticky;top:76px;font-size:var(--f-sm)}
 .toc-title{font-size:var(--f-2xs);letter-spacing:.1em;color:var(--muted);
-  margin-bottom:var(--s-2);text-transform:uppercase}
+  margin-bottom:var(--s-2)}
 .toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
-.toc li a{display:block;padding:5px 12px;line-height:1.5;color:var(--muted);font-size:var(--f-xs);
+.toc li a{display:block;padding:7px 12px;line-height:1.5;color:var(--muted);font-size:var(--f-xs);
   border-left:2px solid transparent;margin-left:-2px;
   transition:color var(--t-fast),border-color var(--t-fast)}
 .toc li a:hover{color:var(--text);text-decoration:none;border-left-color:var(--line-strong)}
@@ -124,6 +126,10 @@
 .article{background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:var(--s-2) var(--s-6) var(--s-6);
   box-shadow:var(--sh-1)}
+/* 正文行宽：原先是全宽 1035px @16px = 每行 65 汉字，远超中文舒适区（30–40），
+   长档案读到第三行就串行。限到 34em（约 36 汉字）。
+   只约束文字块——表格、代码、图片仍走全宽，否则表格会被挤成两行文字。 */
+.article > p,.article > ul,.article > ol,.article > blockquote{max-width:34em}
 .article h2{font-size:var(--f-lg);margin:var(--s-7) 0 var(--s-3);
   padding-left:var(--s-3);border-left:3px solid var(--accent);line-height:1.4}
 .article h3{font-size:var(--f-md);margin:var(--s-6) 0 var(--s-2)}
@@ -198,20 +204,25 @@
   .article .table-wrap{overflow:visible}
 }
 
-/* 超窄屏（≤420px）：隐藏字标只留图标块，避免导航换行
-   —— 链接仍保留 aria-label，读屏可获知站点名 */
+/* 超窄屏（≤420px）
+   1) 5 个导航项在 390px 里会贴成一条、链接高度只有 30px；
+      「政策」「数据说明」在每页页脚都有入口，这里先收起。
+   2) 品牌原来只剩一个「宁」字方块，新用户看不出这是什么站——
+      改成保留「南京档案」四个字（隐去中间的 em）。 */
 @media (max-width:420px){
-  .brand-text{display:none}
-  .nav-links a{padding:7px 8px}
+  .nav-links a[href$="policy.html"],
+  .nav-links a[href$="about.html"]{display:none}
+  .nav-links a{padding:10px 9px}
+  .brand-text em{display:none}
 }
 
-/* 超窄屏（≤420px）：隐藏字标只留图标块，避免导航换行
-   —— 链接仍保留 aria-label，读屏可获知站点名 */
-@media (max-width:420px){
-  .brand-text{display:none}
-  .nav-links a{padding:7px 8px}
-}
 
+/* 骨架屏（学校库） */
+.card-skel{display:none;min-height:210px;border-style:dashed;
+  background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%);
+  background-size:250% 100%;animation:skel 1.2s ease-in-out infinite}
+html.js .card-skel{display:block}
+@keyframes skel{from{background-position:150% 0}to{background-position:-50% 0}}
 
 /* ------------------------------------------------------------
    对比页
@@ -264,11 +275,17 @@
 /* 「未获取」= 该校档案自己声明了这一项是缺口；「—」= 本站没抽到。
    两者必须看得出区别，否则等于替学校下结论。 */
 .cmp-cell.is-gap{color:var(--muted);font-style:italic}
-.cmp-cell.is-na{color:var(--line-strong)}
+/* 「—」原用 --line-strong（边框色）当文字，对比度只有 1.44:1，等于看不见。
+   改用 --muted（5.39:1 达标）；短横线本身视觉权重已很低，不必再压色。 */
+.cmp-cell.is-na{color:var(--muted)}
 
 /* 差异标记：只标「不同」，不标「更好」。禁用红绿——语义色留给信度徽章 */
 .cmp-row.has-diff > .cmp-rowhead::before{content:"";position:absolute;
   left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--accent)}
+/* 2 比 2 时没有任何格子是「独一无二」的，格内不会亮；
+   只靠左边缘 3px 竖线太弱。把行标签一起染色，让「这一行不同」在行首就能看到。 */
+.cmp-row.has-diff > .cmp-rowhead{background:var(--amber-bg);color:var(--amber);
+  border-radius:0 4px 4px 0}
 .cmp-cell.is-diff{background:var(--amber-bg);color:var(--amber)}
 
 /* 分组标题行（可折叠） */
@@ -286,6 +303,17 @@ tbody.is-collapsed tr:not(.cmp-ghead){display:none}
 .only-diff .cmp-row.is-blank,
 .only-diff .cmp-crow.is-same,
 .only-diff .cmp-crow.is-blank{display:none}
+.chip-clear{padding:0 4px;border:0;background:none;min-height:36px;
+  font-family:inherit;font-size:var(--f-xs);color:var(--muted);
+  cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.chip-clear:hover{color:var(--text)}
+/* 「四所都没有数据」的折行摘要 */
+.cmp-blankrow th{font-size:var(--f-xs);color:var(--muted);font-weight:600}
+.cmp-blankrow td{font-size:var(--f-xs);color:var(--muted)}
+.cmp-blanktoggle{margin-left:var(--s-2);padding:0;border:0;background:none;
+  font-family:inherit;font-size:inherit;color:var(--accent);
+  cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.cmp-card-note{margin:var(--s-3) 0 0;font-size:var(--f-2xs);color:var(--muted)}
 .cmp-note{margin:var(--s-4) 0 0;font-size:var(--f-sm);color:var(--muted)}
 .cmp-note-btn{margin-left:var(--s-2);padding:0;border:0;background:none;
   font-family:inherit;font-size:inherit;color:var(--accent);cursor:pointer;
@@ -346,6 +374,7 @@ mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3
 .cmp-crow dd{margin:0;min-width:0}
 .cmp-crow.has-diff::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;
   width:3px;border-radius:2px;background:var(--accent)}
+.cmp-crow.has-diff dt{color:var(--amber)}
 
 /* 窄屏：表格改为「行标签吸附 + 容器内横向滚动」。
    容器自己滚，不会把整页撑宽（站内硬约束）。
@@ -362,7 +391,9 @@ mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3
 .notfound{max-width:720px;margin:0 auto;padding:var(--s-9) 0 var(--s-8)}
 .notfound h1{font-size:var(--f-3xl);margin:var(--s-2) 0 var(--s-3)}
 .nf-search{margin:var(--s-5) 0 var(--s-7)}
-.nf-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+/* 360px 下限 → 720px 容器里正好 2 列，4 个入口排成 2×2；
+   原来 210px 会算成 3 列，第 4 个落单，像少了一个入口 */
+.nf-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
   gap:var(--s-3)}
 .nf-card{display:block;padding:var(--s-4);border:1px solid var(--line);
   border-radius:var(--r-md);background:var(--surface);color:var(--text);

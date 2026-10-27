@@ -61,7 +61,8 @@ try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAt
   <div class="wrap">
     <div class="cols">
       <div><h4>南京中小学档案</h4>
-        公开信息汇编 · 数据版本 v2026-10 · 更新 {{ today }}</div>
+        {# 版本号本身就是年月，再单独写一次「更新」等于同一个月说两遍 #}
+        公开信息汇编 · 数据版本 {{ today[:7] }} · 更新于 {{ today[5:] }}</div>
       <div><h4>导航</h4>
         <a href="{{ base }}schools.html">学校库</a><br>
         <a href="{{ base }}all.html">全部学校索引</a><br>

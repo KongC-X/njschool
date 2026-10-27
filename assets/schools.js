@@ -84,7 +84,10 @@ function render() {
   const raw = state.q.trim();
   const rows = res.rows;
 
-  cnt.textContent = '匹配 ' + rows.length + ' 所 / 共 ' + DATA.length + ' 所'
+  const filtered = !!(raw || state.lv || state.dist || state.type);
+  cnt.textContent = (filtered
+      ? '匹配 ' + rows.length + ' 所 / 共 ' + DATA.length + ' 所'
+      : '共 ' + DATA.length + ' 所')
     + (raw ? '（关键词：' + raw + (res.fellBack ? '，在简介中匹配' : '') + '）' : '');
   updateFilterBadge();
   syncUrl();
@@ -160,7 +163,7 @@ if (input) {
 
 chips('f-lv', 'lv', ['小学', '初中', '高中'], '全部学段');
 chips('f-dist', 'dist', ALL_DISTRICTS, '全部区');
-chips('f-type', 'type', ['公办', '民办'], '不限性质');
+chips('f-type', 'type', ['公办', '民办'], '全部性质');
 
 /* 深链直达筛选：?lv= / ?dist= / ?type=（首页、页脚、分享链接都靠它） */
 [['lv', 'f-lv'], ['dist', 'f-dist'], ['type', 'f-type']].forEach(function (pair) {

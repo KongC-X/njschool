@@ -30,7 +30,9 @@ DATA.forEach(function (s) { BY_ID[s.id] = s; });
 
 const MAX = 4;
 const STORE = 'nj-compare';
-const GROUPS = { identity: '身份', path: '通路', evidence: '证据' };
+/* 分组名要说人话。「身份 / 通路 / 证据」是内部模型词，
+   而且「证据」组里放的是办学规模、校址、一句话定位——跟证据没关系，名实不符。 */
+const GROUPS = { identity: '基本信息', path: '入学相关', evidence: '补充信息' };
 
 const pick = document.getElementById('pick');
 const list = document.getElementById('pickList');
@@ -60,6 +62,7 @@ function warnHtml(s) {
 let ids = [];
 let broken = false;
 let onlyDiff = false;
+let showBlank = false;   // 是否展开「四所都没有数据」的行
 
 function hasId(id) { return Object.prototype.hasOwnProperty.call(BY_ID, id); }
 
@@ -185,6 +188,12 @@ function cellHtml(row, cell) {
 
 function tableHtml(items, rows) {
   const n = items.length;
+  /* 四所都没值的行（招生计划 0/4、学费 0/4……）整行只有横线。
+     诚实是必要的，但三整行的空白会把有内容的行稀释掉。
+     默认折成表末一行摘要，点开再展开——详情一条不少。 */
+  const blanks = rows.filter(function (r) { return r.filled === 0; });
+  const visible = (showBlank || onlyDiff) ? rows : rows.filter(function (r) { return r.filled > 0; });
+
   let out = '<div class="cmp-wrap"><table class="cmp-table" data-n="' + n + '">'
     + '<caption class="sr-only">' + n + ' 所学校对比</caption><thead><tr>'
     + '<th scope="col" class="cmp-corner">对比项</th>';
@@ -199,11 +208,11 @@ function tableHtml(items, rows) {
   out += '</tr></thead>';
 
   let group = '';
-  rows.forEach(function (row, i) {
+  visible.forEach(function (row, i) {
     if (row.group !== group) {
       if (group) out += '</tbody>';
       group = row.group;
-      const count = rows.filter(function (r) { return r.group === group; }).length;
+      const count = visible.filter(function (r) { return r.group === group; }).length;
       out += '<tbody data-group="' + group + '"><tr class="cmp-ghead"><th colspan="' + (n + 1) + '">'
         + '<button type="button" class="cmp-gtoggle" aria-expanded="true" data-group="' + group + '">'
         + '<span class="cmp-gcaret" aria-hidden="true">▾</span>'
@@ -227,8 +236,18 @@ function tableHtml(items, rows) {
       + '</th>'
       + row.cells.map(function (c) { return cellHtml(row, c); }).join('')
       + '</tr>';
-    if (i === rows.length - 1) out += '</tbody>';
+    if (i === visible.length - 1) out += '</tbody>';
   });
+
+  if (blanks.length && !showBlank && !onlyDiff) {
+    const names = blanks.map(function (r) { return r.label; });
+    out += '<tbody class="cmp-blanksum"><tr class="cmp-blankrow">'
+      + '<th scope="row">未收录</th>'
+      + '<td colspan="' + n + '">' + esc(names.join(' · '))
+      + ' —— 这 ' + n + ' 所都没有数据'
+      + '<button type="button" class="cmp-blanktoggle" id="showBlank">展开 ' + blanks.length + ' 项</button>'
+      + '</td></tr></tbody>';
+  }
   out += '</table></div>';
   return out;
 }
@@ -238,8 +257,10 @@ function tableHtml(items, rows) {
    卡片模式把「行」竖过来，逐校读完再读下一所，比横滑省力。
    两套结构同时输出，用 CSS 媒体查询切换（隐藏的那套不进无障碍树）。 */
 function cardsHtml(items, rows) {
+  const blanks = rows.filter(function (r) { return r.filled === 0; });
+  const visible = (showBlank || onlyDiff) ? rows : rows.filter(function (r) { return r.filled > 0; });
   return '<div class="cmp-cards">' + items.map(function (s) {
-    const body = rows.map(function (row) {
+    const body = visible.map(function (row) {
       let cls = 'cmp-crow';
       if (row.hasDiff) cls += ' has-diff';
       else if (row.diff === 'exact' && row.filled === row.total) cls += ' is-same';
@@ -262,13 +283,20 @@ function cardsHtml(items, rows) {
       + '<span class="cmp-head-meta">' + esc(s.level) + ' · ' + esc(s.type)
       + ' · ' + esc(s.district) + '</span>'
       + warnHtml(s)
-      + '<dl>' + body + '</dl></article>';
+      + '<dl>' + body + '</dl>'
+      + (blanks.length && !showBlank && !onlyDiff
+          ? '<p class="cmp-card-note">另有 ' + blanks.length + ' 项未收录：'
+            + esc(blanks.map(function (r) { return r.label; }).join('、')) + '</p>'
+          : '')
+      + '</article>';
   }).join('') + '</div>';
 }
 
 function render() {
   pickedBox.innerHTML = ids.map(chip).join('')
-    + (ids.length ? '<button type="button" class="chip" id="clearInline">清空</button>' : '');
+    /* 清空用文字按钮，不套 chip：原来和已选学校同一个形状，
+       夹在蓝色选中项里会被当成「还有一个已选项」 */
+    + (ids.length ? '<button type="button" class="chip-clear" id="clearInline">清空</button>' : '');
   clearBtn.hidden = ids.length === 0;
 
   if (broken) {
@@ -302,6 +330,11 @@ function render() {
   }
 
   cmp.innerHTML = tableHtml(items, rows) + cardsHtml(items, rows);
+
+  const blankBtn = document.getElementById('showBlank');
+  if (blankBtn) {
+    blankBtn.addEventListener('click', function () { showBlank = true; render(); });
+  }
 
   if (onlyDiff) {
     cmp.classList.add('only-diff');

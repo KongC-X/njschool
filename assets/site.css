@@ -51,6 +51,9 @@ img{max-width:100%;height:auto}
 .sub-title{font-size:var(--f-md);margin:var(--s-7) 0 var(--s-3)}
 .page-title{font-size:var(--f-2xl);letter-spacing:-.02em;margin:var(--s-7) 0 var(--s-2)}
 .page-sub{color:var(--muted);font-size:var(--f-sm);margin:0 0 var(--s-3);max-width:64ch}
+/* 主说明之后的次要说明。拆成两行是为了避免长句在窄屏被切成孤字 */
+.page-note{color:var(--muted);font-size:var(--f-xs);
+  margin:calc(var(--s-2) * -1) 0 var(--s-4);max-width:46ch}
 
 /* ------------------------------------------------------------
    导航

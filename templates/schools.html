@@ -33,7 +33,14 @@
   </div>
 
   <p class="count" id="count" role="status" aria-live="polite"></p>
-  <div class="grid" id="grid"></div>
+  {# 骨架屏：数据 153.8KB（gzip 40KB），慢网下渲染前原本是一大片空白，很像页面坏了。
+     脚本一旦渲染就会整体替换掉。仅 html.js 下显示——关闭脚本的用户看 noscript 提示即可，
+     不该看到永远转不完的占位块。 #}
+  <div class="grid" id="grid">
+    {%- for _ in range(6) %}
+    <div class="card card-skel" aria-hidden="true"></div>
+    {%- endfor %}
+  </div>
 </div>
 <script src="{{ base }}assets/schools-data.js"></script>
 <script src="{{ base }}assets/search-core.js"></script>

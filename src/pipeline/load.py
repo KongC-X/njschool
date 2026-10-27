@@ -6,6 +6,7 @@
 import glob
 import json
 import os
+import re
 from urllib.parse import quote
 
 from . import config, mdtext
@@ -91,7 +92,47 @@ def load_body(school, links=None):
     """读取并渲染档案正文，返回 (html, toc)。"""
     path = os.path.join(config.ROOT, school.file)
     text = open(path, encoding="utf-8").read()
-    return mdtext.render(mdtext.strip_leading_h1(text), links=links)
+    html, toc = mdtext.render(mdtext.strip_leading_h1(text), links=links)
+    return _thin_quickfacts(html, school), toc
+
+
+# 页头已经用 h1 + 徽章展示过的字段
+_RE_TR = re.compile(r"<tr>(.*?)</tr>", re.S)
+_RE_TD = re.compile(r"<td[^>]*>(.*?)</td>", re.S)
+_RE_TAG = re.compile(r"<[^>]+>")
+
+
+def _plain(cell):
+    return _RE_TAG.sub("", cell).strip()
+
+
+def _thin_quickfacts(html, school):
+    """去掉「一、学校速览」里与页头完全重复的行。
+
+    页头已经有 h1（校名）+ 学段/性质/行政区/简称 四个徽章，
+    速览表里的「学校全称/简称/所在区/办学性质」再看一遍纯属重复——
+    用户滚过一屏才发现这几行没有新信息。
+
+    只在**值完全相同**时才删。「所在区」写成「雨花台区（岱山片区东侧）」
+    就带着片区增量，必须保留；「办学性质」写成「公办（区属）」同理。
+    """
+    exact = {
+        "学校全称": school.name,
+        "简称": school.short,
+        "所在区": school.district,
+        "办学性质": school.type,
+    }
+
+    def repl(m):
+        cells = _RE_TD.findall(m.group(1))
+        if len(cells) < 2:
+            return m.group(0)                      # 表头行等，原样保留
+        label, value = _plain(cells[0]), _plain(cells[1])
+        if label in exact and exact[label] and value == exact[label]:
+            return ""
+        return m.group(0)
+
+    return _RE_TR.sub(repl, html)
 
 
 def load_pages():

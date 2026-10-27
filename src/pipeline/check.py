@@ -42,6 +42,31 @@ RE_SCRIPT = re.compile(r"<script[^>]*>.*?</script>", re.S)
 NO_CANONICAL = {"404.html"}
 
 
+
+def media_blocks(css):
+    """按括号配对切出所有 @media 块，返回 [(条件, 块内文本)]。
+
+    不能用 `@media ... {(.*?)\n}` 这种非贪婪正则——它会在块内第一条规则的
+    闭合处就截断，导致「块里有没有某条规则」判断失准。这个方法此前靠缩进格式
+    侥幸通过，一旦块内规则顺序变化就会误报。
+    """
+    out, i = [], 0
+    while True:
+        m = re.search(r"@media\s*\(([^)]*)\)\s*\{", css[i:])
+        if not m:
+            return out
+        start = i + m.end()
+        depth, k = 1, start
+        while k < len(css) and depth:
+            if css[k] == "{":
+                depth += 1
+            elif css[k] == "}":
+                depth -= 1
+            k += 1
+        out.append((m.group(1).strip(), css[start:k - 1]))
+        i = k
+
+
 def run(rep: Report, expected_pages):
     """返回 (rep, stats)。"""
     html_files = []
@@ -91,7 +116,8 @@ def run(rep: Report, expected_pages):
             all_css += open(p, encoding="utf-8").read() + "\n"
     mw = RE_TABLE_MINW.search(all_css)
     if mw and int(mw.group(1)) >= 400:
-        mobile_blocks = re.findall(r"@media\s*\(max-width:720px\)\s*\{(.*?)\n\}", all_css, re.S)
+        mobile_blocks = [body for cond, body in media_blocks(all_css)
+                         if "max-width:720px" in cond]
         has_override = any("table{min-width:0" in b.replace(" ", "") for b in mobile_blocks)
         if not has_override:
             rep.error("assets/*.css",

@@ -69,7 +69,8 @@ def home(env, schools, districts, pages, web_counts):
     level_cards = [{
         "level": lv,
         "count": sum(1 for s in schools if s.level == lv),
-        "desc": config.LEVEL_DESC[lv].split("，")[0],
+        # 副标题讲「能查到什么」，不是「为什么没数据」
+        "desc": config.LEVEL_CARD_DESC[lv],
     } for lv in config.LEVELS]
 
     district_cards = []

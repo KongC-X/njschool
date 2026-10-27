@@ -2,15 +2,15 @@
 {% block content %}
 <div class="wrap">
   <h1 class="page-title">对比</h1>
-  <p class="page-sub">选 2–4 所学校并排看。只标「不同」，不标「更好」——本站不构成任何择校建议。
-    选择会保存在本机，可复制链接分享。</p>
+  <p class="page-sub">选 2–4 所并排看，只标「不同」不标「更好」——本站不构成任何择校建议。</p>
+  <p class="page-note">选择保存在本机，可复制链接分享。</p>
 
   <div class="picker">
     <label class="sr-only" for="pick">添加学校</label>
     <input id="pick" type="search" autocomplete="off"
            role="combobox" aria-expanded="false" aria-controls="pickList"
            aria-autocomplete="list" aria-label="输入校名添加对比"
-           placeholder="输入校名添加对比（如「琅琊路」「金中」「拉力琅」）">
+           placeholder="输入校名，如「琅琊路」">
     <ul class="pick-list" id="pickList" role="listbox" aria-label="候选学校" hidden></ul>
     {# 独立状态区：候选数量、上限提示都走这里，避免覆盖用户正在看的候选列表 #}
     <p class="pick-status" id="pickStatus" role="status" aria-live="polite"></p>
