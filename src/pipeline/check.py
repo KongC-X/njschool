@@ -4,6 +4,7 @@
 这一层是「缺陷出不了门」的保障。此前 sitemap 带 207 处占位符能一路到生产，
 正是因为缺少这类检查。检查项分两级：error 阻断（构建失败），warning 仅提示。
 """
+import glob
 import os
 import re
 import collections
@@ -237,6 +238,20 @@ def run(rep: Report, expected_pages):
             if bad:
                 rep.error("assets/schools-compare.js",
                           f"{len(bad)} 个缺口记录的 id 不存在：{bad[:2]}")
+
+    # 2g) 模板里不许手写百分号编码
+    # 手写的编码看不出对错：曾把「琅」(%E7%90%85) 写成「狼」(%E7%8B%BC)，
+    # 首页常搜词点进去搜出 0 条，而构建、链接校验全是绿的，没人发现。
+    # 直接写中文让浏览器编码，或用 | urlencode，都比手写安全。
+    for tpl in sorted(glob.glob(os.path.join(config.TEMPLATES, "*.html"))):
+        text = open(tpl, encoding="utf-8").read()
+        for m in re.finditer(r'(?:href|action)="([^"]*%[0-9A-Fa-f]{2}[^"]*)"', text):
+            raw = m.group(1)
+            if raw.startswith(("data:", "http://", "https://")):
+                continue
+            rep.error(os.path.basename(tpl),
+                      f"链接里手写了百分号编码「{raw}」——直接写中文或用 | urlencode，"
+                      f"手写极易把字写错且看不出（曾把「琅」写成「狼」）")
 
     # 2f) 脚本语法（G6）
     # 内联脚本时代这里是盲区：模板里的 JS 语法错误要到用户浏览器才炸。

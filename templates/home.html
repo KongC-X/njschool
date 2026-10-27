@@ -15,13 +15,15 @@
              placeholder="搜索学校，如「琅琊路」「金中」「江北」">
       <button type="submit">搜索</button>
     </form>
-    {# 常搜词：既当示例又当入口。都走别名表能命中的真实说法 #}
+    {# 常搜词：既当示例又当入口。都走别名表能命中的真实说法。
+       这里直接写中文，让浏览器自己做百分号编码——手写编码看不出对错，
+       曾经把「琅」(%E7%90%85) 写成「狼」(%E7%8B%BC)，搜出 0 条还查不出原因。 #}
     <p class="hero-quick">常搜：
-      <a href="schools.html?q=%E6%8B%89%E5%8A%9B%E7%8B%BC">拉力琅</a>
-      <a href="schools.html?q=%E7%8E%84%E5%A4%96">玄外</a>
-      <a href="schools.html?q=%E4%BA%8C%E5%8D%81%E4%B9%9D%E4%B8%AD">二十九中</a>
-      <a href="schools.html?q=%E9%BC%93%E6%A5%BC">鼓楼</a>
-      <a href="schools.html?q=%E6%B0%91%E5%8A%9E">民办</a>
+      <a href="schools.html?q=拉力琅">拉力琅</a>
+      <a href="schools.html?q=玄外">玄外</a>
+      <a href="schools.html?q=二十九中">二十九中</a>
+      <a href="schools.html?q=鼓楼">鼓楼</a>
+      <a href="schools.html?q=民办">民办</a>
     </p>
   </section>
 
