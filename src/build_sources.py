@@ -20,7 +20,8 @@ import re
 import sys
 from collections import Counter
 
-ROOT = "/Users/kongc/WorkBuddy/南京学校"
+# 从脚本自身位置推导项目根：写死绝对路径的话，换机器或在 CI 上跑会写到错的地方
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "data", "sources.csv")
 REPORT = os.path.join(ROOT, "data", "sources_report.csv")
 STATS = os.path.join(ROOT, "data", "sources_stats.json")

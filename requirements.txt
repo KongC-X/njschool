@@ -1,0 +1,14 @@
+# 构建期依赖（CI 与本地共用）
+#
+# 为什么要锁版本：mdtext 依赖 markdown 的 toc_tokens 结构生成目录，
+# 大版本变化会静默改变产物（目录层级、标题 id 规则），而不是报错。
+# 本地实测版本如下，CI 与之保持一致。
+
+markdown==3.11.2
+Jinja2==3.1.6
+
+# 仅 src/build_xlsx.py（导出对比表）需要，构建站点本身不用
+openpyxl==3.1.5
+
+# 仅 src/gen_og_image.py（生成分享卡片图）需要；产物已入库，构建时只做拷贝
+Pillow>=10,<13

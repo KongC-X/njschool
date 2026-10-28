@@ -19,7 +19,8 @@ import re
 import sys
 from collections import defaultdict
 
-ROOT = "/Users/kongc/WorkBuddy/南京学校"
+# 从脚本自身位置推导项目根：写死绝对路径的话，换机器或在 CI 上跑会写到错的地方
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_PATH = os.path.join(ROOT, "data", "sources.csv")
 
 TRAIL_DATE = re.compile(r"[（(]\s*(19|20)\d{2}[-年./]\d{1,2}([-月./]\d{1,2}日?)?\s*[)）]")

@@ -144,6 +144,22 @@ def validate_websites(schools, rep: Report):
             rep.warn(where, "有公众号名称但状态不是 id")
 
 
+def validate_web_counts(cached, derived, rep: Report):
+    """文件里的 counts 缓存必须与逐校记录现算的结果一致。
+
+    这个字段只有联网跑的 merge_websites.py 会重算，补录脚本不更新它，
+    于是会冻结在某一天。实测曾差 35 所，导致 about 页把自己的官网覆盖率
+    从 34.5% 写成 28%。
+    """
+    if not cached:
+        return
+    for key in ("total", "with_site"):
+        if key in cached and cached[key] != derived.get(key):
+            rep.warn("官网记录",
+                     f"counts.{key}={cached[key]} 与逐校记录现算的 {derived.get(key)} 不符，"
+                     f"删除该字段即可（构建期已改为现算）")
+
+
 def validate_counts(schools, md_total, rep: Report):
     """档案文件总数必须与索引条目数一致（防止漏登记或残留孤儿文件）。"""
     if len(schools) != md_total:

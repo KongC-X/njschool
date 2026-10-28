@@ -18,14 +18,39 @@ def load_index():
         return json.load(f)
 
 
+def _derive_web_counts(records):
+    """从逐校记录现算官网统计，不读文件里的 counts 缓存。
+
+    为什么要现算：counts 是半自动维护的——只有联网跑的 merge_websites.py
+    会重算它，后续 add_websites_* 补录脚本一个都不更新，于是它冻结在某天。
+    实测曾与记录差 35 所：about 页写「153 所（28%）有可用官网」，
+    而 545 条记录里 site 非空且 state=ok 的是 188 所（34.5%）。
+    这个站的立身之本是数据诚实，公开页面上一个 json.load 就能推翻的数字
+    比漏一百个字段更伤——而且它把自家覆盖率低报了 35 所。
+    """
+    state = {}
+    for r in records.values():
+        st = r.get("site_state") or ("ok" if r.get("site") else "none")
+        state[st] = state.get(st, 0) + 1
+    with_site = sum(1 for r in records.values()
+                    if r.get("site") and (r.get("site_state") or "ok") == "ok")
+    return {"total": len(records), "with_site": with_site, "site_state": state}
+
+
 def load_websites():
-    """官网核查结果。缺失时不阻断构建，退化为空记录。"""
+    """官网核查结果。缺失时不阻断构建，退化为空记录。
+
+    返回 (逐校记录, 核验日期, 现算统计, 文件里的 counts 缓存)。
+    第四项只用于校验缓存是否过期，不参与渲染。
+    """
     if not os.path.isfile(config.WEBFILE):
-        return {}, "", {}
+        return {}, "", {}, {}
     with open(config.WEBFILE, encoding="utf-8") as f:
         payload = json.load(f)
-    return (payload.get("schools", {}),
+    records = payload.get("schools", {})
+    return (records,
             payload.get("verified") or payload.get("updated") or "",
+            _derive_web_counts(records),
             payload.get("counts", {}))
 
 

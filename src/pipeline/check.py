@@ -68,6 +68,46 @@ def media_blocks(css):
         i = k
 
 
+def check_payload_shape(payload, cpayload, rep: Report):
+    """前端数据产物的顶层键完整性 + facts 标签一致性。
+
+    单独成函数是为了能直接喂变异过的 dict 做测试——这些键缺失时页面
+    不会"显示得难看"，而是**在模块顶层抛 TypeError，之后所有渲染代码
+    都不执行**，整页停在骨架屏。这类故障必须由构建挡住。
+
+    实测三处曾全部放行：
+      · 删掉 districts → 0 错误，但 schools.js 取它、chips() 里 values.map 抛错
+      · 删掉 factLabels → 0 错误，因为原判断是 `if clabels and ...`，
+        标签表为空时整段校验被跳过（最该拦的场景自动失效）
+      · 两者都不校验「存在且非空」
+    """
+    shape = (
+        ("assets/schools-data.js", payload, ("cols", "rows", "districts")),
+        ("assets/schools-compare.js", cpayload, ("cols", "rows", "factLabels")),
+    )
+    for where, data, keys in shape:
+        if data is None:            # 文件缺失/非法 JSON，前面已单独报过
+            continue
+        for k in keys:
+            if not data.get(k):
+                rep.error(where, f"顶层键「{k}」缺失或为空，前端会在顶层抛错、整页渲染中断")
+
+    # facts 里出现的每个字段都必须在 factLabels 里有中文名，否则界面显示 undefined。
+    # 注意不能写成 `if clabels and ...`：clabels 为空恰恰是要报的缺陷。
+    if cpayload:
+        ccols = cpayload.get("cols") or []
+        clabels = set((cpayload.get("factLabels") or {}).keys())
+        if "facts" in ccols:
+            fi = ccols.index("facts")
+            unknown = set()
+            for r in cpayload.get("rows") or []:
+                if isinstance(r[fi], dict):
+                    unknown |= set(r[fi]) - clabels
+            if unknown:
+                rep.error("assets/schools-compare.js",
+                          f"facts 出现未定义字段 {sorted(unknown)[:3]}，界面会显示 undefined")
+
+
 def run(rep: Report, expected_pages):
     """返回 (rep, stats)。"""
     html_files = []
@@ -208,21 +248,11 @@ def run(rep: Report, expected_pages):
                 rep.error("assets/schools-data.js",
                           f"{len(missing)} 个派生 id 找不到详情页：{missing[:2]}")
 
-    if cpayload:
-        ccols = cpayload.get("cols") or []
-        crows = cpayload.get("rows") or []
-        clabels = set((cpayload.get("factLabels") or {}).keys())
+    # G0/G2 顶层键完整性 + facts 标签一致性（纯函数，可单测）
+    check_payload_shape(payload, cpayload, rep)
 
-        # G2 facts 的 key 必须都在 factLabels 里，否则界面显示 undefined
-        if clabels and "facts" in ccols:
-            fi = ccols.index("facts")
-            unknown = set()
-            for r in crows:
-                if isinstance(r[fi], dict):
-                    unknown |= set(r[fi]) - clabels
-            if unknown:
-                rep.error("assets/schools-compare.js",
-                          f"facts 出现未定义字段 {sorted(unknown)[:3]}，界面会显示 undefined")
+    if cpayload:
+        crows = cpayload.get("rows") or []
 
         # G5b 两个数据文件必须同序同长——对比页靠下标对齐，错一位就是「张冠李戴」
         if payload and len(crows) != len(payload.get("rows") or []):
@@ -262,8 +292,10 @@ def run(rep: Report, expected_pages):
     else:
         for js_name in sorted(n for n in os.listdir(os.path.join(config.SITE, "assets"))
                               if n.endswith(".js")):
+            # 必须显式指定 encoding：默认按 locale 解码，数据文件里一旦有非法 UTF-8，
+            # 门禁自己会抛 UnicodeDecodeError 崩掉——守卫变成故障源。
             r = subprocess.run([node, "--check", os.path.join(config.SITE, "assets", js_name)],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, encoding="utf-8", errors="replace")
             if r.returncode != 0:
                 detail = [x for x in (r.stderr or "").splitlines() if x.strip()]
                 rep.error(f"assets/{js_name}", "脚本语法错误：" + (detail[0] if detail else "未知"))

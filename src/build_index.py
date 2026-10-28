@@ -9,7 +9,8 @@
 import json
 import os
 
-ROOT = "/Users/kongc/WorkBuddy/南京学校"
+# 从脚本自身位置推导项目根：写死绝对路径的话，换机器或在 CI 上跑会写到错的地方
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 元组结构：(学校全称, 简称, 区, 学段, 办学性质, 梯队, 一句话定位)
 # 文件路径由「学段/区/学校全称.md」自动推导，无需手写。

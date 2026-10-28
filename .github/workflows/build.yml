@@ -29,13 +29,15 @@ jobs:
           python-version: "3.12"
 
       - name: 安装依赖
-        run: pip install markdown jinja2 openpyxl
+        run: pip install -r requirements.txt
+
+      # 顺序不能反：index.json 是 build_index.py 生成的，且在 .gitignore 里，
+      # 全新 clone 上并不存在。先 validate 会直接 FileNotFoundError。
+      - name: 重建索引
+        run: python src/build_index.py
 
       - name: 校验数据（失败即中断）
         run: python src/validate.py
-
-      - name: 重建索引
-        run: python src/build_index.py
 
       - name: 构建站点
         env:

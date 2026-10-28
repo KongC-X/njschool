@@ -9,7 +9,8 @@ import json
 import os
 from collections import OrderedDict
 
-ROOT = "/Users/kongc/WorkBuddy/南京学校"
+# 从脚本自身位置推导项目根：写死绝对路径的话，换机器或在 CI 上跑会写到错的地方
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = os.path.join(ROOT, "index.json")
 OUT = os.path.join(ROOT, "南京中小学档案.md")
 

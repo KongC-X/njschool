@@ -21,6 +21,7 @@ verify_websites.py — 对 data/school_websites.json 中的官网地址做全量
   python3 src/verify_websites.py --strict  # 存在「须移除」条目时以非 0 退出（供 CI 使用）
 """
 import json
+import os
 import re
 import ssl
 import sys
@@ -28,7 +29,8 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
-ROOT = "/Users/kongc/WorkBuddy/南京学校"
+# 从脚本自身位置推导项目根：写死绝对路径的话，换机器或在 CI 上跑会写到错的地方
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = f"{ROOT}/data/school_websites.json"
 REPORT = f"{ROOT}/data/website_check.json"
 

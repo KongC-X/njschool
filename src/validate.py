@@ -12,7 +12,7 @@ from pipeline.schema import (Report, validate_counts, validate_pages,
 
 def main():
     index = load.load_index()
-    webmap, _, _ = load.load_websites()
+    webmap, _, _, _ = load.load_websites()
     schools = load.load_schools(index, webmap)
     pages = load.load_pages()
     md_total = load.count_md_files()

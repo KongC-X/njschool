@@ -9,13 +9,14 @@ import shutil
 from collections import Counter
 
 from . import check, config, load, render
-from .schema import Report, validate_counts, validate_pages, validate_schools, validate_websites
+from .schema import (Report, validate_counts, validate_pages, validate_schools,
+                     validate_web_counts, validate_websites)
 
 
 def run():
     print("① 读取内容")
     index = load.load_index()
-    webmap, verified_at, web_counts = load.load_websites()
+    webmap, verified_at, web_counts, web_counts_cached = load.load_websites()
     schools = load.load_schools(index, webmap)
     pages = load.load_pages()
     md_total = load.count_md_files()
@@ -27,6 +28,8 @@ def run():
     validate_websites(schools, rep)
     validate_counts(schools, md_total, rep)
     validate_pages(pages, rep)
+    # counts 缓存若与现算不符，页面会显示错数字（曾低报 35 所）
+    validate_web_counts(web_counts_cached, web_counts, rep)
     ok = rep.dump()
     print(f"   错误 {len(rep.errors)} / 警告 {len(rep.warnings)}")
     if not ok:
