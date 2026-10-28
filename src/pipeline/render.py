@@ -12,7 +12,7 @@ from urllib.parse import quote, urlparse
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 
-from . import aliases, config, facts, load, marks, mdtext
+from . import aliases, config, facts, load, marks, mdtext, source
 
 # (href, label, key, children) —— children 非空则渲染成下拉菜单。
 # 「特长生」的父项本身指向总览页，右侧单独的 ▾ 按钮才展开子菜单，
@@ -113,18 +113,6 @@ def home(env, schools, districts, pages, web_counts):
 LIST_COLS = ("name", "short", "district", "level", "type", "tier", "tagline")
 
 
-def _md_text(school, _cache={}):
-    """读档案原文并缓存。
-
-    对比页要的 facts 与「已声明缺口」都来自同一份 md，两次构建期扫描会各读一遍
-    545 个文件；这里按路径缓存，一次构建内只读一次。
-    """
-    path = os.path.join(config.ROOT, school.file)
-    if path not in _cache:
-        _cache[path] = open(path, encoding="utf-8").read()
-    return _cache[path]
-
-
 def missing_data(schools):
     """返回 {school.id: [field...]}：档案明确声明为数据缺口的字段。
 
@@ -135,7 +123,7 @@ def missing_data(schools):
     """
     out = {}
     for s in schools:
-        miss = facts.extract_missing(_md_text(s))
+        miss = facts.extract_missing(source.text(s.file))
         if miss:
             # 必须用前端的派生 id（学段-校名），不能用 index.json 的 s.id
             # ——后者多了「区」这一层（小学-鼓楼区-某某小学），前端认不出来。
@@ -156,7 +144,7 @@ def compare_data(schools):
     """
     rows = []
     for s in schools:
-        f = facts.extract(_md_text(s))
+        f = facts.extract(source.text(s.file))
         rows.append([f or None, 1 if s.website.site else 0])
     payload = {
         "cols": ["facts", "hasSite"],
@@ -186,7 +174,7 @@ def schools_data(schools, districts):
     for s in schools:
         rows.append([s.name, s.short, s.district, s.level, s.type, s.tier,
                      s.tagline, alias.get(s.id, ""),
-                     " ".join(marks.labels(_md_text(s), s.name))])
+                     " ".join(marks.labels(source.text(s.file), s.name))])
     payload = {
         "cols": list(LIST_COLS) + ["aliases", "marks"],
         "rows": rows,
@@ -301,6 +289,10 @@ def _talent_data(schools):
 
     for group in ("tech", "info", "academic", "arts", "tiyu"):
         for row in data.get(group, []):
+            if not isinstance(row.get("plan_n"), int) or row["plan_n"] <= 0:
+                raise SystemExit(
+                    f"✗ talent_schools.json 里「{row['name']}」的 plan_n 必须是正整数，"
+                    f"实际为 {row.get('plan_n')!r}")
             if row["name"] not in known:
                 raise SystemExit(
                     f"✗ talent_schools.json 里的「{row['name']}」不在 index.json 中，"
@@ -402,7 +394,7 @@ def detail(env, school, verified_at, links=None, dup_names=()):
         # 否则详情页加进去的学校在对比页认不出来（index.json 的 id 多了区，不能直接用）
         cmp_id=f"{school.level}-{school.name}",
         # 「官方还没说死」的标记要放在页头，不能只埋在正文里
-        warn=marks.badges(_md_text(school), school.name),
+        warn=marks.badges(source.text(school.file), school.name),
     )
 
 

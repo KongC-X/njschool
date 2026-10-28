@@ -12,6 +12,8 @@
 """
 import os
 import re
+
+from . import source
 from dataclasses import dataclass, field
 
 from . import config
@@ -112,7 +114,7 @@ def validate_schools(schools, districts, rep: Report):
         if not os.path.isfile(path):
             rep.error(where, f"档案文件不存在：{s.file}")
             continue
-        text = open(path, encoding="utf-8").read()
+        text = source.text(s.file)
         if "数据缺口" not in text:
             rep.error(where, "档案缺少「数据缺口」章节（信度披露要求）")
         if len(text) < 1500:

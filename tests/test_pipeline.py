@@ -13,7 +13,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from pipeline import aliases, facts, marks  # noqa: E402
+from pipeline import aliases, facts, marks, source  # noqa: E402
 
 
 KV = """| 项目 | 内容 | 信度 |
@@ -127,3 +127,60 @@ class TestMarks(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestSourceCache(unittest.TestCase):
+    """档案正文必须只读一次。
+
+    此前 schema（校验）、load（渲染详情）、render（生成前端数据）各自 open()，
+    实测 545 份文件被读 1640 次。统一到 source.text 后应恰好 545 次。
+    """
+
+    def setUp(self):
+        source.reset_cache()
+
+    def test_same_file_read_once(self):
+        rel = "小学/鼓楼区/南京市琅琊路小学.md"
+        first = source.text(rel)
+        second = source.text(rel)
+        self.assertEqual(first, second)
+        self.assertEqual(source.cache_size(), 1, "同一份档案被读了两次")
+
+    def test_different_files_cached_separately(self):
+        a = "小学/鼓楼区/南京市琅琊路小学.md"
+        b = "小学/鼓楼区/南京市拉萨路小学.md"
+        self.assertNotEqual(source.text(a), source.text(b))
+        self.assertEqual(source.cache_size(), 2)
+
+    def test_returns_full_text(self):
+        # 缓存不能截断内容：校验层靠它判断有没有「数据缺口」章节
+        rel = "小学/鼓楼区/南京市琅琊路小学.md"
+        self.assertIn("数据缺口", source.text(rel))
+
+
+class TestTalentPlans(unittest.TestCase):
+    """特长生招生计划的数值必须可计算。
+
+    此前 plan 是自由文本「125 人」，既不能排序也不能求和，
+    还不能校验——模板表格只能原样打印，写错一个数字看不出。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        p = ROOT / "data" / "talent_schools.json"
+        cls.data = json.loads(p.read_text(encoding="utf-8"))
+
+    def test_all_plans_are_positive_ints(self):
+        for group in ("tech", "info", "academic", "arts", "tiyu"):
+            for row in self.data[group]:
+                self.assertIsInstance(row["plan_n"], int, f"{row['name']} 的 plan_n 不是整数")
+                self.assertGreater(row["plan_n"], 0, f"{row['name']} 的 plan_n 非正")
+
+    def test_every_group_has_rows(self):
+        for group in ("tech", "info", "academic", "arts", "tiyu"):
+            self.assertTrue(self.data[group], f"{group} 分组为空，页面会少一张表")
+
+    def test_no_free_text_plan_left(self):
+        for group in ("tech", "info", "academic", "arts", "tiyu"):
+            for row in self.data[group]:
+                self.assertNotIn("plan", row, f"{row['name']} 仍留有计划文本字段")

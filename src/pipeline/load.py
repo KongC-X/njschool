@@ -9,8 +9,14 @@ import os
 import re
 from urllib.parse import quote
 
-from . import config, mdtext
+from . import config, mdtext, source
 from .schema import School, Website
+
+
+def read_text(path):
+    """读任意 UTF-8 文本文件。统一用 with，避免依赖 GC 回收句柄。"""
+    with open(path, encoding="utf-8") as f:
+        return f.read()
 
 
 def load_index():
@@ -115,9 +121,7 @@ def load_source_links():
 
 def load_body(school, links=None):
     """读取并渲染档案正文，返回 (html, toc)。"""
-    path = os.path.join(config.ROOT, school.file)
-    text = open(path, encoding="utf-8").read()
-    html, toc = mdtext.render(mdtext.strip_leading_h1(text), links=links)
+    html, toc = mdtext.render(mdtext.strip_leading_h1(source.text(school.file)), links=links)
     return _thin_quickfacts(html, school), toc
 
 
@@ -170,7 +174,7 @@ def load_pages():
         return pages
     for path in sorted(glob.glob(os.path.join(config.CONTENT_PAGES, "*.md"))):
         key = os.path.splitext(os.path.basename(path))[0]
-        text = open(path, encoding="utf-8").read()
+        text = read_text(path)
         meta, body = _split_front_matter(text)
         html, _ = mdtext.render(body)
         pages[key] = {

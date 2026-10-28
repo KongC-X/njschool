@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "talent_shared.html" import timeline, four_kinds, school_table, reminder, teenage_only %}
+{% from "talent_shared.html" import timeline, four_kinds, school_table, reminder, teenage_only, hard_rules, eligibility_gate %}
 {% block head %}<link rel="stylesheet" href="{{ base }}assets/talent.css">{% endblock %}
 {% block content %}
 <div class="wrap">
@@ -40,9 +40,7 @@
 
     <h2>二、谁能报</h2>
 
-    <h3>第一道门槛：综合素质评价</h3>
-    <p>道德品质、公民素养、交流与合作三项须为<strong>合格</strong>等第；学习能力、运动与健康、审美与表现三项须为
-      <strong>B 级及以上</strong>。这是四类特长生共同的前提。</p>
+    {{ eligibility_gate() }}
 
     <h3>学科特长生：满足其一即可</h3>
     <ol>
@@ -52,14 +50,7 @@
     </ol>
 
     <h3>四条硬规则，踩了就直接出局</h3>
-    <div class="callout">
-      <ul>
-        <li><strong>一校一项。</strong>每名考生只能填报 <strong>1 所</strong>学校、<strong>1 个</strong>项目。</li>
-        <li><strong>四类互斥。</strong>学科与科技不能兼报，也不能与体育、艺术兼报。</li>
-        <li>报名截止后<strong>任何人不得更改志愿</strong>。</li>
-        <li>开考比例约 <strong>1:7</strong>（参加加试人数不超过招生计划的 7 倍），报名不等于能进考场。</li>
-      </ul>
-    </div>
+    {{ hard_rules() }}
 
     <h2>三、南京各校的学科特长生计划</h2>
     <p>下表每一条都对应本站某份学校档案里的原文，点击校名可看到完整档案与来源。</p>

@@ -14,7 +14,7 @@ import subprocess
 
 from urllib.parse import unquote, urlparse
 
-from . import config
+from . import config, load
 from .schema import Report
 
 MIN_H2_FOR_TOC = 3
@@ -140,7 +140,7 @@ def run(rep: Report, expected_pages):
         comp = os.path.join(config.SITE, "assets", sheet)
         if not os.path.isfile(comp):
             continue
-        css = open(comp, encoding="utf-8").read()
+        css = load.read_text(comp)
         bad = [c for c in RE_HEX.findall(css) if c.lower() not in ("#fff", "#ffffff")]
         if bad:
             rep.error("assets/site.css",
@@ -154,7 +154,7 @@ def run(rep: Report, expected_pages):
     for sheet in ("site.css", "pages.css", "responsive.css"):
         p = os.path.join(config.SITE, "assets", sheet)
         if os.path.isfile(p):
-            all_css += open(p, encoding="utf-8").read() + "\n"
+            all_css += load.read_text(p) + "\n"
     mw = RE_TABLE_MINW.search(all_css)
     if mw and int(mw.group(1)) >= 400:
         mobile_blocks = [body for cond, body in media_blocks(all_css)
@@ -175,7 +175,7 @@ def run(rep: Report, expected_pages):
         f = os.path.join(config.SITE, "assets", sheet)
         if not os.path.isfile(f):
             continue
-        text = open(f, encoding="utf-8").read()
+        text = load.read_text(f)
         sels = re.findall(r"(?m)^([.#][^{\n]+)\{", text)
         dups = [sel for sel, n in _c.Counter(x.strip() for x in sels).items() if n > 1]
         if dups:
@@ -205,7 +205,7 @@ def run(rep: Report, expected_pages):
         p = os.path.join(config.SITE, "assets", name)
         if not os.path.isfile(p):
             return None
-        raw = open(p, encoding="utf-8").read()
+        raw = load.read_text(p)
         try:
             return json.loads(raw[raw.index("{"):raw.rindex("}") + 1])
         except ValueError as e:
@@ -274,7 +274,7 @@ def run(rep: Report, expected_pages):
     # 首页常搜词点进去搜出 0 条，而构建、链接校验全是绿的，没人发现。
     # 直接写中文让浏览器编码，或用 | urlencode，都比手写安全。
     for tpl in sorted(glob.glob(os.path.join(config.TEMPLATES, "*.html"))):
-        text = open(tpl, encoding="utf-8").read()
+        text = load.read_text(tpl)
         for m in re.finditer(r'(?:href|action)="([^"]*%[0-9A-Fa-f]{2}[^"]*)"', text):
             raw = m.group(1)
             if raw.startswith(("data:", "http://", "https://")):
@@ -302,7 +302,7 @@ def run(rep: Report, expected_pages):
 
     for path in html_files:
         rel = os.path.relpath(path, config.SITE)
-        html = open(path, encoding="utf-8").read()
+        html = load.read_text(path)
         stats["checked"] += 1
 
         # 结构语义
@@ -409,7 +409,7 @@ def run(rep: Report, expected_pages):
         if not os.path.isfile(sitemap):
             rep.error("sitemap", "已配置 BASE_URL 但未生成 sitemap.xml")
         else:
-            xml = open(sitemap, encoding="utf-8").read()
+            xml = load.read_text(sitemap)
             locs = re.findall(r"<loc>([^<]+)</loc>", xml)
             # sitemap 不含 404 页
             if len(locs) != expected_pages - 1:

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "talent_shared.html" import four_kinds, timeline, reminder %}
+{% from "talent_shared.html" import four_kinds, timeline, reminder, hard_rules %}
 {% block head %}<link rel="stylesheet" href="{{ base }}assets/talent.css">{% endblock %}
 {% block content %}
 <div class="wrap">
@@ -70,15 +70,7 @@
       详见 <a href="{{ base }}talent-keji.html">科技特长生 · 信息学方向</a>。</p>
 
     <h2>三、四类共通的四条规则</h2>
-    <div class="callout">
-      <ul>
-        <li><strong>一校一项。</strong>每名考生只能填报 <strong>1 所</strong>学校、<strong>1 个</strong>项目。</li>
-        <li><strong>四类互斥。</strong>学科与科技不能兼报，也不能与体育、艺术兼报。报名截止后不得更改。</li>
-        <li><strong>综合素质评价是共同门槛。</strong>道德品质、公民素养、交流与合作三项须合格；
-          学习能力、运动与健康、审美与表现三项须 B 级及以上。</li>
-        <li><strong>开考比例约 1:7。</strong>参加加试的人数不超过招生计划的 7 倍，报名不等于能进考场。</li>
-      </ul>
-    </div>
+    {{ hard_rules(include_gate=True) }}
 
     <h2>四、时间节点（2026 年）</h2>
     {{ timeline() }}
