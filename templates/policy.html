@@ -11,6 +11,16 @@
     <p class="hint">{{ pages['policy-2026'].summary }} · 更新于 {{ pages['policy-2026'].updated }}</p>
     {{ pages['policy-2026'].html | safe }}
 
+    {# 不写进上面那张表：一是它不属于「2026 年的变化」（这条规则往年即有），
+       二是该表的行数被 _policy_count() 与 validate_policy_sync() 用来核对
+       首页「政策变化 N 项」，加一行会把那个数字算错。 #}
+    <div class="callout">
+      <p><strong>最容易付出代价的一条：摇中了又放弃，原学区学位不保留。</strong>
+        参加电脑随机派位<strong>派中并在平台确认</strong>后，其他学校不得再录取，也不能回施教区公办就读；
+        <strong>派中后主动放弃的，原施教区学位不再保留，由区教育局统筹安排</strong>。
+        只有<strong>报名但未被派中</strong>的，才能回原施教区学校。</p>
+    </div>
+
     <h2>{{ pages.renames.title }}</h2>
     <p class="hint">{{ pages.renames.summary }} · 更新于 {{ pages.renames.updated }}</p>
     {{ pages.renames.html | safe }}
@@ -24,6 +34,20 @@
     <p class="hint">{{ pages['shengxue-tongdao'].summary }} · 更新于 {{ pages['shengxue-tongdao'].updated }}</p>
     {{ pages['shengxue-tongdao'].html | safe }}
     {% endif %}
+
+    {# 南外是义务教育阶段唯一还能做「测评」的公办校，规则自成一类，
+       三条都容易被误读成「报了就能考」，所以单列一节而不是塞进上面那张表。 #}
+    <h2 id="nanwai">南外初中部：先摇号，再面测</h2>
+    <p class="hint">来源：南京市教育局《2026 年全市义务教育招生入学工作问答》第 12 问。政策保持稳定的年份口径一致，以当年招生简章为准。</p>
+    <p>南京外国语学校是义务教育阶段<strong>唯一可以组织语言能力测评</strong>的学校（依据教育部对具有高校推荐保送生资格的外语类专门学校的规定）。
+      正因为特殊，它的规则与其他公民办校都不同，有三条容易被误读：</p>
+    <ol>
+      <li><strong>谁能报</strong>：满足其一即可——具有南京市户籍的小学应届毕业生；或具有完整我市小学就读经历及相应学籍的小学应届毕业生。</li>
+      <li><strong>考什么</strong>：只有<strong>语言能力测评</strong>，内容严格依据小学课程标准，由市教育局组织专家审核把关。不考奥数，也不考初中内容。</li>
+      <li><strong>不是报了就能考</strong>：<strong>报名人数超过招生计划数 8 倍以上时，先通过电脑随机派位确定参加测评的学生名单</strong>。
+        也就是说，摇不中连面测资格都没有——这一点最容易被忽略，很多家庭按「去考一次试试」的心态填报，结果白白用掉一个派位志愿名额。</li>
+    </ol>
+    <p>南外的招生简章（含招生范围、计划、流程、录取办法）须经市教育局审核通过后向社会公布，届时以简章为准。</p>
 
     <h2>如何使用这两份内容</h2>
     <p>政策条目用于判断「今年规则有没有变」，更名对照用于避免「按旧校名搜不到」。
