@@ -1,8 +1,11 @@
 name: build-and-deploy
 
-# 构建并发布静态站点。
+# 构建并发布静态站点到 Cloudflare Pages。
 # 触发：推送到主分支，或手动执行。
-# 站点基址由仓库信息推导，无需手工维护 sitemap 占位符。
+#
+# GitHub Pages 已停用（2026-10-31）：其 Custom domain 指向一个已过期为他人所有的
+# 域名，github.io 全部 301 过去，实际不可用，且会把收录和分享流量送给对方站点。
+# 现在唯一发布目标是 Cloudflare Pages。
 
 on:
   push:
@@ -11,11 +14,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: deploy
   cancel-in-progress: true
 
 jobs:
@@ -70,17 +71,15 @@ jobs:
           NJ_REQUIRE_QUALITY: "1"
         run: node --test tests/*.test.mjs
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      # ---- Cloudflare Pages：与 GitHub Pages 并行部署 ----
+      # ---- Cloudflare Pages：唯一发布目标 ----
       # 为什么不交给 Cloudflare 自己构建：本项目依赖 Python 3.12 + requirements.txt
       # + make site，CF 的构建镜像版本与依赖缓存都不可控。继续由 Actions 构建、
       # 只把 site/ 上传，换托管方时只需改这一条命令，前面全部不动。
       #
-      # 前置（一次性）：在 CF 面板先建好名为 njschool 的 Pages 项目（Direct Upload）。
+      # 前置（一次性）：CF 面板里建好名为 njschool 的 Pages 项目（Direct Upload）。
       # 不在 CI 里自动创建——wrangler 创建项目是交互式的，CI 里会卡住。
+      #
+      # CF_API_TOKEN 为空时整段跳过：这样 fork 或本地调试不会因缺凭证而红。
       - name: 部署到 Cloudflare Pages
         if: env.CF_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v3
@@ -88,13 +87,3 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy site --project-name=njschool --branch=master
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
