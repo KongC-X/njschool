@@ -1,0 +1,199 @@
+/* ============================================================
+   组件层
+   ------------------------------------------------------------
+   为什么单独一份：按钮、胶囊、徽章、输入框、说明块、折叠条这六类
+   原来散在 site / pages / detail / compare / score / timeline 六个文件里，
+   同一个组件最多有 8 组实现（按钮 5 种高度、输入框 3 种聚焦表现、
+   折叠条 4 份逐字节重复）。页面文件只该负责布局，组件只该在这里定义一次。
+
+   加载顺序：tokens → site → components → pages/detail/compare/… → responsive
+   页面文件里禁止再写这几个组件的 padding / min-height / border-radius。
+
+   唯一例外：导航项在 ≤480 用 padding:7px 5px（responsive.css），
+   那是为了在 320–430 保住 5 个入口不被裁，别再统一掉。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   按钮
+   ------------------------------------------------------------
+   统一到一套盒模型 + 三个修饰。原来 min-height 有 32/36/38/40/44 五档，
+   同一个 .btn-site 在 detail.css 里 38、:135 处又 32。
+   ------------------------------------------------------------ */
+.btn-primary,.btn-ghost,.btn-site,.btn-reset,.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
+  min-height:var(--h-control);padding:9px 16px;border-radius:var(--r-md);
+  border:1px solid transparent;background:var(--surface);
+  font-family:inherit;font-size:var(--f-sm);font-weight:600;line-height:1.2;
+  color:var(--text);cursor:pointer;text-decoration:none;
+  transition:background var(--t-fast),border-color var(--t-fast),color var(--t-fast)}
+.btn-primary,.btn--primary{background:var(--accent);border-color:var(--accent);
+  color:var(--on-accent)}
+.btn-primary:hover,.btn--primary:hover{background:var(--accent-strong);
+  border-color:var(--accent-strong);color:var(--on-accent);text-decoration:none}
+.btn-ghost{border-color:var(--line-control);color:var(--text)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent-text)}
+.btn-site{border-color:var(--accent);color:var(--accent-text);font-weight:500}
+.btn-site:hover{background:var(--accent-weak);text-decoration:none}
+/* 核验不通的官网：退成次要按钮，别和可用链接一个样子 */
+.btn-site.warn{border-color:var(--line-strong);color:var(--muted);font-weight:500}
+.btn-site.warn:hover{background:var(--surface-2);color:var(--muted)}
+.btn-reset{border-color:var(--line-control);color:var(--text);font-weight:500}
+.btn-reset:hover{border-color:var(--accent);color:var(--accent-text)}
+/* 已在对比列表里：按钮要能看出「已按下」，否则用户会反复点 */
+.cmp-add .btn-ghost[aria-pressed="true"]{border-color:var(--accent);
+  background:var(--accent-weak);color:var(--accent-text)}
+/* 小一号：页头官方渠道条、详情页次要动作 */
+.btn--sm{min-height:32px;padding:5px 12px;font-size:var(--f-xs);font-weight:500;
+  border-radius:var(--r-md)}
+.btn-primary:focus-visible,.btn-ghost:focus-visible,.btn-site:focus-visible,
+.btn-reset:focus-visible,.btn:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px}
+.btn[disabled],.btn-ghost[disabled]{opacity:.55;cursor:not-allowed}
+
+/* ------------------------------------------------------------
+   胶囊 / 筛选块
+   ------------------------------------------------------------ */
+.chip,.sc-chip,.chip-clear{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:var(--h-control);padding:6px 14px;border-radius:var(--r-pill);
+  border:1px solid var(--line-control);background:var(--surface);
+  font-family:inherit;font-size:var(--f-sm);line-height:1.2;color:var(--text);
+  cursor:pointer;transition:background var(--t-fast),border-color var(--t-fast),color var(--t-fast)}
+.chip:hover,.sc-chip:hover{border-color:var(--accent);color:var(--accent-text)}
+.chip.on{background:var(--accent);border-color:var(--accent);
+  color:var(--on-accent);font-weight:600}
+/* 小号：查分页的常用分数，和正文同页并排时热区一致（原来 32px） */
+.chip--sm,.sc-chip{min-height:36px;padding:4px 12px;font-size:var(--f-xs);
+  border-radius:var(--r-pill);margin-left:6px}
+/* 纯文字操作：对比页「清空」，不该长得像已选中的胶囊 */
+.chip-clear{border:0;background:none;min-height:36px;padding:0 4px;
+  font-size:var(--f-xs);color:var(--muted);text-decoration:underline;
+  text-underline-offset:2px}
+.chip-clear:hover{color:var(--text)}
+.chip:focus-visible,.sc-chip:focus-visible,.chip-clear:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px}
+
+/* ------------------------------------------------------------
+   标签 / 徽章
+   ------------------------------------------------------------
+   七套小标签收敛成一套：同圆角、同内距、同字号，只换颜色语义。
+   ------------------------------------------------------------ */
+.b,.conf,.filter-count,.sc-flag,.cmp-head-cov,.cmp-spread,.tl-ddl{
+  display:inline-block;border-radius:var(--r-sm);padding:1px 7px;
+  font-size:var(--f-2xs);font-weight:600;line-height:1.6;white-space:nowrap;
+  vertical-align:1px}
+/* 学段 / 性质 / 区 */
+.b-lv{background:var(--accent-weak);color:var(--accent-text)}
+.b-pub{background:var(--green-bg);color:var(--green)}
+.b-pri{background:var(--red-bg);color:var(--red)}
+.b-d{background:transparent;color:var(--muted);border:1px solid var(--line);
+  font-weight:500}
+.b-warn{background:var(--amber-bg);color:var(--amber)}
+/* 信度：A 绿 / B 蓝 / C 橙，等宽好竖着对齐 */
+.conf{min-width:20px;text-align:center;padding:0 5px;font-weight:700;cursor:help}
+.conf-a{background:var(--green-bg);color:var(--green)}
+.conf-b{background:var(--blue-bg);color:var(--blue)}
+.conf-c{background:var(--amber-bg);color:var(--amber)}
+/* 计数、口径、差值、截止日 */
+.filter-count{background:var(--accent);color:var(--on-accent);padding:0 7px}
+.filter-count[hidden]{display:none}
+.sc-flag,.tl-ddl,.cmp-spread{background:var(--amber-bg);color:var(--amber)}
+.cmp-head-cov{background:var(--surface-2);color:var(--muted);font-weight:500}
+
+/* ------------------------------------------------------------
+   输入框
+   ------------------------------------------------------------
+   四处实现、三种聚焦表现：4px 阴影 / 3px 阴影 / 交给容器的 focus-within。
+   ------------------------------------------------------------ */
+#q,.picker input,.sk-row input,#scScore{
+  width:100%;min-height:var(--h-control);padding:11px var(--s-4);
+  font-family:inherit;font-size:var(--f-base);
+  color:var(--text);background:var(--surface);
+  border:1px solid var(--line-control);border-radius:var(--r-md);
+  outline:none;transition:border-color var(--t-fast),box-shadow var(--t-fast)}
+/* 施教区自查框在 flex 行里：必须可伸缩，否则 width:100% 会把右侧按钮挤出去 */
+.sk-row input{flex:1 1 auto;min-width:0}
+#q:focus,.picker input:focus,.sk-row input:focus,#scScore:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+/* 键盘聚焦必须看得见：上面把 outline 关掉了，这里补回来 */
+#q:focus-visible,.picker input:focus-visible,.sk-row input:focus-visible,
+#scScore:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 查分页那个大号分数框：宽度固定，字号更大，其余同上 */
+#scScore{width:150px;font-size:var(--f-xl);font-weight:600;
+  font-variant-numeric:tabular-nums}
+
+/* ------------------------------------------------------------
+   说明块（左侧色条）
+   ------------------------------------------------------------
+   原来 8 处各写一遍，其中 .sc-note 与 .tl-note 逐条相同。
+   ------------------------------------------------------------ */
+.sc-note,.tl-note,.src-note{
+  background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--accent);border-radius:0 var(--r-md) var(--r-md) 0;
+  padding:var(--s-4) var(--s-5);margin:0 0 var(--s-5)}
+.sc-note p,.tl-note p{margin:0 0 var(--s-2);font-size:var(--f-sm);
+  color:var(--muted);line-height:var(--lh-loose)}
+.sc-note p:last-child,.tl-note p:last-child{margin-bottom:0}
+.sc-note strong,.tl-note strong,.src-note strong{color:var(--ink)}
+.tl-note b{color:var(--text)}
+/* 引用型说明（详情页「数据来源」）：视觉更轻，不抢正文 */
+.src-note{border-left-color:var(--line-strong);background:var(--surface-2);
+  padding:var(--s-3) var(--s-4);font-size:var(--f-xs);color:var(--muted);
+  line-height:1.7;margin:var(--s-3) 0 var(--s-4)}
+
+/* ------------------------------------------------------------
+   折叠条
+   ------------------------------------------------------------
+   四份重复：.sc-far / .sc-legend / .tl-extra 各写一遍，另有 JS 版 .cmp-gtoggle。
+   ------------------------------------------------------------ */
+.sc-far summary,.sc-legend summary,.tl-extra summary{
+  cursor:pointer;list-style:none;padding:var(--s-3) 0;
+  font-size:var(--f-sm);font-weight:600;color:var(--text)}
+.sc-far summary::-webkit-details-marker,
+.sc-legend summary::-webkit-details-marker,
+.tl-extra summary::-webkit-details-marker{display:none}
+.sc-far summary::before,.sc-legend summary::before,.tl-extra summary::before{
+  content:"▸ ";color:var(--line-strong)}
+.sc-far[open] summary::before,.sc-legend[open] summary::before,
+.tl-extra[open] summary::before{content:"▾ "}
+.sc-far summary:focus-visible,.sc-legend summary:focus-visible,
+.tl-extra summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 带底色的折叠条（查分页「差距较大」）：比纯文字条更重一档 */
+.sc-far summary{padding:var(--s-3) var(--s-4);color:var(--muted);
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+
+/* ------------------------------------------------------------
+   可点卡片：只有两档
+   ------------------------------------------------------------
+   原来 6 种卡片 4 套内边距、2 套圆角、3 种 hover。
+   大卡（学校卡 / 学段卡 / 404 入口卡）与行式卡（区卡 / 查分卡 / 接着看）。
+   ------------------------------------------------------------ */
+.card,.lv-card,.nf-card,.dist,.sc-card,.next-card{
+  background:var(--surface);border:1px solid var(--line);color:var(--text);
+  transition:border-color var(--t-base),box-shadow var(--t-base),
+             background var(--t-fast)}
+.card,.lv-card,.nf-card{border-radius:var(--r-lg);padding:var(--s-4) var(--s-5);
+  box-shadow:var(--sh-1)}
+/* 整张学校卡是一个链接（不再「标题一个、查看档案又一个」），
+   所以这里要自己承担 <a> 的默认样式 */
+.card{display:flex;flex-direction:column;text-decoration:none}
+.card h3{color:var(--ink)}
+.card:hover h3{color:var(--accent-text)}
+/* 同名跨学段：标题后补的学段标记（见 schools.js 的 DUP_NAME），与详情页 title 口径一致 */
+.card h3 .lv-sfx{font-size:var(--f-2xs);font-weight:600;color:var(--muted);white-space:nowrap}
+.card .more{text-decoration:none}
+.card:hover,.lv-card:hover,.nf-card:hover{border-color:var(--accent);
+  box-shadow:var(--sh-2);text-decoration:none}
+.dist,.sc-card,.next-card{border-radius:var(--r-md);padding:var(--s-3) var(--s-4)}
+.dist:hover,.sc-card:hover,.next-card:hover{border-color:var(--accent);
+  background:var(--accent-weak);text-decoration:none}
+
+/* ------------------------------------------------------------
+   窄屏：可点元素一律 44px（Apple HIG 与 WCAG 2.5.8 的下限）
+   ------------------------------------------------------------ */
+@media (max-width:720px){
+  .btn-primary,.btn-ghost,.btn-site,.btn-reset,.btn,
+  .chip,.sc-chip,.chip-clear{min-height:var(--h-control-lg)}
+  .btn--sm{min-height:36px}
+  #q,.picker input,.sk-row input{font-size:var(--f-md)}
+}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block head %}<link rel="stylesheet" href="{{ base }}assets/all.css?v={{ ver }}">{% endblock %}
 {% block content %}
 <div class="wrap">
   <h1 class="page-title">全部学校索引</h1>
@@ -6,8 +7,16 @@
     这一页是纯静态清单，不依赖 JavaScript——学校库的筛选和搜索需要脚本，
     这里保证任何情况下都能找到并点进每一所学校的档案。</p>
 
+  {# 545 条链接排下来有 30 多屏，没有跳区入口就只能一路滚。
+     区名条复用目录条的样式，窄屏可横向滑动。 #}
+  <nav class="all-jump" aria-label="跳到某个区">
+    {%- for g in groups %}
+    <a href="#{{ g.id }}">{{ g.name }}<span class="all-count">{{ g.total }}</span></a>
+    {%- endfor %}
+  </nav>
+
   {%- for g in groups %}
-  <section class="all-group">
+  <section class="all-group" id="{{ g.id }}">
     <h2 class="all-h2">{{ g.name }}<span class="all-count">{{ g.total }} 所</span></h2>
     {%- for lv in g.levels %}
     <h3 class="all-h3">{{ lv.level }}<span class="all-count">{{ lv.schools | length }}</span></h3>

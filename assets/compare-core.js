@@ -36,10 +36,19 @@
       .toLowerCase();
   }
 
+  /* 从单元格文本里取第一个数：招生计划「两校区共 980 人」取 980，
+     学费「22,000 元/生·学期」取 22000。取不到返回 null（不做猜测）。 */
+  function numOf(text) {
+    var m = String(text == null ? '' : text).replace(/[,，\s]/g, '').match(/-?\d+(?:\.\d+)?/);
+    return m ? parseFloat(m[0]) : null;
+  }
+
   function cellOf(spec, item, missing) {
     var text = '', state = 'has', val;
 
     if (spec.source === 'facts') {
+      /* mode:excerpt 的字段也是从 facts 里来的（构建期由 facts.excerpt 截取），
+         只是渲染时用「原文摘录」样式，不参与精确比对。 */
       val = item.facts && item.facts[spec.field];
       if (val) {
         text = val;
@@ -87,8 +96,26 @@
 
       var row = {
         key: spec.key, label: spec.label, group: spec.group, diff: spec.diff,
+        priority: spec.priority,
+        mode: spec.mode || 'text', unit: spec.unit || '',
         cells: cells, filled: filled, total: cells.length, hasDiff: false
       };
+
+      /* 数值行的「差幅」：只在**所有有值的格子都能解析成数字**时才算。
+         有一个是「约 90%」这种带修饰的，就不给差值——差值比原文更容易被当成精确结论。 */
+      if (spec.num && filled >= 2) {
+        var nums = [];
+        cells.forEach(function (c) {
+          if (c.state === 'has') {
+            var n = numOf(c.text);
+            if (n !== null) nums.push(n);
+          }
+        });
+        if (nums.length === filled && nums.length >= 2) {
+          var lo = Math.min.apply(null, nums), hi = Math.max.apply(null, nums);
+          if (hi > lo) row.spread = { min: lo, max: hi, delta: hi - lo, unit: spec.unit || '' };
+        }
+      }
 
       /* 至少两所有值才谈得上「不同」；只有一所填了，那是「缺」不是「异」 */
       if (spec.diff === 'exact' && filled >= 2) {
@@ -106,6 +133,20 @@
     });
 
     return rows;
+  }
+
+  /* 每所学校在各组里有几项拿到了数据——列头显示「8/18 项」，
+     让「这一列本来就是稀的」一眼可见，而不是逐格去数横线。 */
+  function coverage(rows, items) {
+    return items.map(function (it, i) {
+      var has = 0, gap = 0;
+      rows.forEach(function (r) {
+        var st = r.cells[i].state;
+        if (st === 'has') has++;
+        else if (st === 'gap') gap++;
+      });
+      return { has: has, gap: gap, total: rows.length };
+    });
   }
 
   /* ?ids= 解析：去重、跳过无效、区分「没传参」与「传了但全失效」 */
@@ -134,6 +175,7 @@
   }
 
   root.__NJ_COMPARE__ = {
-    norm: norm, buildRows: buildRows, parseIds: parseIds, toQuery: toQuery
+    norm: norm, numOf: numOf, buildRows: buildRows, coverage: coverage,
+    parseIds: parseIds, toQuery: toQuery
   };
 })(typeof window !== 'undefined' ? window : this);

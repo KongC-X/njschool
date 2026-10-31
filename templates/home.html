@@ -10,27 +10,46 @@
     {# 真表单：回车由浏览器提交，JS 挂了照样能搜。
        之前用 onkeydown 手写回车，脚本一出错搜索就整个失效。 #}
     <form class="hero-search" role="search" action="schools.html" method="get">
-      <label class="sr-only" for="hq">搜索学校</label>
+      <label class="sr-only" for="hq">搜索学校或路名</label>
       <input id="hq" name="q" type="search" autocomplete="off"
-             placeholder="搜索学校，如「琅琊路」「金中」「江北」">
+             placeholder="搜校名或路名，如「琅琊路」「宁海路」">
       <button type="submit">搜索</button>
     </form>
-    {# 常搜词：既当示例又当入口。都走别名表能命中的真实说法。
-       这里直接写中文，让浏览器自己做百分号编码——手写编码看不出对错，
-       曾经把「琅」(%E7%90%85) 写成「狼」(%E7%8B%BC)，搜出 0 条还查不出原因。 #}
+    {# 常搜词：既当示例又当入口。
+       第一项换成路名——家长最想问的是「我家这条街能上哪所」，
+       而这一版之前只演示了校名，等于把最刚需的用法藏起来了。
+       「拉力琅」这类圈内简称保留，但补一句解释：新落户家庭看不懂。 #}
     <p class="hero-quick">常搜：
-      <a href="schools.html?q=拉力琅">拉力琅</a>
-      <a href="schools.html?q=玄外">玄外</a>
+      <a href="schools.html?q=宁海路">宁海路</a>
+      <a href="schools.html?q=拉力琅" title="拉萨路小学 · 力学小学 · 琅琊路小学的合称">拉力琅</a>
+      <a href="schools.html?q=玄外" title="南京玄武外国语学校">玄外</a>
       <a href="schools.html?q=二十九中">二十九中</a>
-      <a href="schools.html?q=鼓楼">鼓楼</a>
       <a href="schools.html?q=民办">民办</a>
+      <a href="schools.html?q=施教区" title="按施教区路名检索">按施教区找</a>
     </p>
+    <p class="quick-note">「拉力琅」＝拉萨路 · 力学 · 琅琊路三所鼓楼名小；搜路名可直接查到哪些学校的施教区覆盖它。</p>
   </section>
 
   <div class="stats">
     {%- for label, value in stats %}
     <div class="stat"><b>{{ value }}</b><span>{{ label }}</span></div>
     {%- endfor %}
+  </div>
+
+  {# 两个工具入口：时间轴回答「什么时候做」，分数反查回答「能上哪所」。
+     并排放在统计条正下方——这两件事家长一年只用两三次，
+     但用的时候都是「明天就截止」那种急，需要一眼看见而不是记住菜单位置。 #}
+  <div class="home-tools">
+    <a class="tl-entry" href="timeline.html">
+      <span class="tl-entry-k">招生时间轴</span>
+      <span class="tl-entry-v">5 月报名、6 月摇号、7 月确认——全市节点合成一张表，标出错过就要等一年的时刻</span>
+      <span class="tl-entry-go">查看 →</span>
+    </a>
+    <a class="tl-entry tl-entry--score" href="score.html">
+      <span class="tl-entry-k">分数查学校</span>
+      <span class="tl-entry-v">输入中考总分，看 2026 年 37 所高中里哪些可以冲、哪些比较稳、哪些够不着</span>
+      <span class="tl-entry-go">查一查 →</span>
+    </a>
   </div>
 
   <section class="sec">
@@ -58,13 +77,13 @@
     <div class="dist-grid">
       {%- for d in district_cards %}
       <a class="dist" href="schools.html?dist={{ d.name | urlencode }}">
-        <b>{{ d.name }}</b><span>{{ d.total }} 所</span>
+        <div class="dhead"><b>{{ d.name }}</b><span>{{ d.total }} 所</span></div>
         <small>{{ d.detail }}</small></a>
       {%- endfor %}
       {# 11 个区在 4 列下必然剩 3 个空位。补一张「全部学校」卡：
          既把网格补成 12 = 4×3，也顺手给出一个不按区筛的入口 #}
       <a class="dist dist-all" href="all.html">
-        <b>全部学校</b><span>{{ total }} 所</span>
+        <div class="dhead"><b>全部学校</b><span>{{ total }} 所</span></div>
         <small>按区与学段排列的完整清单</small></a>
     </div>
   </section>

@@ -13,12 +13,20 @@
    ============================================================ */
 
 :root{
+  /* 告诉浏览器「这套配色是浅色」：滚动条、<select> 弹出的列表、输入框自动填充、
+     数字输入的上下箭头都归浏览器画，不给 color-scheme 就永远是浅色——
+     深色主题下页面变深了，这些控件还是白的。 */
+  color-scheme:light;
+
   /* ---- 中性阶 ---- */
   --bg:#f6f7fb;
   --surface:#ffffff;
   --surface-2:#f1f3f9;
   --line:#e5e7ef;
   --line-strong:#d3d7e3;
+  /* 控件描边：--line 对白底只有 1.24:1，搜索框在页面上等于没有边界。
+     这一档专给按钮/输入框/下拉，对 #fff 3.06:1，过 WCAG 1.4.11 的 3:1。 */
+  --line-control:#8b94a5;
   --muted:#5f6b7f;
   --text:#1a1f2b;
   --ink:#0d1220;
@@ -29,7 +37,6 @@
   --accent-weak:#eef3ff;
   --accent-text:#1b47b5;
   --on-accent:#ffffff;
-  --on-accent:#ffffff;
 
   /* ---- 语义色 ---- */
   --green-bg:#e8f7ee;  --green:#11643a;
@@ -37,14 +44,25 @@
   --amber-bg:#fdf3e2;  --amber:#8a4d06;
   --red-bg:#fdeceb;    --red:#9c1c12;
 
-  /* ---- 字阶（1.2 比例，15px 基准） ---- */
-  --f-2xs:11.5px; --f-xs:12.5px; --f-sm:13.5px; --f-base:15px;
-  --f-md:16px; --f-lg:17px; --f-xl:20px; --f-2xl:26px; --f-3xl:34px;
-  --lh-tight:1.3; --lh-base:1.75;
+  /* ---- 字阶（唯一定义处） ----
+     历史问题：这套令牌曾被三个媒体查询分别重定义（≤720 上调、≥1280 回落、
+     ≥1700 再上调），结果是 721–1279px（iPad 横屏、13″ 笔记本）反而成了
+     全站字号最小的区间——比 375 的手机还小 1–2px。方向反了。
+     现在只在这里定义一次，断点里只允许「变大」或「只改标题档」，
+     验收口径：任何令牌不得随视口变宽而变小。 */
+  --f-2xs:12.5px; --f-xs:13.5px; --f-sm:15px; --f-base:16px;
+  --f-md:17px; --f-lg:18px; --f-xl:21px; --f-2xl:28px; --f-3xl:36px;
+  --lh-tight:1.3; --lh-ui:1.5; --lh-base:1.75; --lh-loose:1.85;
 
   /* ---- 间距（4px 基准） ---- */
   --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px;
   --s-6:24px; --s-7:32px; --s-8:40px; --s-9:56px;
+
+  /* ---- 控件高度 ----
+     按钮/胶囊/输入框只有两档：40（桌面）/ 44（窄屏，触控下限）。
+     这两值是 Apple HIG 与 WCAG 2.5.8 的共同下限，不该各处手写。 */
+  --h-control:40px;
+  --h-control-lg:44px;
 
   /* ---- 圆角 ---- */
   --r-sm:8px; --r-md:10px; --r-lg:14px; --r-pill:999px;
@@ -56,24 +74,25 @@
   /* ---- 动效 ---- */
   --t-fast:120ms; --t-base:200ms;
 
-  /* ---- 版心：流式，两侧留白由 gutter 控制 ---- */
-  --w-wide:1120px;
+  /* ---- 版心：唯一定义处 ----
+     --w-wide 之前定义了却一处没引用（.wrap 是 max-width:none），
+     1440 视口下正文容器实测 1350px：分数查学校一张卡里只有 150px 输入框，
+     右侧 850px 全是空白。版心由 .wrap 与 .nav-in 同时使用。 */
+  --w-wide:1240px;
+  --w-read:46em;
   --gutter:var(--s-5);
   --toc-w:200px;
 
-  /* ---- 兼容别名（旧样式引用，勿在新代码使用） ---- */
-  --panel:var(--surface);
-  --radius:var(--r-lg);
-  --shadow:var(--sh-1);
-  --accent-soft:var(--accent-weak);
 }
 
 html[data-theme="dark"]{
+  color-scheme:dark;
   --bg:#0b0f16;
   --surface:#141922;
   --surface-2:#1a202b;
   --line:#242b38;
   --line-strong:#333c4d;
+  --line-control:#5d6b85;
   --muted:#9aa5b8;
   --text:#e6e9f0;
   --ink:#f3f5f9;
@@ -82,7 +101,6 @@ html[data-theme="dark"]{
   --accent-strong:#9dc0ff;
   --accent-weak:#17233a;
   --accent-text:#b7cdff;
-  --on-accent:#08111f;
   --on-accent:#08111f;
 
   --green-bg:#10291c; --green:#7ee2a8;
@@ -97,6 +115,7 @@ html[data-theme="dark"]{
 /* 未手动选择主题时跟随系统 */
 @media (prefers-color-scheme:dark){
   html:not([data-theme="light"]){
+    color-scheme:dark;
     --bg:#0b0f16; --surface:#141922; --surface-2:#1a202b;
     --line:#242b38; --line-strong:#333c4d;
     --muted:#9aa5b8; --text:#e6e9f0; --ink:#f3f5f9;
@@ -115,8 +134,10 @@ html[data-theme="dark"]{
    在令牌层覆盖，组件样式无需为打印写第二套颜色。 */
 @media print{
   :root{
+    color-scheme:light;
     --bg:#fff; --surface:#fff; --surface-2:#fff;
     --text:#000; --ink:#000; --muted:#555; --line:#bbb; --line-strong:#999;
+    --line-control:#666;
     --accent:#000; --accent-text:#000; --accent-weak:#fff;
     --sh-1:none; --sh-2:none;
   }

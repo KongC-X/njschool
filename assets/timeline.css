@@ -1,0 +1,103 @@
+/* ============================================================
+   招生时间轴
+   ------------------------------------------------------------
+   只在 timeline.html 加载（该页在 {% block head %} 里引入）。
+   因为它在 responsive.css 之后加载，移动端规则必须写在本文件内，
+   不能依赖 responsive.css 的断点覆盖。
+
+   只引用 tokens.css 的变量，不写死色值——check.py 会扫这一份。
+   ============================================================ */
+
+.tl-note{background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--accent);border-radius:0 var(--r-md) var(--r-md) 0;
+  padding:var(--s-4) var(--s-5);margin:0 0 var(--s-7)}
+
+.tl-level{margin:0 0 var(--s-8)}
+.tl-lvhead{display:flex;align-items:baseline;gap:var(--s-3);flex-wrap:wrap;
+  margin-bottom:var(--s-4);padding-bottom:var(--s-2);border-bottom:1px solid var(--line)}
+.tl-lvhead h2{margin:0;font-size:var(--f-xl)}
+.tl-lvmeta{font-size:var(--f-xs);color:var(--muted)}
+
+/* 主体：左侧月份列 + 右侧节点列。
+   竖线画在 .tl-items 上而不是月份标签上——画在标签上时，
+   线只覆盖标签自身高度，月份切换处会断，圆点也压不到线上。 */
+.tl-list{list-style:none;margin:0;padding:0}
+.tl-month{display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 var(--s-3)}
+.tl-mlabel{align-self:start;font-size:var(--f-xs);color:var(--muted);font-weight:600;
+  white-space:nowrap;
+  padding-top:var(--s-4);text-align:right;line-height:1.2}
+.tl-mlabel span{font-size:var(--f-2xl);font-weight:700;color:var(--ink);letter-spacing:-.02em;
+  margin-right:2px}
+
+.tl-items{list-style:none;margin:0;padding:0 0 0 var(--s-5);position:relative}
+.tl-items::before{content:"";position:absolute;left:0;top:var(--s-4);bottom:var(--s-2);
+  width:2px;background:var(--line)}
+.tl-node{display:grid;grid-template-columns:150px minmax(0,1fr);gap:var(--s-3);
+  padding:var(--s-3) 0;position:relative;
+  border-bottom:1px dashed var(--line)}
+.tl-node:last-child{border-bottom:0}
+/* 节点圆点压在竖线上：line 位于容器左侧 0–2px，
+   节点内容从 padding-left(20px) 起算，故左移 20px 再自行居中。 */
+.tl-node::before{content:"";position:absolute;left:calc(-1 * var(--s-5));top:1.5em;
+  width:9px;height:9px;border-radius:50%;background:var(--line-strong);
+  transform:translate(-2px,-50%)}
+.tl-node.is-deadline::before{background:var(--amber);box-shadow:0 0 0 3px var(--amber-bg)}
+
+.tl-date{font-size:var(--f-sm);font-weight:600;color:var(--text);
+  font-variant-numeric:tabular-nums;line-height:1.6}
+.tl-body{min-width:0}
+.tl-event{font-size:var(--f-sm);color:var(--text);line-height:1.7}
+.tl-meta{display:flex;gap:var(--s-3);flex-wrap:wrap;align-items:center;
+  margin-top:3px;font-size:var(--f-2xs);color:var(--muted)}
+.tl-count{font-variant-numeric:tabular-nums}
+
+/* 硬截止汇总：单独一块，比埋在时间轴里更容易被记住 */
+.tl-deadline-box{margin:var(--s-5) 0 0;padding:var(--s-4) var(--s-5);
+  background:var(--amber-bg);border:1px solid var(--line);border-radius:var(--r-md)}
+.tl-deadline-box h3{margin:0 0 var(--s-2);font-size:var(--f-md);color:var(--amber)}
+.tl-deadline-box ul{margin:0;padding-left:var(--s-5)}
+.tl-deadline-box li{font-size:var(--f-sm);color:var(--text);margin:var(--s-1) 0;line-height:1.7}
+.tl-deadline-box b{color:var(--amber);font-variant-numeric:tabular-nums}
+.tl-hint{margin:var(--s-2) 0 0;font-size:var(--f-xs);color:var(--muted);line-height:1.7}
+
+/* 其他口径：默认折叠，避免把主时间轴淹掉 */
+.tl-extra{margin:var(--s-4) 0 0;border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--surface)}
+.tl-extra ul{margin:0;padding:0 var(--s-4) var(--s-4);list-style:none}
+.tl-extra li{font-size:var(--f-xs);color:var(--muted);padding:5px 0;
+  border-top:1px solid var(--line);line-height:1.65}
+.tl-xdate{color:var(--text);font-weight:600;margin-right:var(--s-2);
+  font-variant-numeric:tabular-nums}
+/* 份数用 muted 而不是 line-strong：后者在深色下几乎与背景同色，读不出来 */
+.tl-extra em{font-style:normal;color:var(--muted);margin-left:var(--s-2)}
+
+/* 学段缺表时的说明：给理由，不给空壳 */
+.tl-none{padding:var(--s-4) var(--s-5);background:var(--surface);
+  border:1px dashed var(--line-strong);border-radius:var(--r-md)}
+.tl-none p{margin:0 0 var(--s-2);font-size:var(--f-sm);color:var(--muted);line-height:1.8}
+.tl-none p:last-child{margin-bottom:0}
+.tl-none strong{color:var(--ink)}
+
+.tl-how{margin:var(--s-8) 0 0;padding:var(--s-5);background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-lg)}
+.tl-how h2{margin:0 0 var(--s-3);font-size:var(--f-lg)}
+.tl-how ol{margin:0;padding-left:var(--s-5)}
+.tl-how li{font-size:var(--f-sm);color:var(--text);margin:var(--s-2) 0;line-height:1.8}
+.tl-how b{color:var(--ink)}
+.tl-foot{margin:var(--s-4) 0 0;font-size:var(--f-xs);color:var(--muted)}
+
+@media (max-width:720px){
+  /* 月份列收窄，节点列改成上下两行：日期在上、事项在下。
+     150px 的日期列在 375px 上会把事项挤成每行 8 个字。 */
+  .tl-month{grid-template-columns:44px minmax(0,1fr);gap:0 var(--s-2)}
+  .tl-mlabel{text-align:left;padding-top:var(--s-3)}
+  .tl-mlabel span{font-size:var(--f-xl)}
+  .tl-items{padding-left:var(--s-4)}
+  .tl-node{grid-template-columns:1fr;gap:1px}
+  .tl-node::before{left:calc(-1 * var(--s-4))}
+  .tl-date{font-size:var(--f-xs);color:var(--muted)}
+  .tl-node.is-deadline .tl-date{color:var(--amber)}
+  .tl-event{font-size:var(--f-sm)}
+  .tl-deadline-box{padding:var(--s-3) var(--s-4)}
+  .tl-how{padding:var(--s-4)}
+}

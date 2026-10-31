@@ -10,6 +10,9 @@
    基础
    ------------------------------------------------------------ */
 *{box-sizing:border-box}
+/* hidden 属性必须真的隐藏：按钮用了 display:inline-flex 之后会盖掉浏览器默认的
+   [hidden]{display:none}，于是「只看差异」「清空」在没选学校时就露出来了。 */
+[hidden]{display:none!important}
 html{scroll-behavior:smooth;scroll-padding-top:76px}
 body{
   margin:0;background:var(--bg);color:var(--text);
@@ -40,13 +43,16 @@ img{max-width:100%;height:auto}
 /* ------------------------------------------------------------
    布局
    ------------------------------------------------------------ */
-.wrap{max-width:none;margin:0 auto;padding:0 var(--gutter)}
+/* 版心：两侧 gutter 由 padding 提供，max-width 要把 gutter 一起算进去，
+   否则内容实际宽度会少掉 2×gutter。 */
+.wrap{max-width:calc(var(--w-wide) + 2 * var(--gutter));margin:0 auto;
+  padding:0 var(--gutter)}
 .sec{padding:var(--s-8) 0}
 .sec + .sec{border-top:1px solid var(--line)}
 .sec-head{margin-bottom:var(--s-5)}
 .eyebrow{font-size:var(--f-2xs);font-weight:700;letter-spacing:.12em;
   text-transform:uppercase;color:var(--accent);margin-bottom:var(--s-2)}
-.sec-title{font-size:var(--f-xl);font-weight:700;letter-spacing:-.01em}
+.sec-title{font-size:var(--f-2xl);font-weight:700;letter-spacing:-.01em}
 .hint{color:var(--muted);font-size:var(--f-sm);margin:var(--s-1) 0 0}
 .sub-title{font-size:var(--f-md);margin:var(--s-7) 0 var(--s-3)}
 .page-title{font-size:var(--f-2xl);letter-spacing:-.02em;margin:var(--s-7) 0 var(--s-2)}
@@ -60,9 +66,12 @@ img{max-width:100%;height:auto}
    ------------------------------------------------------------ */
 .nav{position:sticky;top:0;z-index:50;background:var(--surface);
   border-bottom:1px solid var(--line)}
-.nav-in{max-width:none;margin:0 auto;padding:0 var(--gutter);height:58px;
+.nav-in{max-width:calc(var(--w-wide) + 2 * var(--gutter));margin:0 auto;
+  padding:0 var(--gutter);height:58px;
   display:flex;align-items:center;gap:var(--s-6)}
 .brand{display:inline-flex;align-items:center;gap:var(--s-2);
+  /* 同理：品牌名在 375px 会被压成「南京 / 档案」两行，看起来像排版坏了 */
+  white-space:nowrap;
   font-size:var(--f-md);font-weight:700;color:var(--ink);letter-spacing:-.02em}
 .brand:hover{text-decoration:none;color:var(--accent-text)}
 .brand-mark{width:28px;height:28px;flex:none;border-radius:var(--r-sm);
@@ -71,6 +80,9 @@ img{max-width:100%;height:auto}
 .brand em{font-style:normal;color:var(--accent)}
 .nav-links{display:flex;gap:var(--s-1);margin-left:auto;align-items:center}
 .nav-links a{color:var(--muted);font-size:var(--f-sm);padding:7px 13px;
+  /* 任何宽度下都不许折行：flex 空间不足时会把「学校库」压成两行，
+     而折行的高度变化在窄导航里几乎看不出来，只会显得「字变小了」 */
+  white-space:nowrap;
   border-radius:var(--r-pill);transition:color var(--t-fast),background var(--t-fast)}
 .nav-links a:hover{color:var(--text);background:var(--surface-2);text-decoration:none}
 .nav-links a.on{color:var(--accent-text);background:var(--accent-weak);font-weight:600}
@@ -113,38 +125,56 @@ img{max-width:100%;height:auto}
   background:var(--surface);color:var(--text);border-radius:var(--r-sm);
   cursor:pointer;font-size:var(--f-base);line-height:1;display:grid;place-items:center;
   transition:border-color var(--t-fast)}
-#themeBtn:hover{border-color:var(--line-strong)}
+#themeBtn:hover{border-color:var(--accent);color:var(--accent-text)}
+#themeBtn svg{width:18px;height:18px;display:block}
 
 /* ------------------------------------------------------------
    列表页 · 筛选
    ------------------------------------------------------------ */
 .controls{margin:var(--s-5) 0 var(--s-4)}
-#q,.picker input{width:100%;padding:12px var(--s-4);font-size:var(--f-base);font-family:inherit;
-  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
-  color:var(--text);outline:none;transition:border-color var(--t-fast),box-shadow var(--t-fast)}
-#q:focus,.picker input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-weak)}
-/* 键盘聚焦要看得见：上面基础的 outline:none 把全局 :focus-visible 盖掉了，
-   只剩一圈淡阴影，深色模式下几乎分辨不出。只在键盘导航时补描边。 */
-#q:focus-visible,.picker input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.frow{display:flex;gap:var(--s-4);flex-wrap:wrap;align-items:center;margin-top:var(--s-3)}
+/* 四组筛选各有自己的边界。
+   原来是 flex-wrap 自然流：1440 下「性质」被挤到「行政区」那一行的行尾，
+   768 下行政区折两行后性质又单独起行 —— 同一组件在两种宽度下分组关系不同。 */
+/* 四组筛选共处一行、按需换行（试过每组一列的 grid：行政区被压成窄柱折 4 排，
+   组高参差、竖线像表格框，比不分组更难扫）。组间 20px、组内 8px。 */
+.frow{display:flex;gap:var(--s-3) var(--s-5);flex-wrap:wrap;align-items:center;
+  margin-top:var(--s-3)}
 .fgroup{display:flex;gap:var(--s-2);flex-wrap:wrap;align-items:center}
-.flabel{font-size:var(--f-xs);color:var(--muted)}
-.chip{font-size:var(--f-sm);padding:6px 13px;border-radius:var(--r-pill);
-  cursor:pointer;border:1px solid var(--line);background:var(--surface);
-  color:var(--text);font-family:inherit;min-height:40px;transition:all var(--t-fast)}
-.chip:hover{border-color:var(--accent);color:var(--accent-text)}
-.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+/* 组标签做浅底胶囊：分组边界靠它读出来，不用竖线、不占额外高度 */
+.flabel{font-size:var(--f-xs);color:var(--muted);white-space:nowrap;
+  background:var(--surface-2);border-radius:var(--r-pill);padding:3px 10px;
+  font-weight:600}
 .count{font-size:var(--f-sm);color:var(--muted);margin:0 0 var(--s-4)}
 
+/* 浦口区说明：行政区划与招生管理范围不一致时，筛选器里必须给一句话，
+   否则浦口家长会以为本站没有覆盖他所在的区。 */
+.fhint{font-size:var(--f-xs);color:var(--muted);margin:var(--s-3) 0 0;
+  line-height:1.6}
+
+/* 结果条：计数在左、排序在右。
+   545 所一次列全时，没有排序就只能靠手滚——加一个原生 select，
+   不引入任何组件库，键盘与触屏都能用。 */
+.listbar{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s-3);flex-wrap:wrap;margin-bottom:var(--s-4)}
+.listbar .count{margin:0}
+.sortwrap{display:inline-flex;align-items:center;gap:var(--s-2)}
+#sort{font-size:var(--f-sm);font-family:inherit;color:var(--text);
+  background:var(--surface);border:1px solid var(--line-control);border-radius:var(--r-md);
+  padding:7px 10px;min-height:var(--h-control);cursor:pointer}
+#sort:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
 .filter-toggle{display:none}
-html.js .controls[data-open="false"] .frow{display:none}
-.filter-count{background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);
-  font-size:var(--f-2xs);line-height:18px;padding:0 7px;font-weight:600}
-.filter-count[hidden]{display:none}
+/* 必须待在媒体查询里：裸写全局时，手机进站后转横屏（>720）会让
+   .filter-toggle 隐藏、.frow 仍为 none —— 筛选区彻底消失且无入口。 */
+@media (max-width:720px){
+  html.js .controls[data-open="false"] .frow{display:none}
+}
 
 /* ------------------------------------------------------------
    列表页 · 卡片
    ------------------------------------------------------------ */
+/* 列宽按可读宽度定，不跟着视口无限拉：minmax(320px,1fr) 在 1240 版心里
+   稳定为 3 列（1440 下每列约 400px），1024 变 2 列。 */
 .grid{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   padding:var(--s-4) var(--s-5) var(--s-3);box-shadow:var(--sh-1);
@@ -155,7 +185,11 @@ html.js .controls[data-open="false"] .frow{display:none}
 .card h3 a{color:var(--ink)}
 .card h3 a:hover{color:var(--accent-text);text-decoration:none}
 .card .tier{font-size:var(--f-2xs);color:var(--muted);margin-bottom:var(--s-2)}
-.card .tag{font-size:var(--f-sm);color:var(--text);opacity:.92;flex:1}
+/* 地址命中行：搜的是路名时，必须让家长看见「这所学校为什么被搜出来」，
+   否则他无法判断这是真命中还是误命中。 */
+.addr-hit{font-size:var(--f-xs);color:var(--accent-text);background:var(--accent-weak);
+  border-radius:var(--r-sm);padding:4px 9px;margin:0 0 var(--s-2);line-height:1.6}
+.card .tag{font-size:var(--f-sm);color:var(--text);flex:1}
 .card .more{margin-top:var(--s-3);font-size:var(--f-xs);color:var(--accent);font-weight:600}
 
 /* 空状态 */
@@ -163,10 +197,25 @@ html.js .controls[data-open="false"] .frow{display:none}
 .empty{text-align:center;padding:var(--s-8) var(--s-4);color:var(--muted);
   border:1px dashed var(--line-strong);border-radius:var(--r-lg);background:var(--surface)}
 .empty strong{display:block;color:var(--ink);font-size:var(--f-md);margin-bottom:var(--s-1)}
-.empty .btn-reset{margin-top:var(--s-4);padding:9px 18px;border-radius:var(--r-md);
-  border:1px solid var(--line);background:var(--surface);color:var(--text);
-  font-size:var(--f-sm);font-family:inherit;cursor:pointer;min-height:40px}
-.empty .btn-reset:hover{border-color:var(--accent);color:var(--accent)}
+/* 空态建议按原因分支后会长到两三行，给它独立的行宽与行高，别挤在标题下 */
+.empty-tip{margin:var(--s-2) auto 0;max-width:44em;font-size:var(--f-sm);line-height:1.75}
+/* 「清除全部筛选」与说明之间留一口气 */
+.empty .btn-reset{margin-top:var(--s-4)}
+
+/* 空态里「当前生效的条件」：可单独点掉，不用清空重来 */
+.empty-chips{display:flex;gap:var(--s-2);flex-wrap:wrap;justify-content:center;
+  margin:var(--s-3) 0 0}
+.filter-chip{font-size:var(--f-xs)}
+
+/* 关掉 JS 时的「按区直达」：11 个区的静态入口 */
+.ns-jump{display:flex;gap:var(--s-2);flex-wrap:wrap;align-items:baseline;
+  margin:var(--s-2) 0;font-size:var(--f-sm)}
+.ns-jump a{padding:2px 8px;border:1px solid var(--line);border-radius:var(--r-pill)}
+
+/* 剩余条数提示：首屏只渲染 24 张，往下滚动继续追加 */
+.more-hint{margin:var(--s-4) 0 0;padding:var(--s-3) var(--s-4);text-align:center;
+  font-size:var(--f-xs);color:var(--muted);border:1px dashed var(--line-strong);
+  border-radius:var(--r-md);background:var(--surface)}
 
 /* ------------------------------------------------------------
    表格
@@ -180,7 +229,7 @@ html.js .controls[data-open="false"] .frow{display:none}
 table{width:100%;border-collapse:collapse;font-size:var(--f-sm)}
 thead th{background:var(--surface-2);text-align:left;
   padding:var(--s-3) var(--s-4);font-size:var(--f-2xs);font-weight:700;
-  color:var(--muted);letter-spacing:.04em;white-space:nowrap;
+  color:var(--muted);white-space:nowrap;
   border-bottom:1px solid var(--line)}
 tbody td{padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--line);
   vertical-align:top;color:var(--text)}
@@ -189,25 +238,16 @@ tbody tr:hover{background:var(--surface-2)}
 td strong{color:var(--ink);font-weight:600}
 .article table{font-size:var(--f-sm);min-width:520px}
 .article th{white-space:normal}
+/* 最后一列是信度徽章，自动列宽会把它压到 58px（内容区只剩 26px），
+   「信度」两个字被迫竖排，整行行高涨到 68px。 */
+.article table th:last-child{min-width:72px;white-space:nowrap}
 
-/* 信度徽章：A 绿（官方）/ B 蓝（媒体）/ C 橙（家长圈） */
-.conf{display:inline-block;min-width:20px;padding:0 5px;border-radius:5px;
-  font-size:var(--f-2xs);font-weight:700;line-height:18px;text-align:center;
-  vertical-align:1px;cursor:help}
-.conf-a{background:var(--green-bg);color:var(--green)}
-.conf-b{background:var(--blue-bg);color:var(--blue)}
-.conf-c{background:var(--amber-bg);color:var(--amber)}
+/* 信度徽章的配色在 components.css（A 绿 / B 蓝 / C 橙，与公办民办同一套盒模型） */
 
 /* ------------------------------------------------------------
    徽章
    ------------------------------------------------------------ */
 .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--s-2)}
-.b{font-size:var(--f-2xs);padding:3px 9px;border-radius:6px;font-weight:600;
-  line-height:1.5;white-space:nowrap}
-.b-lv{background:var(--accent-weak);color:var(--accent-text)}
-.b-pub{background:var(--green-bg);color:var(--green)}
-.b-pri{background:var(--red-bg);color:var(--red)}
-.b-d{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500}
 /* 「官方还没说死」类标记：校名暂定 / 施教区含过渡。
    用琥珀色（=需要注意），不动红绿——那两个已经被民办/公办占了。 */
 .b-warn{background:var(--amber-bg);color:var(--amber)}
@@ -219,12 +259,53 @@ td strong{color:var(--ink);font-weight:600}
 footer{border-top:1px solid var(--line);background:var(--surface);
   margin-top:var(--s-9);padding:var(--s-7) 0 var(--s-8);font-size:var(--f-xs);
   color:var(--muted)}
-footer .cols{display:flex;gap:var(--s-8);flex-wrap:wrap;margin-bottom:var(--s-5)}
+/* 四列铺满版心：原来是 flex + 内容宽度，三列各自缩在左侧、右边留一大片空白。
+   品牌列给多一点宽度（要放信度那行长链接），其余三列等宽。 */
+footer .cols{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;
+  gap:var(--s-6) var(--s-7);margin-bottom:var(--s-5);align-items:start}
 footer h4{color:var(--ink);font-size:var(--f-xs);font-weight:700;margin:0 0 var(--s-2)}
+/* 链接改成块级：原来靠 <br> 换行，行距不可控，9 条堆起来能占半屏 */
+.fcol a{display:block;padding:3px 0;line-height:1.5}
 footer a{color:var(--muted)}
 footer a:hover{color:var(--accent-text)}
-.disclaim{line-height:1.9;border-top:1px dashed var(--line);padding-top:var(--s-4);
-  max-width:88ch}
+/* 品牌列里的第二个小标题（信度标注）要跟上面的版本号拉开，否则读成一段 */
+.fsub{margin-top:var(--s-4)}
+.fmeta{margin:0;line-height:1.7}
+/* 免责声明：与上方四列同宽。
+   原来用 max-width:88ch 限行宽，在 1280 下只有 748px，而四列占 1213px，
+   右边空出 465px——排版上像「没写完」。改成三块分栏，行宽靠分栏控制，
+   不必再用 max-width 硬砍宽度。 */
+.disclaim{border-top:1px dashed var(--line);padding-top:var(--s-4)}
+.disclaim-h{margin:0 0 var(--s-3);font-size:var(--f-2xs);font-weight:700;
+  letter-spacing:.08em;color:var(--muted)}
+.disclaim-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:var(--s-3) var(--s-7)}
+.disclaim-grid h5{margin:0 0 3px;font-size:var(--f-2xs);font-weight:600;color:var(--ink)}
+.disclaim-grid p{margin:0;font-size:var(--f-xs);color:var(--muted);line-height:1.85}
+.disclaim strong{color:var(--text)}
+/* 页脚的断点就近放在组件旁边：它只覆盖 .cols / .fcol，
+   不参与其他文件的层叠竞争，放在 responsive.css 里反而要多跳一个文件才能改。
+   （responsive.css 现在只放布局级断点，如卡片列数、表格卡片化。） */
+@media (max-width:1023px){
+  /* 品牌列占满一行，下面三列放一排。不要退成一列——链接竖排会把页脚拉得比正文还长。 */
+  footer .cols{grid-template-columns:repeat(3,1fr);gap:var(--s-5) var(--s-6)}
+  .fcol-brand{grid-column:1/-1}
+}
+/* 三栏免责声明在 900px 以下会挤成每行 12–15 字，反而更难读：退成一栏。
+   但一栏若保留「小标题 + 正文」两行结构，三段会多出三行空白，页脚反而更高。
+   这里把标题改成行内（「数据来源：……」），保持分段、不占额外行高。 */
+@media (max-width:900px){
+  .disclaim-grid{grid-template-columns:1fr;gap:var(--s-2)}
+  .disclaim-grid h5{display:inline;margin:0;font-size:var(--f-xs)}
+  .disclaim-grid h5::after{content:"："}
+  .disclaim-grid p{display:inline}
+}
+@media (max-width:600px){
+  footer .cols{grid-template-columns:1fr 1fr}
+  /* 「关于本站」只有两条，独占一行会剩半行空白：让它跨满并把两条横排 */
+  .fcol:last-child{grid-column:1/-1}
+  .fcol:last-child a{display:inline-block;margin-right:var(--s-5)}
+}
 
 /* ------------------------------------------------------------
    断点 1023px：详情两栏折叠
@@ -268,3 +349,41 @@ footer a:hover{color:var(--accent-text)}
 
 /* 已选项容器（对比页） */
 .chips{display:flex;gap:var(--s-2);flex-wrap:wrap}
+
+/* 窄屏短标签：默认只显示全称，短标签由 420 断点启用。
+   用两个 span 而不是 CSS 改文字——伪元素改文案读屏读不到。 */
+.nl-short{display:none}
+
+/* 页脚信度标注下的说明：数据说明已从主导航移出，
+   这里要把「点进去能解决什么疑问」说清楚，否则只是一个不起眼的链接 */
+.confhint{font-size:var(--f-2xs);color:var(--muted);margin-top:3px;line-height:1.6}
+
+/* ------------------------------------------------------------
+   回到顶部
+   ------------------------------------------------------------
+   用 JS 动态创建（见 app.js），所以无脚本时不会留下一个点不动的按钮。
+   层级 45：压在正文与移动端目录条（40）之上，但低于导航（50），
+   万一在极矮的屏幕上相遇，导航仍然优先。
+   ------------------------------------------------------------ */
+.to-top{position:fixed;right:var(--s-5);bottom:calc(var(--s-5) + env(safe-area-inset-bottom));
+  z-index:45;display:grid;place-items:center;width:44px;height:44px;padding:0;
+  border-radius:50%;border:1px solid var(--line);background:var(--surface);
+  color:var(--text);box-shadow:var(--sh-2);cursor:pointer;
+  /* 隐藏态用 opacity + visibility + 位移三者一起，避免「透明但仍能点」 */
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:opacity var(--t-base),transform var(--t-base),
+             visibility var(--t-base),border-color var(--t-fast),color var(--t-fast)}
+.to-top.is-on{opacity:1;visibility:visible;transform:none}
+.to-top:hover{border-color:var(--accent);color:var(--accent-text)}
+.to-top:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.to-top svg{width:18px;height:18px;display:block}
+/* 滚到页底时按钮会停在右下角，正好压住免责声明的最后一行。
+   给页脚多留一个按钮的高度，让按钮落在空白里而不是文字上。
+   只在按钮存在的页面上生效（body.has-totop 由 app.js 添加）。 */
+body.has-totop footer{padding-bottom:calc(var(--s-8) + 28px)}
+@media (max-width:720px){
+  .to-top{right:var(--s-4);bottom:calc(var(--s-4) + env(safe-area-inset-bottom))}
+}
+@media (prefers-reduced-motion:reduce){
+  .to-top{transition:none}
+}

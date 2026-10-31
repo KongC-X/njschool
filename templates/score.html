@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{ base }}assets/score.css?v={{ ver }}">
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h1 class="page-title">分数查学校</h1>
+  <p class="page-sub">输入中考总分，看 2026 年 {{ total }} 所普通高中的投档线落在哪一档——冲哪些、稳哪些、哪些够不着。不填分数也能看完整线表。</p>
+
+  {# 两条免责放在输入框上方而不是页脚：家长看到结果后就直接关页面了，
+     埋在底部的说明等于没写。 #}
+  <div class="sc-note">
+    <p><strong>这是拿去年的线做的参考，不是预测。</strong>投档线每年都会动，相邻两年差 5–10 分很常见；
+    判断用的是每所学校<strong>最容易进的那个校区或批次</strong>，卡片上同时列出全部数值。</p>
+    <p><strong>低于这条线也可能被录取。</strong>指标生、特长生、国际班与民办校有各自的通道与降分规则，
+    本表只覆盖普通高中统招投档线。</p>
+  </div>
+
+  <div class="sc-input">
+    <label for="scScore">我的中考总分</label>
+    <div class="sc-row">
+      <input id="scScore" type="number" inputmode="numeric" min="0" max="700" step="1"
+             placeholder="例如 590" autocomplete="off" aria-describedby="scSummary">
+      <span class="sc-total">/ 700</span>
+      <button type="button" id="scGo" class="btn-primary">查一查</button>
+    </div>
+    <p class="sc-quick">常用分数：
+      <button type="button" class="sc-chip" data-v="640">640</button>
+      <button type="button" class="sc-chip" data-v="620">620</button>
+      <button type="button" class="sc-chip" data-v="600">600</button>
+      <button type="button" class="sc-chip" data-v="580">580</button>
+      <button type="button" class="sc-chip" data-v="550">550</button>
+    </p>
+  </div>
+
+  {# 结果区：没输入分数时显示「全部按线排」，比空白页有用 #}
+  <p class="sc-summary" id="scSummary" role="status" aria-live="polite"></p>
+  <div id="scResult"></div>
+
+  <details class="sc-legend">
+    <summary>分档规则与这 {{ total }} 所之外的情况</summary>
+    <ul>
+      <li><b>保底</b>：你的分数比该校最低投档线高 <b>15 分以上</b></li>
+      <li><b>较稳</b>：高 <b>6–14 分</b></li>
+      <li><b>临界</b>：在 <b>−15 至 +5 分</b>之间——够得着，但没有余量，次年线一涨就进不去</li>
+      <li><b>差距较大</b>：低 15 分以上</li>
+    </ul>
+    <p>没有进入本表的 {{ missing | length }} 所：
+      {%- for n in missing %}{{ n }}{% if not loop.last %}、{% endif %}{% endfor %}。
+      其中南京外国语学校按外语加试口径录取，分数与本表不可直接比较；
+      其余几所在现有档案里未取到 2026 年统招投档线——查不到就写查不到，不拿估算值凑数。</p>
+    <p>分数与位次怎么换算、能填几个志愿、指标生怎么算，以市招考院当年发布的
+      <a href="policy.html">招生办法</a>为准。</p>
+  </details>
+
+  <script type="application/json" id="scData">{{ rows | tojson }}</script>
+  <script src="{{ base }}assets/score.js?v={{ ver }}"></script>
+</div>
+{% endblock %}

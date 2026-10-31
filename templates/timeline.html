@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{ base }}assets/timeline.css?v={{ ver }}">
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h1 class="page-title">招生时间轴</h1>
+  <p class="page-sub">把 {{ total }} 份学校档案里散落的报名节点合成一张表：什么时候报名、什么时候摇号、哪些日子过了要等一年。</p>
+
+  {# 口径说明放最前面。这张表是「聚合」而不是「发布」，
+     不说清楚来源与占计方式，读者会把「60 份档案写了」误读成「官方说 60 所学校」。 #}
+  <div class="tl-note">
+    <p><strong>这张表是怎么来的</strong>：从各校档案的「报名时间节点」小节逐条取出，
+    同一天的多种写法做频次合并。每条后面的「<b>N 份</b>」表示有多少份档案写了它——
+    写得越多，越接近市面上通行的口径；个别区或学校自有安排，收在页尾的「其他口径」里。</p>
+    <p><strong>2026 年招生季已于 8 月结束。</strong>2027 年的节点通常与 2026 年同月同日相近，
+    可按这张表提前准备，但具体以南京市教育局与各区教育局当年发布为准。</p>
+  </div>
+
+  {%- for b in blocks %}
+  <section class="tl-level" id="lv-{{ b.level }}">
+    <div class="tl-lvhead">
+      <h2>{{ b.level }}</h2>
+      <span class="tl-lvmeta">{{ b.contributors }} 份档案记录了时间节点</span>
+    </div>
+
+    <ol class="tl-list">
+      {%- for mo in b.months %}
+      <li class="tl-month">
+        <div class="tl-mlabel"><span>{{ mo.m }}</span> 月</div>
+        <ol class="tl-items">
+          {%- for n in mo.nodes %}
+          <li class="tl-node{% if n.deadline %} is-deadline{% endif %}">
+            <div class="tl-date">{{ n.label }}</div>
+            <div class="tl-body">
+              <div class="tl-event">{{ n.event }}</div>
+              <div class="tl-meta">
+                {%- if n.deadline %}
+                <span class="tl-ddl">截止 {{ n.deadline.m }} 月 {{ n.deadline.d }} 日 {{ '%02d'|format(n.deadline.hh) }}:{{ n.deadline.mm }}</span>
+                {%- endif %}
+                <span class="tl-count">{{ n.count }} 份档案提及</span>
+              </div>
+            </div>
+          </li>
+          {%- endfor %}
+        </ol>
+      </li>
+      {%- endfor %}
+    </ol>
+
+    {%- if b.deadlines %}
+    <div class="tl-deadline-box">
+      <h3>错过就要等一年的时刻</h3>
+      <ul>
+        {%- for n in b.deadlines %}
+        <li><b>{{ n.deadline.m }} 月 {{ n.deadline.d }} 日 {{ '%02d'|format(n.deadline.hh) }}:{{ n.deadline.mm }}</b>
+          ——{{ n.event }}</li>
+        {%- endfor %}
+      </ul>
+      <p class="tl-hint">系统在截止时刻关闭后不再补报。往年最常见的失误是「以为提交了、其实没确认」，
+      建议在截止前一天完成，并截图留存。</p>
+    </div>
+    {%- endif %}
+
+    {%- if b.extra %}
+    <details class="tl-extra">
+      <summary>其他口径：{{ b.extra|length }} 条，来自少数区或学校</summary>
+      <ul>
+        {%- for n in b.extra %}
+        <li><span class="tl-xdate">{{ n.label }}</span>{{ n.event }}
+          <em>{{ n.count }} 份</em></li>
+        {%- endfor %}
+      </ul>
+    </details>
+    {%- endif %}
+  </section>
+  {%- endfor %}
+
+  {%- for sk in skipped %}
+  <section class="tl-level">
+    <div class="tl-lvhead"><h2>{{ sk.level }}</h2></div>
+    <div class="tl-none">
+      <p><strong>暂未成表。</strong>{{ sk.level }}的招生节奏（中考出分、填报志愿、分批次录取）由市招考院统一发布；
+      本站收录的 {{ sk.total }} 所{{ sk.level }}里，只有 {{ sk.contributors }} 份档案记录了完整的节点表，凑不出一条能核对的全年时间轴。</p>
+      <p>与其给一张只有三两条、看不出全貌的表，不如说明白：这一块请以
+      <strong>南京市招考院与市教育局当年发布</strong>为准。补录到足够份数后这里会自动出现。</p>
+    </div>
+  </section>
+  {%- endfor %}
+
+  <section class="tl-how">
+    <h2>这张表怎么用</h2>
+    <ol>
+      <li><b>先看「截止」两个字</b>。时间轴里带★的三四条是硬截止，其余多是「自某日起可办」。</li>
+      <li><b>再看你家孩子的学段</b>。小学与初中的报名日不是同一天（2026 年是 5 月 17—19 与 5 月 21—23），
+      别按邻居家的日子准备。</li>
+      <li><b>最后回到学校档案</b>。同一个节点在不同区可能有细微差别，报名前请打开你目标学校的档案，
+      核对该校「招生与施教区」小节里写的时间与材料要求。</li>
+    </ol>
+    <p class="tl-foot">
+      想核对某所学校的具体安排？<a href="schools.html">去学校库</a>找到它，翻到「招生与施教区」一节；
+      政策口径见<a href="policy.html">政策与更名</a>；已经出了分数，可以直接<a href="score.html">查能上哪几所高中</a>。
+    </p>
+  </section>
+</div>
+{% endblock %}

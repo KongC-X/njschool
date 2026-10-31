@@ -1,0 +1,33 @@
+/* ============================================================
+   全部学校索引页（all.html）专属
+   ------------------------------------------------------------
+   从 compare.css 拆出来：这组 .all-* 只有 all.html 用，
+   却跟着对比页一起在 560 个页面上被加载。
+   ============================================================ */
+
+.all-group{margin:var(--s-6) 0 var(--s-7)}
+.all-h2{display:flex;align-items:baseline;gap:var(--s-2);margin:0 0 var(--s-3);
+  padding-bottom:var(--s-2);border-bottom:1px solid var(--line);font-size:var(--f-md)}
+.all-h3{margin:var(--s-4) 0 var(--s-2);font-size:var(--f-xs);
+  color:var(--muted);font-weight:600}
+.all-count{font-size:var(--f-2xs);color:var(--muted);font-weight:400}
+/* 跳区条：与详情页目录条同一套横滑形态，窄屏不折行 */
+.all-jump{display:flex;gap:var(--s-2);flex-wrap:wrap;margin:var(--s-4) 0 var(--s-2);
+  padding:var(--s-2) 0;border-bottom:1px solid var(--line)}
+.all-jump a{display:inline-flex;align-items:baseline;gap:4px;padding:5px 10px;
+  border:1px solid var(--line);border-radius:var(--r-pill);font-size:var(--f-xs);
+  color:var(--text);text-decoration:none;white-space:nowrap}
+.all-jump a:hover{border-color:var(--accent);color:var(--accent-text);
+  background:var(--accent-weak)}
+.all-list{display:grid;gap:0 16px;margin:0;padding:0;list-style:none;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.all-list li{display:flex;align-items:baseline;gap:6px;min-width:0;padding:5px 0}
+/* 校名允许折行：这一页的全部价值就是让人把名字读全，
+   截成「南京市六合区东沟…」等于没写 */
+.all-list a{font-size:var(--f-sm);color:var(--text);line-height:1.45;
+  flex:1 1 auto;min-width:11em}
+.all-list a:hover{color:var(--accent-text)}
+/* 别名不再「只进不退」：它不能伸缩又不断行，长别名会把校名挤成每行 3–4 个字，
+   实测「南京外国语学校河西初级中学第一附属小学」排成 5 行，同列其余 1 行。 */
+.all-list em{font-style:normal;font-size:var(--f-2xs);color:var(--muted);
+  flex:0 1 auto;overflow:hidden;text-overflow:ellipsis}

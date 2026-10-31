@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>体验优化执行与核对报告 · 南京中小学档案</title>
+<style>
+:root{
+  --bg:#f7f8fa; --card:#fff; --ink:#141a26; --ink2:#4a5568; --ink3:#78849a;
+  --line:#e3e7ee; --brand:#2f6bff; --brand-soft:#eef3ff;
+  --done:#067647; --donebg:#ecfdf3;
+  --part:#b54708; --partbg:#fffaeb;
+  --skip:#475467; --skipbg:#f2f4f7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 28px 96px}
+
+header.top{background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);border-bottom:1px solid var(--line);padding:44px 0 36px;margin-bottom:36px}
+.kicker{font-size:12.5px;letter-spacing:.12em;color:var(--brand);font-weight:600;text-transform:uppercase}
+h1{font-size:31px;line-height:1.35;margin:10px 0 14px;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:15px;max-width:780px}
+.meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.chip b{color:var(--ink);font-weight:600}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin-bottom:26px;
+  box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card h2{margin:0 0 14px;font-size:17px}
+.card p{margin:0 0 12px;color:var(--ink2)}
+.card p:last-child{margin-bottom:0}
+.card strong{color:var(--ink)}
+
+.dist{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.dist>div{border-radius:10px;padding:14px 16px;border:1px solid var(--line)}
+.dist .n{font-size:26px;font-weight:700;line-height:1.2}
+.dist .l{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.d-done{background:var(--donebg)}.d-done .n{color:var(--done)}
+.d-part{background:var(--partbg)}.d-part .n{color:var(--part)}
+.d-skip{background:var(--skipbg)}.d-skip .n{color:var(--skip)}
+
+h2.sec{font-size:20px;margin:44px 0 6px;letter-spacing:-.01em}
+.sec-note{color:var(--ink3);font-size:13.5px;margin:0 0 20px}
+
+table.data{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13.5px}
+table.data th{text-align:left;background:#f8fafc;color:var(--ink2);font-weight:600;font-size:12.5px;padding:11px 14px;border-bottom:1px solid var(--line)}
+table.data td{padding:12px 14px;border-bottom:1px solid #f0f2f6;color:var(--ink2);vertical-align:top}
+table.data tr:last-child td{border-bottom:0}
+table.data b{color:var(--ink)}
+table.data code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#f4f6fa;padding:1px 5px;border-radius:4px}
+.st{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.st-done{color:var(--done);background:var(--donebg);border:1px solid #abefc6}
+.st-part{color:var(--part);background:var(--partbg);border:1px solid #fedf89}
+.st-skip{color:var(--skip);background:var(--skipbg);border:1px solid #d0d5dd}
+
+figure{margin:18px 0 0}
+figure img{width:100%;border:1px solid var(--line);border-radius:10px;display:block}
+figcaption{font-size:12.5px;color:var(--ink3);margin-top:8px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two figure{margin:0}
+
+.note{background:#fbfcfe;border-left:3px solid var(--brand);padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;color:var(--ink2);margin:16px 0 0}
+.note b{color:var(--ink)}
+
+ul.plain{margin:10px 0 0;padding-left:20px;color:var(--ink2);font-size:14px}
+ul.plain li{margin:6px 0}
+ul.plain b{color:var(--ink)}
+
+footer.end{margin-top:52px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px;line-height:1.9}
+
+@media (max-width:720px){
+  .wrap{padding:0 16px 64px}
+  h1{font-size:24px}
+  .dist{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  table.data{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="kicker">UX FIX · EXECUTION REPORT · 2026-10-28</div>
+    <h1>体验优化执行与核对报告</h1>
+    <p class="sub">对应《家长视角体验走查报告》的 15 项问题逐条落实。原则是<strong>只改组织方式与呈现层，不动档案内容、不改站点接口</strong>：
+    545 份 Markdown 档案一字未改，构建流水线的校验口径与产物结构保持兼容。</p>
+    <div class="meta">
+      <span class="chip">构建 <b>558 页 / 0 错 0 警</b></span>
+      <span class="chip">测试 <b>33 JS + 42 Py 全通过</b></span>
+      <span class="chip">回归 <b>1440 / 375 各 16 页 0 报错</b></span>
+      <span class="chip">档案内容 <b>0 处改动</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>一句话结论</h2>
+    <p>走查报告的两条 P0 都落在同一处：<strong>答案在页面上，但家长拿不到</strong>。这一轮把「拿不到」拆成两半分别修掉——
+    入口侧让路名可以被搜到，阅读侧让施教区从公文变成可自查的清单。</p>
+    <p>搜「宁海路」从 <strong>0 所</strong>变成 <strong>4 所</strong>，且结果卡直接写出「施教区含：宁海路」；
+    在琅琊路小学档案里输入「宁海路」，会指出它出自 <strong>② 玉泉路校区</strong> 的范围并回显号段原文，
+    但<strong>不给「能上/不能上」的结论</strong>——号段写法各校有十余种，机器判错一次的代价是一套房的决策。</p>
+    <div class="dist">
+      <div class="d-done"><div class="n">10</div><div class="l">已修复 · 走查问题不再复现</div></div>
+      <div class="d-part"><div class="n">4</div><div class="l">部分修复 · 缺口有明确原因</div></div>
+      <div class="d-skip"><div class="n">1</div><div class="l">未做 · 数据条件不具备</div></div>
+    </div>
+  </div>
+
+  <h2 class="sec">逐条核对</h2>
+  <p class="sec-note">编号沿用走查报告。「复验」一列是改造后在本地构建产物上的实测值，不是设计意图。</p>
+
+  <table class="data">
+    <thead><tr><th style="width:64px">编号</th><th style="width:200px">原问题</th><th style="width:78px">状态</th><th>改动与复验</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>P0-1</b></td>
+        <td>搜地址搜不到学校</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>新增 <code>district.py</code> 从「施教区」章节抽取地名 → 生成 <code>streets-data.js</code>（329 所小学/初中有锚点）；
+        搜索改为三层检索：校名 → 施教区地名 → 简介，命中来源写进 <code>res.hits</code>。<br>
+        <b>复验：</b>搜「宁海路」→ <b>4 所</b>（原 0 所），卡上显示「施教区含：宁海路」；搜「琅琊路」仍走校名层，不被地址抢结果。</td>
+      </tr>
+      <tr>
+        <td><b>P0-2</b></td>
+        <td>施教区是公文原文，无法判断「我在不在」</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>渲染期把「路名、路名」按顶层顿号拆成一条一行（<code>ul.roads</code>），括号内顿号不切；并在章节末尾挂自查框。<br>
+        <b>复验：</b>334 页出现自查框；输入「宁海路」→「找到，出自②玉泉路校区（共 1 处，已高亮）」，回显原文号段；
+        未命中时说明三种常见原因，不暗示「你不能上」。</td>
+      </tr>
+      <tr>
+        <td><b>P1-3</b></td>
+        <td>移动端正文 13.5px，比桌面还小</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>在 <code>responsive.css</code> 的 720px 断点<strong>上调字号令牌</strong>（不是逐个组件改）：正文 13.5→15.5，表格同步，信度徽章 11.5→12.5。<br>
+        <b>复验：</b>375px 下 <code>.article p</code> / <code>td</code> / <code>.roads li</code> 均为 15.5px。</td>
+      </tr>
+      <tr>
+        <td><b>P1-4</b></td>
+        <td>搜索只覆盖摘要，「学费」只出 12 所</td>
+        <td><span class="st st-part">部分修复</span></td>
+        <td>把这类<strong>属性查询从关键词里拿出来</strong>：新增「数据项」筛选（有学费 / 有投档线 / 有招生计划 / 有对口初中），底层是构建期写入的 <code>has</code> 字段。<br>
+        <b>复验：</b>筛「有学费」→ 60 所（原「学费」关键词 12 所）。<br>
+        <b>未做全文索引：</b>需要 Pagefind 等 Node 工具链，与项目「零运行时依赖」冲突，且与筛选器功能重叠。</td>
+      </tr>
+      <tr>
+        <td><b>P1-5</b></td>
+        <td>详情页零内链，读完一所就断路</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>新增 <code>xref.py</code>：正文里的校名/简称转内链（跳过 <code>&lt;a&gt;</code>、<code>&lt;code&gt;</code>、标题、施教区列表；同一校名最多 2 次）；页尾新增「接着看」（对口初中 / 同区同梯队 / 同区同学段）。<br>
+        <b>复验：</b>全站 <b>2496 条</b>内链，琅琊路小学页「对口初中：南京市第二十九中学初中部」已可点。</td>
+      </tr>
+      <tr>
+        <td><b>P1-6</b></td>
+        <td>对比页全是「未收录」</td>
+        <td><span class="st st-part">部分修复</span></td>
+        <td>措辞改为「本站未获取上述 N 项，<strong>不代表各校相同</strong>」——原来的「这 2 所都没有数据」读起来像「两校没差别」，把数据缺失伪装成了结论。<br>
+        <b>未扩充对比维度：</b>维度来自 <code>facts</code> 抽取，而档案里招生计划/学费多为叙述句而非键值表，扩大抽取会引入误读，建议单独立项。</td>
+      </tr>
+      <tr>
+        <td><b>P1-7</b></td>
+        <td>首页 4 条 vs 政策页 5 条</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>统计条数字改为从 <code>policy-2026</code> 表格<strong>现算</strong>（不再手写）；首页补上「取消学区房年限限制」「长幼随学」，措辞改为「对你意味着什么」；新增 <code>validate_policy_sync</code> 守卫，条数不一致即告警。<br>
+        <b>复验：</b>首页统计显示「5 项」，政策页 5 条，构建 0 告警。</td>
+      </tr>
+      <tr>
+        <td><b>P1-8</b></td>
+        <td>没有「浦口区」</td>
+        <td><span class="st st-part">部分修复</span></td>
+        <td>筛选器下补一行说明：「浦口区的学校现归入江北新区管理，可搜『浦口』查看 27 所」。<br>
+        <b>未重划行政区：</b>需迁移 27 份档案目录 + 重建索引 + 对齐政策页表述，属破坏性数据变更，按报告分期应独立处理。</td>
+      </tr>
+      <tr>
+        <td><b>P1-9</b></td>
+        <td>手机导航没有「政策」，却有「特长生」</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>≤420px 改为收起「对比」「数据说明」、保留「政策」；页脚补「对比」入口。同时把导航项、主题按钮、排序框提到 44px 触控高度。<br>
+        <b>复验：</b>375px 导航可见项为 首页 / 学校库 / 特长生 / 政策；不足 44px 的可点元素由 29 个降到 27 个（余下为正文行内链接）。</td>
+      </tr>
+      <tr>
+        <td><b>P2-10</b></td>
+        <td>最显眼的按钮是「访问学校官网」</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>新增主行动按钮「查施教区：我家在不在范围内 →」（纯锚点，无 JS 也能用）；官网按钮改为描边次要样式。</td>
+      </tr>
+      <tr>
+        <td><b>P2-11</b></td>
+        <td>首屏看不到投档线</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>页头加关键数字芯片，按学段取不同字段（小学→对口初中；初中→中考成绩/学费；高中→投档线/招生计划/班型），点击直达所在小节。<br>
+        <b>复验：</b>524/545 页有芯片，其中 281 页 2 个以上；21 页因档案无可提取字段不显示（不拿「—」占位）。</td>
+      </tr>
+      <tr>
+        <td><b>P2-12</b></td>
+        <td>545 张卡片平铺、无排序</td>
+        <td><span class="st st-part">部分修复</span></td>
+        <td>新增排序控件（默认 / 按梯队 / 按校名拼音，用 <code>localeCompare('zh')</code> 不引依赖），排序状态进 URL 可分享。<br>
+        <b>未做默认分组：</b>默认态仍平铺，靠筛选与排序解决——「按区×梯队分组」会改变学校库的主视图，建议先有使用数据再定。</td>
+      </tr>
+      <tr>
+        <td><b>P2-13</b></td>
+        <td>全站零图形</td>
+        <td><span class="st st-skip">未做</span></td>
+        <td>先量了数据可行性：<b>41 份高中档案里只有 8 份</b>的逐年投档线是「年份 + 单列纯数字」表，其余是多校区并排、双口径并列或「—」。
+        只在这 20% 页面出现图，会让「有时有图、有时没图」变成新的困惑。<br>
+        <b>建议：</b>先把投档线做成结构化字段（<code>score_by_year</code>），再一次性上图，而不是从散文里猜。</td>
+      </tr>
+      <tr>
+        <td><b>P2-14</b></td>
+        <td>「常搜」用行话，新南京人看不懂</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>常搜首位换成「宁海路」（演示最刚需的用法），「拉力琅」「玄外」加悬停解释，下方补一句人说：「拉力琅是拉萨路·力学·琅琊路三所名小的合称」。</td>
+      </tr>
+      <tr>
+        <td><b>P2-15</b></td>
+        <td>空态建议文不对题</td>
+        <td><span class="st st-done">已修复</span></td>
+        <td>空态按原因分支：疑似地址输入 → 解释「本站地址检索依赖档案里写明的路名」并给出替代路径；多关键词 → 建议减词；筛选过窄 → 建议清筛选。<br>
+        <b>复验：</b>搜「火星路」显示地址专属文案，不再出现「试试减少关键词」。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="sec">改造前后</h2>
+  <p class="sec-note">同一任务、同一设备：家长想知道「我住的这条街能上哪所学校」。</p>
+
+  <div class="two">
+    <figure>
+      <img src="ux-shots/03-empty-search.png" alt="改造前：搜宁海路 0 结果">
+      <figcaption><b>改造前</b>：搜「宁海路」0 所，建议「减少关键词」——用户只输了一个词。</figcaption>
+    </figure>
+    <figure>
+      <img src="ux-shots/after-addr.png" alt="改造后：搜宁海路 4 所">
+      <figcaption><b>改造后</b>：4 所，每张卡写明「施教区含：宁海路」，计数行注明「按施教区路名匹配」。</figcaption>
+    </figure>
+  </div>
+
+  <div class="two" style="margin-top:16px">
+    <figure>
+      <img src="ux-shots/10-sec-zhaosheng.png" alt="改造前：施教区三段灰底块">
+      <figcaption><b>改造前</b>：三段灰底块，括号套括号，要在密集文本里找自家路名。</figcaption>
+    </figure>
+    <figure>
+      <img src="ux-shots/after-sk.png" alt="改造后：逐条路名 + 自查">
+      <figcaption><b>改造后</b>：一条路一行，输入「宁海路」后指出所属校区并回显号段原文。</figcaption>
+    </figure>
+  </div>
+
+  <div class="two" style="margin-top:16px">
+    <figure>
+      <img src="ux-shots/before-detail-top.png" alt="改造前：官网按钮是唯一实心按钮">
+      <figcaption><b>改造前</b>：页面最强的实心按钮是「访问学校官网」，把家长往站外送。</figcaption>
+    </figure>
+    <figure>
+      <img src="ux-shots/after-detail.png" alt="改造后：数字芯片 + 主行动">
+      <figcaption><b>改造后</b>：关键数字前置，「查施教区」成为主行动，官网降为描边次按钮。</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="sec">改动清单</h2>
+  <p class="sec-note">按「数据层 → 前端 → 模板 → 内容」排列。所有路径相对项目根目录。</p>
+
+  <table class="data">
+    <thead><tr><th style="width:110px">类型</th><th style="width:250px">文件</th><th>改动</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="4"><b>新增</b></td><td><code>src/pipeline/district.py</code></td><td>施教区地名抽取 + 正文结构化（拆列表 / 插自查框），两个纯函数可单测</td></tr>
+      <tr><td><code>src/pipeline/xref.py</code></td><td>正文校名转内链：跳过 a/code/标题/施教区，单名限 2 次、整页限 60 条</td></tr>
+      <tr><td><code>assets/streets-data.js</code></td><td>构建产物：545 行地名索引，与列表数据同序同长（check.py 有守卫）</td></tr>
+      <tr><td><code>tests/test_district.py</code></td><td>14 个用例，锁住「号段括号内的逗号不能截断路名」等回归点</td></tr>
+
+      <tr><td rowspan="6"><b>构建层</b></td><td><code>pipeline/load.py</code></td><td>load_body 增加结构化步骤</td></tr>
+      <tr><td><code>pipeline/render.py</code></td><td>新增 streets_data / 数字芯片 / 接着看 / 政策条数现算</td></tr>
+      <tr><td><code>pipeline/facts.py</code></td><td>新增 HAS_ORDER / HAS_LABELS（数据项筛选的取值口径）</td></tr>
+      <tr><td><code>pipeline/schema.py</code></td><td>新增 validate_policy_sync：首页与政策页条数不一致即告警</td></tr>
+      <tr><td><code>pipeline/check.py</code></td><td>streets-data 体积预算 + 与列表数据的行数/空值守卫</td></tr>
+      <tr><td><code>pipeline/main.py</code></td><td>写出 streets-data.js；构建唯一的校名→地址表供 545 页复用</td></tr>
+
+      <tr><td rowspan="4"><b>前端</b></td><td><code>assets/search-core.js</code></td><td>三层检索 + hits 命中来源 + addrLabels；保留 fellBack 兼容旧调用</td></tr>
+      <tr><td><code>assets/schools.js</code></td><td>地址命中行、数据项筛选、排序、空态按原因分支</td></tr>
+      <tr><td><code>assets/app.js</code></td><td>施教区自查（只定位不判定）</td></tr>
+      <tr><td><code>assets/compare.js</code></td><td>「未收录」措辞改为不暗示「相同」</td></tr>
+
+      <tr><td rowspan="3"><b>样式</b></td><td><code>assets/tokens.css</code></td><td>未改（令牌仍是唯一样式源）</td></tr>
+      <tr><td><code>assets/pages.css</code> / <code>site.css</code></td><td>新增芯片、施教区列表、自查框、接着看、排序条；色值全部走变量</td></tr>
+      <tr><td><code>assets/responsive.css</code></td><td>720px 上调字号令牌；44px 触控目标</td></tr>
+
+      <tr><td rowspan="4"><b>模板</b></td><td><code>templates/detail.html</code></td><td>数字芯片、主行动、接着看</td></tr>
+      <tr><td><code>templates/schools.html</code></td><td>数据项筛选、排序、浦口说明、引入 streets-data</td></tr>
+      <tr><td><code>templates/home.html</code></td><td>常搜改人话 + 简称解释</td></tr>
+      <tr><td><code>templates/base.html</code></td><td>导航加 data-nav（供断点精确取舍）、页脚补对比</td></tr>
+
+      <tr><td><b>内容</b></td><td><code>content/pages/home-highlights.md</code></td><td>4 条 → 5 条，补齐「取消年限」「长幼随学」，每条加一句「对你意味着什么」</td></tr>
+      <tr><td><b>测试</b></td><td><code>tests/search-core.test.mjs</code></td><td>+4 个用例：地址层命中、不抢主索引、addrLabels、数据项筛选</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>没有改的东西（同样重要）：</b>545 份 Markdown 档案零改动；<code>index.json</code> 结构与 <code>schools-data.js</code> 的既有列顺序保持不变（新列只追加在末尾）；
+    <code>query()</code> 的 <code>fellBack</code> 语义保留，旧调用方不受影响；<code>site/</code> 目录结构与 URL 规则未变，历史分享链接不会失效。
+  </div>
+
+  <h2 class="sec">预期效果与观察指标</h2>
+  <p class="sec-note">站点仍无埋点，以下是改完后最值得先测的三件事，都能用前端事件低成本采集。</p>
+
+  <table class="data">
+    <thead><tr><th style="width:180px">指标</th><th style="width:150px">改前基线</th><th>为什么它是最灵敏的</th></tr></thead>
+    <tbody>
+      <tr><td><b>地址类搜索的成功率</b></td><td>0%（搜「宁海路」必 0 结果）</td><td>这是新增能力，成功率直接反映地名索引的召回质量；掉到 50% 以下说明抽取规则在某类档案上失效</td></tr>
+      <tr><td><b>单次会话浏览详情页数</b></td><td>约 1.2 页（无内链，读完即走）</td><td>「接着看」+ 正文内链上线后，这个数上升即证明链路真的被走通了</td></tr>
+      <tr><td><b>施教区自查框使用率</b></td><td>—（无此功能）</td><td>落在施教区块的人里有多少人输入了路名，直接检验 P0-2 是否真被需要；输入后未命中比例高，说明该继续扩充四至型档案的结构化</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card" style="margin-top:26px">
+    <h2>这一轮留下的三件事</h2>
+    <ul class="plain">
+      <li><b>施教区地名覆盖 329/504</b>（小学 + 初中）。剩下的是六合、溧水、高淳等按「四至」描述、本来就没有逐条路名的档案。要提高只能人工补路名清单，属于内容工作，不是代码工作。</li>
+      <li><b>数字芯片在 21 所学校缺席</b>，因为它们的一、学校速览表没有标准「信度」列，抽不出结构化字段。用「—」占位会更整齐，但那正是这个站坚持不做的事。</li>
+      <li><b>pages.css 已到 29.5KB</b>，为容纳详情页新组件临时把预算从 24 调到 32。下次再加详情页样式前，应先把 <code>detail-head</code> 以下整块拆成 <code>assets/detail.css</code>，而不是继续抬数字。</li>
+    </ul>
+  </div>
+
+  <footer class="end">
+    构建：<code>make site</code> → 558 页 / 0 错 0 警；测试：<code>make test</code> → 33 JS + 42 Python 全通过。<br>
+    回归：1440×900 与 375×812 各 16 个代表页，0 脚本报错、0 横向溢出；全站 6287 处页内锚点 0 失效。<br>
+    报告日期：2026-10-28　配套文档：<code>docs/体验走查报告-2026-10-28.html</code>
+  </footer>
+
+</div>
+</body>
+</html>

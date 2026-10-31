@@ -4,6 +4,7 @@
    2) 详情页目录滚动联动
    3) 移动端筛选条件折叠
    4) 详情页「加入对比」
+   5) 详情页「施教区自查」
    ============================================================ */
 
 /* ---------- 主题 ---------- */
@@ -27,10 +28,22 @@
       || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   }
 
+  /* 两个图标共用同一套 SVG 外壳，只有内部路径不同 */
+  function icon(inner) {
+    return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"'
+      + ' stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+      + ' stroke-linejoin="round" aria-hidden="true" focusable="false">' + inner + '</svg>';
+  }
+  var ICONS = {
+    moon: icon('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'),
+    sun: icon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4'
+      + 'M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')
+  };
+
   function paint(t) {
     var b = document.getElementById('themeBtn');
     if (!b) return;
-    b.textContent = t === 'dark' ? '☀️' : '🌙';
+    b.innerHTML = t === 'dark' ? ICONS.sun : ICONS.moon;
     var label = t === 'dark' ? '切换到浅色模式' : '切换到深色模式';
     b.setAttribute('aria-label', label);
     b.title = label;
@@ -225,16 +238,117 @@
   });
 })();
 
+/* ---------- 详情页「施教区自查」 ----------
+   家长的问题不是「这所学校怎么样」，而是「我家在不在这片里」。
+   原来的做法是让他自己在一整段公文里找路名、比号段、判单双号。
+
+   这里只做**定位**，不做判定：
+     · 命中 → 指出「在哪条范围里、原文怎么写的」，号段对不对由家长核对；
+     · 未命中 → 说明三种常见原因，不暗示「你不能上」。
+
+   为什么不自动判断号段：各校写法有「[19-69号(单)]」「[6号-底]」「单 21 号以上」
+   「不分单双」等十余种，机器判错一次，代价可能是一套房的决策。
+*/
+(function () {
+  var box = document.getElementById('skBox');
+  var input = document.getElementById('skInput');
+  var out = document.getElementById('skOut');
+  if (!box || !input || !out) return;
+
+  var anchor = document.getElementById('shijiaoqu');
+  var scope = anchor ? anchor.parentNode : null;
+  if (!scope) return;
+  /* 范围限定在这一节：从锚点起，到下一个 h2/h3 为止 */
+  var nodes = [];
+  var n = anchor.nextElementSibling;
+  while (n && !/^H[23]$/.test(n.tagName)) {
+    nodes.push(n);
+    n = n.nextElementSibling;
+  }
+
+  var HINT = out.textContent;
+
+  /* 每条路名的原始 HTML 先存起来：反复输入时要把上一次的 <mark> 还原 */
+  var items = [];
+  nodes.forEach(function (node) {
+    var lis = node.classList && node.classList.contains('roads')
+      ? node.querySelectorAll('li') : [];
+    Array.prototype.forEach.call(lis, function (li) {
+      if (!li.dataset.raw) li.dataset.raw = li.innerHTML;
+      items.push({ el: li, text: li.textContent, campus: campusOf(node) });
+    });
+    if (node.tagName === 'BLOCKQUOTE') {
+      if (!node.dataset.raw) node.dataset.raw = node.innerHTML;
+      items.push({ el: node, text: node.textContent, campus: campusOf(node) });
+    }
+  });
+  if (!items.length) return;
+
+  /* 校区名写在列表前面的一段 <p><strong>① 琅琊路校区</strong></p> 里 */
+  function campusOf(node) {
+    var p = node.previousElementSibling;
+    while (p && p.tagName !== 'P') p = p.previousElementSibling;
+    if (!p) return '';
+    var t = (p.textContent || '').trim();
+    return /^[①②③④⑤⑥⑦⑧⑨⑩]/.test(t) ? t : '';
+  }
+
+  function clear() {
+    items.forEach(function (it) { it.el.innerHTML = it.el.dataset.raw; });
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+    });
+  }
+
+  function run() {
+    var q = (input.value || '').trim();
+    clear();
+    if (!q) {
+      out.className = 'sk-out';
+      out.textContent = HINT;
+      return;
+    }
+    var hits = items.filter(function (it) { return it.text.indexOf(q) !== -1; });
+
+    if (!hits.length) {
+      out.className = 'sk-out miss';
+      out.innerHTML = '没有在这所学校的施教区文本里找到「' + esc(q) + '」。'
+        + '常见原因有三个：① 该校施教区按「××路以南」这类四至方式描述，没有逐条列路名；'
+        + '② 你输入的是小区名，档案里写的是路段名（可换一个说法再试）；'
+        + '③ 这所学校确实不在你所在的片区。';
+      return;
+    }
+
+    /* 只高亮命中的前若干条，避免整页都是色块 */
+    hits.slice(0, 4).forEach(function (it) {
+      it.el.innerHTML = it.el.dataset.raw.replace(
+        new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+        function (m) { return '<mark class="sk-hit">' + m + '</mark>'; });
+    });
+
+    var first = hits[0];
+    var where = first.campus ? '出自「' + esc(first.campus) + '」的范围' : '出现在施教区原文里';
+    var excerpt = first.text.length > 60 ? first.text.slice(0, 60) + '…' : first.text;
+    out.className = 'sk-out hit';
+    out.innerHTML = '找到「' + esc(q) + '」，' + where + '（共 ' + hits.length + ' 处，已高亮）。'
+      + '<br>原文写法：<strong>' + esc(excerpt) + '</strong>'
+      + '<br>号段是否符合请对照上面原文核对；不确定时以区教育局公示与学校答复为准。';
+  }
+
+  input.addEventListener('input', run);
+  /* 回车不提交表单（这里没有 form），但要让用户看到结果已经出来 */
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+})();
+
 /* ---------- 导航下拉 ----------
-   开合全部由 JS 控制，并给关闭留 200ms 宽限。
-
-   为什么不用 CSS :hover 直接开合：指针从标签滑到菜单要跨过几像素空隙，
-   悬停在这几像素里会断，菜单立刻收起——表现就是「选项点不中、一闪就没」。
-   实测复现：空隙 6px，指针落进去 display 立即变 none。
-
-   鼠标设备：移入即开、移出延后 200ms 关（手抖一下也不关）。
-   触屏/无悬停设备：点 ▾ 切换；悬停事件不挂，避免 tap 触发 mouseenter 后
-   又被 click 切换成关闭。
+   JS 控制开合 + 200ms 关闭宽限。不用 CSS :hover：指针跨过标签与菜单之间
+   几像素空隙时悬停会断，菜单瞬间收起（实测空隙 6px 即复现）。
+   鼠标：移入开、移出延后关；触屏：点 ▾ 切换，不挂悬停事件。
 */
 (function () {
   var GRACE = 200;
@@ -289,4 +403,75 @@
       if (!drop.contains(e.target)) set(false);
     });
   });
+})();
+
+/* ---------- 回到顶部 ----------
+   全站统一一个按钮，由脚本创建——没有 JS 时页面里不该出现一个点不动的圆钮。
+
+   显示门槛取「一屏的 3/4，且不少于 400px」：太早出现会挡住刚进入页面的视线，
+   太晚则等于没有。回到顶部后自动隐藏，滚动用 requestAnimationFrame 节流，
+   避免每帧都读一次 scrollY 触发重排。
+*/
+(function () {
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'to-top';
+  btn.setAttribute('aria-label', '回到页面顶部');
+  btn.setAttribute('aria-hidden', 'true');
+  btn.tabIndex = -1;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+    + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
+  document.body.appendChild(btn);
+  /* 给 body 打个标记：滚到底时按钮会压住页脚最后一行文字，
+     样式层据此多留一点底部空白。用类而不是直接改内联样式，
+     无脚本时这段留白不会存在。 */
+  document.body.classList.add('has-totop');
+
+  var on = false;
+  var ticking = false;
+
+  function threshold() {
+    return Math.max(400, window.innerHeight * 0.75);
+  }
+
+  function paint(show) {
+    if (show === on) return;
+    on = show;
+    btn.classList.toggle('is-on', show);
+    /* 隐藏时同时摘出 tab 序与无障碍树：否则读屏仍会念到一个看不见的按钮 */
+    btn.setAttribute('aria-hidden', String(!show));
+    btn.tabIndex = show ? 0 : -1;
+  }
+
+  function update() {
+    ticking = false;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    paint(y > threshold());
+  }
+
+  function request() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(update);
+  }
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* 先把焦点交给主内容，再滚动：否则按钮滚动到位后被隐藏，
+       键盘用户的焦点会掉到 body 上，等于丢失位置。 */
+    var main = document.getElementById('main');
+    if (main) {
+      if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+      try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); }
+    }
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    /* 不支持 scrollTo 选项的浏览器会忽略 behavior，退化为瞬时跳转，可接受 */
+  });
+
+  window.addEventListener('scroll', request, { passive: true });
+  window.addEventListener('resize', request);
+  update();
 })();

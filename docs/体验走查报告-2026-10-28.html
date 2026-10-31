@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家长视角体验走查报告 · 南京中小学档案</title>
+<style>
+:root{
+  --bg:#f7f8fa; --card:#fff; --ink:#141a26; --ink2:#4a5568; --ink3:#78849a;
+  --line:#e3e7ee; --brand:#2f6bff; --brand-soft:#eef3ff;
+  --p0:#d92d20; --p0bg:#fef3f2; --p1:#b54708; --p1bg:#fffaeb; --p2:#175cd3; --p2bg:#eff8ff;
+  --ok:#067647; --okbg:#ecfdf3;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 28px 96px}
+
+/* header */
+header.top{background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);border-bottom:1px solid var(--line);padding:44px 0 36px;margin-bottom:36px}
+.kicker{font-size:12.5px;letter-spacing:.12em;color:var(--brand);font-weight:600;text-transform:uppercase}
+h1{font-size:31px;line-height:1.35;margin:10px 0 14px;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:15px;max-width:760px}
+.meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.chip b{color:var(--ink);font-weight:600}
+
+/* summary */
+.verdict{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 28px;margin-bottom:32px;
+  box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.verdict h2{margin:0 0 14px;font-size:17px}
+.verdict p{margin:0 0 12px;color:var(--ink2)}
+.verdict p:last-child{margin-bottom:0}
+.verdict strong{color:var(--ink)}
+.dist{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 4px}
+.dist>div{border-radius:10px;padding:14px 16px;border:1px solid var(--line)}
+.dist .n{font-size:26px;font-weight:700;line-height:1.2}
+.dist .n{font-size:26px;font-weight:700;line-height:1.2}
+.dist .l{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.d0{background:var(--p0bg)}.d0 .n{color:var(--p0)}
+.d1{background:var(--p1bg)}.d1 .n{color:var(--p1)}
+.d2{background:var(--p2bg)}.d2 .n{color:var(--p2)}
+
+h2.sec{font-size:20px;margin:44px 0 6px;letter-spacing:-.01em}
+.sec-note{color:var(--ink3);font-size:13.5px;margin:0 0 20px}
+
+/* issue card */
+.issue{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0;margin-bottom:18px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.issue-h{display:flex;align-items:flex-start;gap:14px;padding:20px 24px 16px}
+.sev{flex:0 0 auto;font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:3px 9px;border-radius:6px;margin-top:2px}
+.sev.p0{color:var(--p0);background:var(--p0bg);border:1px solid #fecdc9}
+.sev.p1{color:var(--p1);background:var(--p1bg);border:1px solid #fedf89}
+.sev.p2{color:var(--p2);background:var(--p2bg);border:1px solid #b2ddff}
+.issue-h h3{margin:0;font-size:16.5px;line-height:1.5;flex:1}
+.issue-b{padding:0 24px 22px;display:grid;gap:14px}
+.row{display:grid;grid-template-columns:74px 1fr;gap:14px;font-size:14px}
+.row .k{color:var(--ink3);font-size:12.5px;letter-spacing:.04em;padding-top:2px}
+.row .v{color:var(--ink2)}
+.row .v b{color:var(--ink);font-weight:600}
+.path{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#f6f8fb;border:1px solid var(--line);
+  border-radius:8px;padding:9px 12px;color:#334155;line-height:1.7;word-break:break-all}
+.path em{font-style:normal;color:var(--p0);font-weight:600}
+.impact{background:#fbfcfe;border-left:3px solid var(--brand);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14px;color:var(--ink2)}
+.impact b{color:var(--ink)}
+ul.fix{margin:0;padding-left:0;list-style:none;display:grid;gap:7px}
+ul.fix li{position:relative;padding-left:22px;font-size:14px;color:var(--ink2)}
+ul.fix li:before{content:"→";position:absolute;left:0;color:var(--brand);font-weight:700}
+ul.fix li b{color:var(--ink)}
+figure{margin:6px 0 0}
+figure img{width:100%;border:1px solid var(--line);border-radius:10px;display:block}
+figcaption{font-size:12.5px;color:var(--ink3);margin-top:8px}
+
+/* table */
+table.data{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13.5px}
+table.data th{text-align:left;background:#f8fafc;color:var(--ink2);font-weight:600;font-size:12.5px;padding:11px 14px;border-bottom:1px solid var(--line)}
+table.data td{padding:11px 14px;border-bottom:1px solid #f0f2f6;color:var(--ink2);vertical-align:top}
+table.data tr:last-child td{border-bottom:0}
+table.data b{color:var(--ink)}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+
+/* layer */
+.layers{display:grid;gap:8px;margin:8px 0 4px}
+.layer{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:start;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:14px 18px}
+.layer .t{font-size:12.5px;color:var(--ink3);letter-spacing:.04em}
+.layer .t b{display:block;color:var(--ink);font-size:14px;letter-spacing:0;margin-bottom:2px}
+.layer .c{font-size:14px;color:var(--ink2)}
+.bad{border-left:3px solid var(--p0)}
+.mid{border-left:3px solid var(--p1)}
+.ok{border-left:3px solid var(--ok)}
+
+.good{background:var(--okbg);border:1px solid #abefc6;border-radius:14px;padding:6px 24px 20px}
+.good h3{font-size:15px;margin:18px 0 8px;color:#05603a}
+.good ul{margin:0;padding-left:20px;color:#085d3a;font-size:14px}
+.good li{margin:5px 0}
+
+.road{display:grid;gap:14px}
+.step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:grid;grid-template-columns:120px 1fr;gap:20px}
+.step .ph{font-size:12px;color:var(--brand);font-weight:700;letter-spacing:.06em}
+.step .ph span{display:block;color:var(--ink3);font-weight:500;letter-spacing:0;margin-top:4px;font-size:12px}
+.step ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink2)}
+.step li{margin:4px 0}
+
+footer.end{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px;line-height:1.9}
+@media (max-width:720px){
+  .wrap{padding:0 16px 64px}
+  h1{font-size:24px}
+  .dist{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr;gap:4px}
+  .layer{grid-template-columns:1fr;gap:6px}
+  .step{grid-template-columns:1fr;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="kicker">UX WALKTHROUGH · 2026-10-28</div>
+    <h1>家长视角体验走查报告</h1>
+    <p class="sub">以四种真实家长身份、三种设备、八条核心任务路径，完整走查「南京中小学档案」全站 211+ 页面。
+    本报告只记录走查中实际观察到、可复现的问题，按对家长决策的影响程度排序。</p>
+    <div class="meta">
+      <span class="chip">走查对象 <b>localhost:8788（site 构建产物）</b></span>
+      <span class="chip">设备 <b>1440 桌面 / 768 平板 / 375 手机</b></span>
+      <span class="chip">页面 <b>首页 · 学校库 · 详情 ×3 · 对比 · 政策 · 数据说明 · 特长生</b></span>
+      <span class="chip">问题 <b>15 项（P0×2 / P1×7 / P2×6）</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <h2>一句话结论</h2>
+    <p>这个站点的<strong>内容质量与诚实度是稀缺资产</strong>——信度 A/B/C 分级、数据缺口清单、"只标不同不标更好"的克制，
+    在择校信息领域几乎看不到第二家。但它的<strong>组织方式是按"学校"来的，而家长的思考方式是按"我家地址"和"我该做什么"来的</strong>。</p>
+    <p>结果就是：<strong>答案在页面上，但家长拿不到。</strong>
+    一位住宁海路的家长搜索「宁海路」会得到 0 条结果，而他想要的那份施教区原文，正躺在琅琊路小学详情页第 5.1 节里，
+    以「北京西路[19-69号(包括69-1)(单)，34-70号(包括70-1)(双)]」的形式存在着。</p>
+    <p>因此本报告把两个 P0 都放在「<strong>信息组织</strong>」层，而不是视觉层。视觉层问题真实存在（移动端 13.5px 正文），但它不是流失的主因。</p>
+    <div class="dist">
+      <div class="d0"><div class="n">2</div><div class="l">P0 阻断 · 直接导致任务失败或流失</div></div>
+      <div class="d1"><div class="n">7</div><div class="l">P1 严重 · 显著增加成本、制造误判</div></div>
+      <div class="d2"><div class="n">6</div><div class="l">P2 改进 · 影响效率、观感与信任</div></div>
+    </div>
+  </div>
+
+  <h2 class="sec">走查设定：四种家长，八条路径</h2>
+  <p class="sec-note">不按页面走，按人走。每个角色都带着一个真实待办任务进入站点，观察能否在合理步数内完成任务。</p>
+
+  <table class="data">
+    <thead><tr><th style="width:150px">家长画像</th><th style="width:190px">任务</th><th>设备与情境</th><th style="width:96px">结果</th></tr></thead>
+    <tbody>
+      <tr><td><b>张女士</b><br>38 岁 · 鼓楼区<br>孩子中班</td><td>我家这套房能上哪所小学？值不值得买</td><td>手机，地铁上 10 分钟碎片时间</td><td><b style="color:var(--p0)">失败</b></td></tr>
+      <tr><td><b>李先生</b><br>42 岁 · 玄武区<br>孩子六年级</td><td>玄外摇号值不值得赌，保底公办是哪所</td><td>iPad，晚上和配偶一起看</td><td><b style="color:var(--p1)">部分完成</b></td></tr>
+      <tr><td><b>王女士</b><br>36 岁 · 江宁区<br>孩子初三 590 分</td><td>这个分数能上哪些高中，三年趋势如何</td><td>手机，招生咨询会现场站着查</td><td><b style="color:var(--p1)">部分完成</b></td></tr>
+      <tr><td><b>刘先生</b><br>33 岁 · 浦口 · 新南京人<br>落户 2 年</td><td>浦口有哪些好学校，「拉力琅」是什么</td><td>电脑，第一次听说这些词</td><td><b style="color:var(--p1)">部分完成</b></td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="sec">P0 · 阻断级：核心问题无法被回答</h2>
+  <p class="sec-note">这两条的共同点是：数据在库里，路走不通。它们不属于"做得不够好"，属于"任务根本完不成"。</p>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p0">P0-1</span><h3>搜地址搜不到学校——而施教区数据就在站内</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">首页搜索框、学校库搜索（全站唯一入口）</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">首页 → 搜索框输入「<em>宁海路</em>」→ 回车 → 匹配 0 所 / 共 545 所<br>同样输入「<em>龙江小区</em>」→ 匹配 0 所<br>对照：打开「南京市琅琊路小学」→ 五、招生与施教区 → 玉泉路校区范围里明确写有「宁海路[1-121号(单)…]」</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">张女士这类家长的问题从来不是"琅琊路小学怎么样"，而是"<b>我家在不在它范围内</b>"。
+      她不知道要先猜一所学校名字才能看到施教区，也不知道该猜哪一所。搜索 0 结果后，她得到的信息是"这个站没有我要的东西"，
+      而事实恰恰相反——站里有 340 份小学档案，<b>每一份都含完整施教区原文</b>。第一分钟内发生的这次失败，基本决定了不再回来。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li><b>把施教区变成可检索字段</b>：构建时从 5.1 节抽取路名/小区名进 <span class="mono">schools-data.js</span> 的 <span class="mono">streets</span> 数组，搜索时一并匹配。这是纯前端改动，不需要后端。</li>
+        <li><b>首页给第二入口</b>：搜索框下方「常搜」之外，加一个「按小区/路段查施教区」的独立入口，明确告诉家长这条路走得通。</li>
+        <li><b>命中时给上下文</b>：搜"宁海路"时结果卡不只要显示校名，还要显示"该校施教区包含：宁海路 1-121 号（单）"，让家长一眼确认而不是再点进去找。</li>
+      </ul></div></div>
+      <figure><img src="ux-shots/03-empty-search.png" alt="搜索宁海路返回 0 所"><figcaption>搜索「宁海路」的实际结果：匹配 0 所。空态给的建议是"试试减少关键词"——但家长只输了一个词。</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p0">P0-2</span><h3>施教区以公文原文堆放，家长无法判断"我在不在里面"</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">详情页 5.1「2026 年施教区范围」（桌面与移动端同问题）</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">学校库 → 南京市琅琊路小学 → 五、招生与施教区 → 5.1<br>观察：三个校区各一段 200 字左右的灰底块，内容形如「北京西路[19-69号(包括69-1)(单)，34-70号(包括70-1)(双)]、天竺路、普陀路、灵隐路…」</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">这是全站<b>标注信度最高（[A] 教育局公示原文）却最不可用</b>的一块内容。
+      家长要在三段密集文本里完成三件事：定位到自己那条路、比对号段、判断单双号——还要先弄清自家属于哪个校区。
+      三个人工核对步骤，每一步都可能出错。误判的代价是几十万到几百万的购房决策。当家长发现自己读不懂时，他的结论不是"我再仔细看看"，而是"这站写得太专业，我看不懂"，然后离开。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li><b>一次只看一个校区</b>：三个校区改成可切换的 tab / 单选，而不是三段并排堆叠。</li>
+        <li><b>加一个"查我在不在"输入框</b>：家长输入路名+门牌号，前端做字符串与号段匹配，直接返回"在 / 不在 / 需人工确认"。零后端、纯 JS，一次改动就消化掉本站最大的认知负担。</li>
+        <li><b>版式降负</b>：每条路名单独一行、按拼音排序、长括号换行缩进；顶部先给一句人话摘要（原文中已有："覆盖宁海路—琅琊路—西康路一带"），把结论提到前面。</li>
+        <li><b>保留原文</b>：结构化呈现之外，保留可展开的"查看教育局公示原文"，兼顾可信度。</li>
+      </ul></div></div>
+      <figure><img src="ux-shots/10-sec-zhaosheng.png" alt="施教区原文呈现"><figcaption>桌面端施教区：三段灰底块，括号套括号。信度标 A，但可读性接近零。</figcaption></figure>
+      <figure><img src="ux-shots/23-m-detail-table.png" alt="移动端施教区"><figcaption>同样的内容在 375px 上：13.5px 字号 + 密集括号，需要逐字比对的门牌号被折成 9 行。这是最需要"结构化"的场景，却用了最"原文"的呈现。</figcaption></figure>
+    </div>
+  </div>
+
+  <h2 class="sec">P1 · 严重级：明显增加成本，或制造误判</h2>
+  <p class="sec-note">这些不是死路，但每一步都在劝退。多数流失发生在这一层。</p>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-3</span><h3>移动端正文 13.5px，比桌面还小</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">全站详情页与文档页，≤720px 断点</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">375×812 打开任一详情页 → 实测正文 <em>13.5px</em> / 行高 23.6px（桌面为 14.5px / 25.4px）<br>受影响的还包括表格单元格、施教区块、信度标注（12.5px / 20px 见方）</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">目标用户是 35–45 岁家长，正处于老花开始显现的阶段，且使用场景多为碎片时间、通勤路上、光线不稳。
+      13.5px 中文意味着每行约 24 字、字重偏细，长文阅读疲劳度显著上升。更关键的是：<b>手机上恰好是最需要精读的场景</b>（对比门牌号、核对投档线），
+      而这里恰恰是全站字号最小的地方。桌面 14.5px 已经偏小，移动端反而再缩一档，方向反了。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>移动端正文提到 <b>15–16px</b>，行高 1.7；表格卡片化后字号同步提升，不要因为是表格就降级。</li>
+        <li>信度标注（A/B/C）至少 12px 并加 2px 内边距，现在 12.5px 挤在 20px 方块里，A 和 C 在手机上一眼分不清。</li>
+        <li><b>加一个字号开关</b>（标准 / 大），对这类"给长辈看的资料站"性价比极高。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-4</span><h3>搜索只覆盖"一句话摘要"，任务词搜出的是随机子集</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">学校库搜索（客户端索引）</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">学校库 → 依次搜索下列词，与档案实际覆盖对比：<br>
+      「学费」→ 返回 <em>12 所</em>，实际 <em>376 份</em>档案含学费数据<br>
+      「投档线」→ 返回 <em>14 所</em>，实际 <em>39 份</em>高中档案含投档线<br>
+      「施教区」→ 返回 <em>189 所</em>，实际 <em>340 份</em>小学档案全部含施教区章节<br>
+      「指标生」→ 返回 <em>8 所</em>，实际远多于此</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">李先生想横向看"哪些民办初中有学费"，得到 12 所，他会认为<b>全南京只有 12 所学校收学费</b>，
+      并在这个残缺的集合上做排除法。<b>不完整的搜索结果比没有结果更危险</b>——零结果会让人重新提问，残缺结果会让人得出错误结论。
+      问题根源是搜索索引只取了卡片摘要（校名/简称/梯队/一句话），正文里的结构化事实没有进入索引。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li><b>把"属性查询"从关键词里拿出来</b>：学费、投档线、摇号计划、对口初中、住宿、班额这些是筛选维度，做成筛选器比做成关键词可靠得多。</li>
+        <li>若保留关键词，<b>索引必须覆盖正文字段</b>，并在结果里分组：「校名匹配 3 所 / 内容提及 42 所」，让家长知道完整集的边界。</li>
+        <li>结果区常驻一行"共 545 所中，有学费数据 376 所"，把覆盖率显性化，避免以偏概全。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-5</span><h3>详情页零交叉链接，读完一所就断路</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">全部 545 个详情页</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">打开琅琊路小学 → 六、升学表现 →「对口初中：南京市第二十九中学初中部」<br>实测该文本不可点击；页面内 <em>指向其他学校的内链 = 0</em>；页面内 <em>输入框 = 0</em>（无站内搜索）；无上一所/下一所</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">家长的真实决策链是一条链：<b>小学 → 对口初中 → 该校中考表现 → 目标高中 → 投档线</b>。
+      站点把这条链上的每一环都写清楚了，却不允许沿链走。家长想看的"对口初中怎么样"，答案就在隔壁页面，但必须退回学校库重新搜一次。
+      <b>每一次想跳转却没有链接，都是一次把用户推回搜索引擎的机会</b>——而搜索引擎那边，是站方自己反复警示的"臆造数据"聚合站。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li><b>正文里的校名全部转内链</b>：对口初中、集团校、直升校、常对比校，构建时按 index.json 做一次名称匹配替换即可。</li>
+        <li><b>页尾加"接着看"区块</b>：对口初中 / 同区同梯队 3 所 / 常一起对比的学校，给三条明确的下一步。</li>
+        <li><b>导航常驻搜索</b>：详情页也保留搜索入口，不要让"换一所学校看"变成两次返回。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-6</span><h3>对比页把两所名小放一起，结果全是"未收录"</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">/compare.html</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">对比页 → 依次添加「南京市琅琊路小学」「南京市拉萨路小学」<br>实测：全表 <em>14 行 / 4 个分组</em>；末行显示「未收录：2026 招生计划 · 学费 · 办学规模 —— 这 2 所都没有数据 展开 4 项」；<br>核心按钮「只看差异」显示 <em>0 项</em></div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">这是全站最有差异化的功能，却也是<b>承诺与交付落差最大</b>的一处。两所鼓楼"四大名小"，家长最想对比的是摇号人数、
+      南外录取、对口初中中考表现、班额——这些恰恰都不在表里，因为对比只吃了 index.json 的摘要字段，而详情页每校有 8000+ 字的实质内容。
+      页面标语写着"只标「不同」不标「更好」"，家长点下去看到"只看差异（0 项）"，得到的信号是"这两所没区别"——一个由数据缺失造成的假结论。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li><b>对比维度改从详情页结构化抽取</b>：摇号计划、对口初中、四星率、班额、学费、招生计划，这些字段详情页都有，只是没进索引。</li>
+        <li><b>差异项要看得见</b>：现在差异没有任何视觉标注，靠家长逐行比对。用底色 + 左侧色条区分，并支持"只看差异"真实生效。</li>
+        <li><b>缺数据要说人话</b>：「这 2 所都没有数据」应改为「以下 4 项本站未获取，不代表两校相同」，避免把"没查到"读成"没差别"。</li>
+        <li>表头吸顶，长表滚动时不丢列名。</li>
+      </ul></div></div>
+      <figure><img src="ux-shots/38-compare-table.png" alt="对比页表格"><figcaption>对比结果底部：「未收录：2026 招生计划 · 学费 · 办学规模」。最有决策价值的三个维度整块缺失。</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-7</span><h3>首页 4 条政策 ≠ 政策页 5 条，且漏掉的正是最要紧的两条</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">首页「2026 年有哪些变化」区块 / 首页统计条「4 项 2026 政策变化」 / /policy.html</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">首页 → 滚到「2026 年有哪些变化」，列出 4 条：落户 / 普高扩招 / 浦口并轨 / 多校更名<br>对照 /policy.html「2026 年招生政策要点」表格：<em>5 行</em>，多出「取消学区房年限限制」「长幼随学试点」<br>统计条写「4 项」，政策页实为 5 项</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">被首页漏掉的两条，恰好是对决策影响最大的：「取消学区房年限限制」直接改变购房判断，
+      「长幼随学」是二孩家庭的刚需。<b>首页用"多所学校更名"占掉了一个政策位</b>——更名是检索便利问题，不是政策利好，优先级错配。
+      同时"4 项"与政策页 5 条对不上：对一个以"准确性"为核心卖点的站，<b>首页数字与内页不一致是最伤信任的一类瑕疵</b>。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li><b>数字不要手写</b>：首页「N 项」与列表从 <span class="mono">content/pages/policy.md</span> 同源派生，构建时自动计数，杜绝漂移。</li>
+        <li>首页政策位优先放"影响决策"的条目，更名归到「检索提示」而不是政策变化。</li>
+        <li>每条后面加一句"对你意味着什么"（如：年限限制取消 → 现在买房当年就能入学），把公文翻译成人话。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-8</span><h3>没有"浦口区"：27 所学校被整体归入江北新区</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">首页「11 个区」卡片、学校库行政区筛选、所有卡片标签</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">首页区卡：六合 / 建邺 / 栖霞 / <em>江北新区</em> / 江宁 / 溧水 / 玄武 / 秦淮 / 雨花台 / 高淳 / 鼓楼 —— 共 11 个，<em>无浦口区</em><br>搜「浦口」→ 27 所，但每张卡标签都是「江北新区」，其中包含「南京市<em>浦口区</em>永宁小学」「南京市<em>浦口区</em>汤泉小学」<br>对照 /policy.html：明确写着「浦口区与江北新区招生并轨」——<em>并轨不等于合并为一个区</em></div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">刘先生是浦口人，他找的是"我们区"。筛选器里没有浦口，首页 11 个区也没有，他会得出"这个站没做浦口"的判断——而实际上有 27 所。
+      即便搜到了，卡片上"浦口区永宁小学 · 江北新区"的标签打架，会让他怀疑数据准确性。
+      <b>更麻烦的是内部不一致</b>：政策页承认浦口区是独立主体，结构上却把它抹掉了。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>恢复「浦口区」作为行政区一级，江北新区作为独立的<b>片区</b>维度（区县 × 片区二级结构），两者都能筛。</li>
+        <li>过渡期至少加别名：「江北新区（含浦口）」并让"浦口"能筛出结果。</li>
+        <li>与政策页「并轨」表述对齐，在筛选器上注明并轨对招生范围的实际影响。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p1">P1-9</span><h3>手机导航里没有"政策"，但有"特长生"</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">≤720px 主导航</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">375×812 打开首页 → 导航可见项：首页 / 学校库 / 对比 / 特长生▾ / 主题切换<br>实测「政策」「数据说明」<em>渲染宽度为 0</em>（仅在页脚可达）</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">政策是家长每年 5 月的头等大事，在手机上却只能滚到页脚才能找到；而「特长生」是初三那年 5 月才用得上、
+      覆盖人群极窄的通道，却稳稳占着移动端一个位置。<b>导航位是按开发顺序排的，不是按家长任务的紧急度排的。</b></div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>移动端一级导航改为：<b>首页 / 学校库 / 政策 / 更多▾</b>，把「对比」「特长生」「数据说明」收进「更多」。</li>
+        <li>顺手修触控目标：现导航项高 22px、主题按钮 34px，均低于 44px 建议值（实测 30 个可点元素中 29 个不足 44px）。</li>
+      </ul></div></div>
+      <figure><img src="ux-shots/20-m-home.png" alt="移动端首页导航"><figcaption>移动端首屏：政策与数据说明缺席，主题切换按钮却保留。</figcaption></figure>
+    </div>
+  </div>
+
+  <h2 class="sec">P2 · 改进级：影响效率、观感与信任</h2>
+  <p class="sec-note">单条不致命，但累积起来决定"这站是资料库还是决策工具"。</p>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p2">P2-10</span><h3>最显眼的按钮把家长送出站外</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">详情页头部「访问学校官网 ↗」（蓝色实心，页面视觉权重最高的元素）</div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">家长进详情页的核心动作是"看施教区 / 看投档线"，但最强按钮指向站外官网。
+      官网一打开，多半是陈旧的新闻列表或干脆打不开（站方自己标注了 31 所不可访问）。<b>视觉权重给了次要动作，用户就被引导做了次要的事。</b></div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>主按钮改为「看施教区」「看投档线」（锚点跳转，按学段变化），官网降级为文字链接 + 外链图标。</li>
+        <li>"链接核验于 2026-10-22"这类溯源信息保留，但移到次级位置——它是信任支撑，不是行动召唤。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p2">P2-11</span><h3>首屏看不到关键数字：投档线要滚 4 屏</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">详情页头部（所有学段）</div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">王女士在招生咨询会现场站着查九中，她需要 5 秒内看到"投档线 / 位次 / 招生计划"。实际要滚过"一句话定位 + 官网按钮 + 目录 + 速览表"，
+      翻到第四节才行。头部现在被官网按钮、微信号、核验日期占满，信息预算给错了对象。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>头部加 3 个数字芯片，按学段切换：<b>小学</b>→对口初中 / 摇号人数 / 班额；<b>初中</b>→四星率 / 摇号计划 / 学费；<b>高中</b>→投档线 / 位次 / 招生计划。</li>
+        <li>芯片可点，直达对应小节。</li>
+      </ul></div></div>
+      <figure><img src="ux-shots/31-hs-top.png" alt="高中详情首屏"><figcaption>九中首屏：一句话定位里有"一本率 95.8%"，但家长最需要的投档线与位次不在首屏。</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p2">P2-12</span><h3>545 张卡片一次铺开，无排序、无分页</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">/schools.html 默认态</div></div>
+      <div class="row"><div class="k">复现路径</div><div class="v"><div class="path">直接打开学校库 → 实测 <em>545 张卡片</em>全部渲染，页面高度 <em>41,353px</em>（约 46 屏）；<br>可用的筛选只有 学段 / 行政区 / 性质，<em>无排序控件</em>（无按梯队、按拼音、按热度）</div></div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">"我想看看鼓楼有哪些好小学"这个任务，默认态下没有路径——必须先想到"去筛鼓楼"，再自己扫 27 张卡。
+      对不知道该选哪所的家长（大多数），列表没有默认叙事（梯队分层 / 就近），只是按文件顺序排。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>默认按<b>区 × 梯队</b>分组，而不是平铺；给"我不确定选哪所"的人一条明确路径。</li>
+        <li>加排序：梯队 / 拼音 / 建校年份；长列表分页或"加载更多"。</li>
+        <li>移动端首屏提高信息效率：卡片现在 4 个标签 + 梯队 + 3 行摘要，一屏只放得下 1.8 张。</li>
+      </ul></div></div>
+      <figure><img src="ux-shots/21-m-schools.png" alt="移动端学校库"><figcaption>移动端学校库：搜索 + 筛选占掉首屏 40%，一屏只能看到约 1.5 所学校；筛选按钮只显示"1"，不显示筛了什么。</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p2">P2-13</span><h3>全站零图形：数据密度极高，可视化程度为零</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">全站（实测 <span class="mono">img = 0</span>、<span class="mono">canvas/svg = 0</span>，除 logo 外无任何图形）</div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">高中详情页 17 张表格、8000+ 字，投档线逐年、招生计划逐年、升学率逐年——全是表格。
+      家长要做"这校三年是涨是跌"的判断，得自己把三行数字读成趋势。<b>信息密度上去了，感知效率没上去</b>；
+      观感上也就停在"资料库"，进不到"决策工具"。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>优先做三个最容易见效的图：<b>高中投档线 3 年折线</b>、<b>民办摇号中签率横条</b>、<b>同区梯队分布条形</b>。</li>
+        <li>用内联 SVG 手写，不引入图表库，符合项目"零框架零运行时依赖"的约束。</li>
+        <li>施教区若做结构化，配一张示意图（不接地图服务，避免合规问题），比文字强十倍。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p2">P2-14</span><h3>首页「常搜」用行话，新南京人看不懂</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">首页搜索框下方「常搜：拉力琅 / 玄外 / 二十九中 / 鼓楼 / 民办」</div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">「拉力琅」是南京家长圈的内部简称（拉萨路 / 力学 / 琅琊路），本地老家长秒懂，新落户家庭完全不知所云。
+      刘先生看到的是一个陌生词 + 四个似懂非懂的词，<b>而他恰恰是最需要引导的那部分用户</b>。行话是社群身份的标志，但放在入口处就变成了门槛。</div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>「拉力琅」加可点提示：悬停/点击显示"拉萨路 · 力学 · 琅琊路，鼓楼四大名小之三"。</li>
+        <li>常搜换成人话任务词：「鼓楼区小学」「民办初中摇号」「中考 590 分能上哪」——顺便覆盖 P1-4 的策略词需求。</li>
+        <li>加一个「新南京人入门」的短页：简称对照 + 学区基本概念，成本很低，对留存的帮助很大。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-h"><span class="sev p2">P2-15</span><h3>空态建议文不对题，也没有近似纠错</h3></div>
+    <div class="issue-b">
+      <div class="row"><div class="k">位置</div><div class="v">学校库 0 结果空态</div></div>
+      <div class="row"><div class="k">家长影响</div><div class="v"><div class="impact">搜「宁海路」时提示"试试减少关键词，或清除筛选条件"——家长只输了一个词，也没有筛选，这条建议完全对不上。
+      同时没有任何"你是不是想找 宁海中学"的近似提示，也没有说明"施教区暂不支持搜索"（这句话能救回 P0-1 掉的一部分用户）。
+      <b>空态是用户最愿意被引导的一刻，现在却给了一句无用建议。</b></div></div></div>
+      <div class="row"><div class="k">改进建议</div><div class="v"><ul class="fix">
+        <li>区分空态原因：关键词过长 / 筛选过窄 / 疑似地址输入，分别给不同文案与出口。</li>
+        <li>疑似地址输入时直接引导：「你输的像是路名——本站暂不支持按地址搜，可以试试这份施教区说明 / 或按区浏览」。</li>
+        <li>加编辑距离纠错与同音提示（校名短，成本极低）。</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <h2 class="sec">归因：问题不在视觉层，在下面两层</h2>
+  <p class="sec-note">用五层模型拆一遍，能看到 15 条问题不是散落的，而是同一个根源在不同层的投影。</p>
+
+  <div class="layers">
+    <div class="layer bad"><div class="t"><b>战略层</b>产品目标</div><div class="c">
+      站点假设用户的问题是"<b>这所学校怎么样</b>"，实际家长的问题是"<b>我家孩子该去哪、我现在该做什么</b>"。
+      这两个问题需要不同的入口（地址 / 时间轴），而站点只有一个入口（校名）。<b>P0-1、P1-8 的根在这里。</b></div></div>
+    <div class="layer bad"><div class="t"><b>范围层</b>功能与内容</div><div class="c">
+      内容覆盖极完整（545 所、240 万字符、信度体系），但只有"阅读"一种消费方式，缺少"判断"工具：
+      没有地址查询、没有招生日历、没有分数→学校反查、属性筛选。<b>P1-4、P1-6、P2-13 的根在这里。</b></div></div>
+    <div class="layer mid"><div class="t"><b>结构层</b>信息架构</div><div class="c">
+      "学段 → 区 → 学校"的层级是对的，但叶子节点之间没有横向连接（无内链、无相似推荐、无下一步），
+      用户的探索只能靠回退。<b>P1-5 的根在这里。</b></div></div>
+    <div class="layer mid"><div class="t"><b>框架层</b>界面与导航</div><div class="c">
+      桌面端结构清晰（面包屑、目录、锚点导航都在，语义标签规范），问题集中在移动端：导航取舍错位、筛选状态不可见。P1-9、P2-12 在这一层。</div></div>
+    <div class="layer ok"><div class="t"><b>表现层</b>视觉设计</div><div class="c">
+      <b>这是全站完成度最高的一层。</b>设计令牌统一、深浅色都成立（深色实测 #0b0f16 / #e6e9f0，对比度合格）、
+      375px 全站零横向溢出（<span class="mono">scrollWidth = 375 = innerWidth</span>，逐页验过）。
+      唯一的硬伤是移动端 13.5px 正文字号（P1-3），以及信息层级把权重给了外链按钮（P2-10）。</div></div>
+  </div>
+
+  <div class="good" style="margin-top:26px">
+    <h3>该保留的：站点的三个稀缺资产</h3>
+    <ul>
+      <li><b>信度 A/B/C 分级 + 每份档案末尾的数据缺口清单</b>。「未获取即未获取，不作推测」——这在择校信息领域是罕见的诚实，也是这个站最该被放大的差异点，建议在首屏就讲出来。</li>
+      <li><b>对比页"只标不同不标更好"的立场克制</b>。方向完全正确，只是数据没跟上（P1-6），补齐维度后会成为核心留存功能。</li>
+      <li><b>特长生页是全站写得最好的内容页</b>：先说"小学阶段学编程不会带来小升初加分"打消误解，再给四类通道与控制线。
+      这种"先破除误解、再给事实"的结构，应该复制到所有高频误解点（学区房、摇号、指标生）。</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">改进路线：先修路，再修饰</h2>
+  <p class="sec-note">按"改动成本 ÷ 体验收益"排序。第一阶段全是纯前端或构建期改动，不涉及架构调整。</p>
+
+  <div class="road">
+    <div class="step">
+      <div class="ph">第一阶段<span>低成本 · 立刻见效</span></div>
+      <ul>
+        <li><b>施教区结构化 + 地址查询</b>（消化 P0-1、P0-2 两条）：抽取路名进索引，加"查我在不在"输入框。这是全站唯一能把"0 结果"变成"我找到了"的改动。</li>
+        <li><b>移动端字号 13.5 → 15.5px</b>，信度标记放大到 12px（P1-3）。一行 CSS。</li>
+        <li><b>详情页校名转内链 + 页尾"接着看"</b>（P1-5）。构建期一次匹配。</li>
+        <li><b>首页"4 项"改自动计数</b>，补上"长幼随学""取消年限"（P1-7）。</li>
+        <li><b>移动端导航补"政策"</b>（P1-9）。</li>
+      </ul>
+    </div>
+    <div class="step">
+      <div class="ph">第二阶段<span>中等成本 · 补能力</span></div>
+      <ul>
+        <li><b>属性筛选器</b>替代关键词查询：学费 / 摇号 / 住宿 / 班额 / 是否九年一贯制（P1-4）。</li>
+        <li><b>对比维度扩充</b>到详情页真实字段，差异高亮 + 表头吸顶（P1-6）。</li>
+        <li><b>恢复浦口区 + 片区二级结构</b>（P1-8）。这一项涉及数据重新归类，需与政策页表述同步。</li>
+        <li><b>详情页数字芯片</b>（P2-11）与<b>三个基础图表</b>（P2-13）。</li>
+      </ul>
+    </div>
+    <div class="step">
+      <div class="ph">第三阶段<span>结构性 · 换入口</span></div>
+      <ul>
+        <li><b>招生时间轴</b>：把散落在 545 份档案 5.3 节的"报名时间节点"聚合成一张"我家今年该做什么"的日历。这是当前完全缺失、但对家长价值最高的功能。</li>
+        <li><b>分数 → 学校反查</b>：输入中考分，输出可报学校区间（高中档案已有 39 份投档线数据）。</li>
+        <li><b>新南京人入门页</b>：简称对照 + 学区概念（P2-14）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="sec">怎么验证改对了</h2>
+  <p class="sec-note">站点目前无后端、无埋点，建议先用最小成本建立可观测性，否则改完只能靠感觉判断。</p>
+
+  <table class="data">
+    <thead><tr><th style="width:110px">HEART 维度</th><th style="width:230px">指标</th><th>怎么测（零后端方案）</th></tr></thead>
+    <tbody>
+      <tr><td><b>任务成功</b></td><td>搜索后产生详情页点击的比例</td><td>前端记录"搜索 → 点击结果"事件，用 <span class="mono">navigator.sendBeacon</span> 打到一个轻量计数端点，或先只做本地采样</td></tr>
+      <tr><td><b>任务成功</b></td><td>零结果搜索的占比与 TOP 关键词</td><td>同上，专门记录 <span class="mono">resultCount = 0</span> 的查询词——这会直接告出家长在用什么词思考</td></tr>
+      <tr><td><b>参与度</b></td><td>单次会话浏览详情页数</td><td>无内链时该值会卡在 1.2 左右；内链上线后应显著上升，是最灵敏的验证指标</td></tr>
+      <tr><td><b>留存</b></td><td>招生季（4–6 月）7 日回访率</td><td>localStorage 打一个首访/回访标记即可粗测</td></tr>
+      <tr><td><b>满意度</b></td><td>详情页底部一个"这份档案对你有用吗"</td><td>两个按钮，一次点击。比 NPS 问卷的回收率高一个量级</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="sec">复现清单</h2>
+  <p class="sec-note">供开发同学逐条复验。所有数值均为 2026-10-28 在 site/ 构建产物上的实测值。</p>
+
+  <table class="data">
+    <thead><tr><th style="width:64px">编号</th><th style="width:250px">复现操作</th><th>实测结果</th></tr></thead>
+    <tbody>
+      <tr><td><b>P0-1</b></td><td>学校库搜「宁海路」/「龙江小区」</td><td>匹配 0 所；而琅琊路小学 5.1 节含该路段</td></tr>
+      <tr><td><b>P0-2</b></td><td>琅琊路小学 → 五、招生与施教区</td><td>3 段公文原文，单段约 200 字，号段+单双号嵌套</td></tr>
+      <tr><td><b>P1-3</b></td><td>375px 详情页读 computed font-size</td><td>正文/表格/引用块均 <span class="mono">13.5px</span>；桌面 <span class="mono">14.5px</span></td></tr>
+      <tr><td><b>P1-4</b></td><td>搜「学费」「投档线」「施教区」</td><td>12 / 14 / 189 所；档案实际覆盖 376 / 39 / 340 份</td></tr>
+      <tr><td><b>P1-5</b></td><td>详情页统计内链与输入框</td><td>指向其他学校的内链 <span class="mono">0</span>；<span class="mono">input</span> 数量 <span class="mono">0</span></td></tr>
+      <tr><td><b>P1-6</b></td><td>对比页加琅琊路 + 拉萨路</td><td>14 行 / 4 组；未收录 4 项；「只看差异」显示 0 项</td></tr>
+      <tr><td><b>P1-7</b></td><td>首页政策块 vs /policy.html</td><td>首页 4 条（含"更名"）；政策页 5 条（含"长幼随学""取消年限"）</td></tr>
+      <tr><td><b>P1-8</b></td><td>首页区卡 / 筛选器 / 搜「浦口」</td><td>11 个区无浦口；27 所浦口校标「江北新区」</td></tr>
+      <tr><td><b>P1-9</b></td><td>375px 导航项渲染宽度</td><td>「政策」「数据说明」宽度 <span class="mono">0</span>；页脚可达</td></tr>
+      <tr><td><b>P2-10</b></td><td>详情页头部按钮权重</td><td>唯一实心按钮为「访问学校官网 ↗」</td></tr>
+      <tr><td><b>P2-11</b></td><td>九中详情首屏</td><td>投档线位于第四节，首屏不可见</td></tr>
+      <tr><td><b>P2-12</b></td><td>学校库默认态</td><td>545 卡片 / 页高 41,353px / 无排序控件</td></tr>
+      <tr><td><b>P2-13</b></td><td>统计全站图形元素</td><td><span class="mono">img = 0</span>、<span class="mono">canvas/svg = 0</span></td></tr>
+      <tr><td><b>P2-14</b></td><td>首页「常搜」</td><td>「拉力琅」无任何解释</td></tr>
+      <tr><td><b>P2-15</b></td><td>搜「宁海路」空态文案</td><td>「试试减少关键词，或清除筛选条件」（用户未用多词/无筛选）</td></tr>
+      <tr><td><b>通过项</b></td><td>375px 逐页 <span class="mono">scrollWidth</span></td><td>首页/学校库/详情/对比 均 <span class="mono">375 = innerWidth</span>，零横向溢出</td></tr>
+      <tr><td><b>通过项</b></td><td>深色模式对比度</td><td>body <span class="mono">#0b0f16</span> / 文本 <span class="mono">#e6e9f0</span>，主要文本达标</td></tr>
+    </tbody>
+  </table>
+
+  <footer class="end">
+    走查方式：Chromium headless，1440×900 / 768×1024 / 375×812（DPR 2，移动 UA + 触控），本地 <span class="mono">site/</span> 构建产物。<br>
+    截图存档：<span class="mono">docs/ux-shots/</span>　报告日期：2026-10-28　走查角色：用户体验专家「体验」<br>
+    说明：本报告只记录实测到的现象与推断，不涉及对学校数据本身准确性的判断。
+  </footer>
+
+</div>
+</body>
+</html>

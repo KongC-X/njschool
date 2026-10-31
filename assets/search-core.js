@@ -43,6 +43,11 @@
             + (s.tier || '') + ' ' + s.district).toLowerCase();
   }
 
+  /* 地址索引：施教区里的路名/小区名（构建期从档案 5.1 节抽出，见 streets-data.js）。
+     家长的真实问题是「我家这条街能上哪所」，而这三个字从不出现在校名里——
+     只搜校名的结果是：搜「宁海路」返回 0 所，而琅琊路小学的施教区里就写着宁海路。 */
+  function hayAddr(s) { return (s.addr || '').toLowerCase(); }
+
   /* 兜底索引：主索引零结果时才查 tagline，保证「九年一贯」「电脑派位」这类描述词仍搜得到 */
   function hayExtra(s) { return (s.tagline || '').toLowerCase(); }
 
@@ -91,29 +96,66 @@
     return total;
   }
 
-  function match(s, ts, filters, withExtra) {
-    if (filters) {
-      if (filters.lv && s.level !== filters.lv) return false;
-      if (filters.dist && s.district !== filters.dist) return false;
-      if (filters.type && s.type !== filters.type) return false;
+  /* 地址命中：返回命中的那个地名（用于在结果卡上写「施教区含：宁海路」）。
+     不做整词比对：家长可能只记得「宁海」两个字，前缀命中也应算命中。 */
+  function addrHit(s, t) {
+    var list = (s.addr || '').split(' ');
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].indexOf(t) !== -1) return list[i];
     }
+    return '';
+  }
+
+  function passFilters(s, filters) {
+    if (!filters) return true;
+    if (filters.lv && s.level !== filters.lv) return false;
+    if (filters.dist && s.district !== filters.dist) return false;
+    if (filters.type && s.type !== filters.type) return false;
+    /* 数据项筛选：s.has 是空格分隔的标记串（如「学费 投档线」）。
+       用两侧补空格做整词比对——否则「学费」会命中「学费说明」这类前缀。 */
+    if (filters.has && (' ' + (s.has || '') + ' ').indexOf(' ' + filters.has + ' ') === -1) {
+      return false;
+    }
+    return true;
+  }
+
+  function match(s, ts, filters, level) {
+    if (!passFilters(s, filters)) return false;
     if (!ts.length) return true;
-    var hay = hayMain(s) + (withExtra ? ' ' + hayExtra(s) : '');
+    var hay = hayMain(s);
+    if (level >= 2) hay += ' ' + hayAddr(s);
+    if (level >= 3) hay += ' ' + hayExtra(s);
     return ts.every(function (t) { return hasTerm(hay, t) || aliasHit(s, t); });
+  }
+
+  /* 返回命中来源：'name'（校名/简称/区/梯队）、'addr'（施教区地名）、'tag'（简介） */
+  function hitKind(s, ts) {
+    if (!ts.length) return 'name';
+    var main = hayMain(s);
+    if (ts.every(function (t) { return hasTerm(main, t) || aliasHit(s, t); })) return 'name';
+    var addr = hayAddr(s);
+    if (ts.every(function (t) { return hasTerm(addr, t) || hasTerm(main, t); })) return 'addr';
+    return 'tag';
   }
 
   function query(data, q, filters, opts) {
     opts = opts || {};
     var ts = terms(q);
 
-    var rows = data.filter(function (s) { return match(s, ts, filters, false); });
-    var fellBack = false;
-
-    /* 主索引零结果时退一步查 tagline（如「九年一贯」「集团化办学」），
-       调用方应在计数里注明「在简介中匹配」，避免用户误以为是校名命中 */
+    /* 三级检索，逐级放宽：
+         1 主索引（校名/简称/区/梯队）
+         2 + 施教区地名（「宁海路」「龙江小区」这类地址查询）
+         3 + 一句话简介（「九年一贯」「电脑派位」这类描述词）
+       只在上一级零结果时才降级，避免「二十九中」把只是提到它的学校也带出来。 */
+    var rows = data.filter(function (s) { return match(s, ts, filters, 1); });
+    var level = 1;
     if (!rows.length && ts.length) {
-      rows = data.filter(function (s) { return match(s, ts, filters, true); });
-      fellBack = rows.length > 0;
+      rows = data.filter(function (s) { return match(s, ts, filters, 2); });
+      level = 2;
+    }
+    if (!rows.length && ts.length) {
+      rows = data.filter(function (s) { return match(s, ts, filters, 3); });
+      level = 3;
     }
 
     if (ts.length) {
@@ -123,16 +165,40 @@
       });
     }
 
+    /* 命中来源：地址层命中时，结果卡要写出「施教区含：宁海路」，
+       否则家长会以为这所学校只是碰巧被搜到。 */
+    var hits = {};
+    if (ts.length) {
+      rows.forEach(function (s) {
+        hits[s.id] = level === 1 ? hitKind(s, ts) : (level === 2 ? 'addr' : 'tag');
+      });
+    }
+
     return {
       rows: opts.limit ? rows.slice(0, opts.limit) : rows,
       terms: ts,
-      fellBack: fellBack
+      level: level,
+      /* 兼容旧字段：fellBack 原义是「退到简介层匹配」 */
+      fellBack: level === 3,
+      addrMatch: level === 2,
+      hits: hits
     };
+  }
+
+  /* 地址命中的地名，用于结果卡展示 */
+  function addrLabels(s, ts) {
+    var out = [];
+    ts.forEach(function (t) {
+      var hit = addrHit(s, t);
+      if (hit && out.indexOf(hit) === -1) out.push(hit);
+    });
+    return out;
   }
 
   root.__NJ_SEARCH__ = {
     cnNum: cnNum, normTerm: normTerm, terms: terms,
-    hayMain: hayMain, hasTerm: hasTerm, aliasHit: aliasHit,
+    hayMain: hayMain, hayAddr: hayAddr, hasTerm: hasTerm, aliasHit: aliasHit,
+    addrHit: addrHit, addrLabels: addrLabels,
     score: score, query: query
   };
 })(typeof window !== 'undefined' ? window : this);

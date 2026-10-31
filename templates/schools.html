@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% block head %}
+{# 数据脚本是这一页最大的资源（166KB），提前并行取，别等 HTML 解析完才发现 #}
+<link rel="preload" as="script" href="{{ base }}assets/schools-data.js?v={{ ver }}">
+{% endblock %}
 {% block content %}
 <div class="wrap">
   <h1 class="page-title">学校库</h1>
@@ -10,6 +14,11 @@
     <div class="callout">
       <p><strong>筛选与搜索需要 JavaScript。</strong>不开启也能用——
          全部 {{ total }} 所学校已经按行政区与学段列在一个静态页面里，可以直接点进任何一所。</p>
+      <p class="ns-jump">按区直达：
+        {%- for d in districts %}
+        <a href="all.html#d-{{ loop.index0 }}">{{ d }}</a>
+        {%- endfor %}
+      </p>
       <p><a href="all.html">查看全部学校索引 →</a></p>
     </div>
   </noscript>
@@ -21,7 +30,7 @@
 
   <div class="controls" id="filters" data-open="true">
     <label class="sr-only" for="q">搜索学校</label>
-    <input id="q" type="search" placeholder="搜索校名、简称、梯队或关键词，多个词用空格分隔">
+    <input id="q" type="search" placeholder="搜校名、简称、路名或小区名，多个词用空格分隔">
     <div class="frow">
       <div class="fgroup"><span class="flabel" id="lv-label">学段</span>
         <span id="f-lv" role="group" aria-labelledby="lv-label" class="contents"></span></div>
@@ -29,20 +38,42 @@
         <span id="f-dist" role="group" aria-labelledby="dist-label" class="contents"></span></div>
       <div class="fgroup"><span class="flabel" id="type-label">性质</span>
         <span id="f-type" role="group" aria-labelledby="type-label" class="contents"></span></div>
+      {# 数据项筛选：把「学费」「投档线」这类查询从关键词里拿出来。
+         关键词只能命中摘要，家长搜「学费」会看到 12 所而误以为只有 12 所民办收费。 #}
+      <div class="fgroup"><span class="flabel" id="has-label">数据项</span>
+        <span id="f-has" role="group" aria-labelledby="has-label" class="contents"></span></div>
     </div>
+    {# 浦口区自 2026 年起并入江北新区招生管理，但行政区划上仍是独立一区。
+         数据侧尚未重新归类（涉及 27 份档案迁移，属独立治理项），这里先给出说明，
+         避免浦口家长在筛选器里找不到「浦口区」就以为本站没有覆盖。 #}
+    <p class="fhint">浦口区的学校现归入「江北新区」管理，可用搜索框输入「浦口」查看 27 所。</p>
   </div>
 
-  <p class="count" id="count" role="status" aria-live="polite"></p>
+  <div class="listbar">
+    <p class="count" id="count" role="status" aria-live="polite"></p>
+    <label class="sortwrap" for="sort">
+      <span class="sr-only">排序方式</span>
+      <select id="sort">
+        <option value="">默认排序</option>
+        <option value="tier">按梯队</option>
+        <option value="name">按校名（拼音）</option>
+      </select>
+    </label>
+  </div>
   {# 骨架屏：数据 153.8KB（gzip 40KB），慢网下渲染前原本是一大片空白，很像页面坏了。
      脚本一旦渲染就会整体替换掉。仅 html.js 下显示——关闭脚本的用户看 noscript 提示即可，
      不该看到永远转不完的占位块。 #}
-  <div class="grid" id="grid">
+  {# 结果区是列表：读屏能念出「N 项」，键盘只需在卡片间跳（整卡一个链接） #}
+  <h2 class="sr-only" id="grid-h">筛选结果</h2>
+  <div class="grid" id="grid" role="list" aria-busy="false" aria-labelledby="grid-h">
     {%- for _ in range(6) %}
     <div class="card card-skel" aria-hidden="true"></div>
     {%- endfor %}
   </div>
+  <div id="gridMore" aria-live="polite"></div>
 </div>
-<script src="{{ base }}assets/schools-data.js"></script>
-<script src="{{ base }}assets/search-core.js"></script>
-<script src="{{ base }}assets/schools.js"></script>
+<script defer src="{{ base }}assets/schools-data.js?v={{ ver }}"></script>
+<script defer src="{{ base }}assets/streets-data.js?v={{ ver }}"></script>
+<script defer src="{{ base }}assets/search-core.js?v={{ ver }}"></script>
+<script defer src="{{ base }}assets/schools.js?v={{ ver }}"></script>
 {% endblock %}

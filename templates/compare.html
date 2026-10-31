@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block head %}<link rel="stylesheet" href="{{ base }}assets/compare.css?v={{ ver }}">{% endblock %}
 {% block content %}
 <div class="wrap">
   <h1 class="page-title">对比</h1>
@@ -16,9 +17,10 @@
     <p class="pick-status" id="pickStatus" role="status" aria-live="polite"></p>
   </div>
 
-  <div class="chips" id="picked" aria-label="已选学校"></div>
+  {# aria-label 落在裸 div 上会被读屏忽略，必须给 role=group #}
+  <div class="chips" id="picked" role="group" aria-label="已选学校"></div>
 
-  <div id="cmp"></div>
+  <div id="cmp" role="region" aria-label="对比结果"></div>
 
   <div class="cmp-actions">
     <button type="button" class="btn-ghost" id="onlyDiff" aria-pressed="false" hidden>只看差异</button>
@@ -34,11 +36,11 @@
     </div>
   </noscript>
 </div>
-<script src="{{ base }}assets/schools-data.js"></script>
-<script src="{{ base }}assets/schools-compare.js"></script>
+<script defer src="{{ base }}assets/schools-data.js?v={{ ver }}"></script>
+<script defer src="{{ base }}assets/schools-compare.js?v={{ ver }}"></script>
 {# 行定义由 data/compare_rows.json 注入：加一行是加数据，不是改前端 #}
 <script>window.__CMP_ROWS__ = {{ row_specs | safe }};</script>
-<script src="{{ base }}assets/search-core.js"></script>
-<script src="{{ base }}assets/compare-core.js"></script>
-<script src="{{ base }}assets/compare.js"></script>
+<script defer src="{{ base }}assets/search-core.js?v={{ ver }}"></script>
+<script defer src="{{ base }}assets/compare-core.js?v={{ ver }}"></script>
+<script defer src="{{ base }}assets/compare.js?v={{ ver }}"></script>
 {% endblock %}

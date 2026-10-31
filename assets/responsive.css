@@ -12,13 +12,12 @@
   html{scroll-behavior:auto}
 }
 
-
 @media (max-width:1023px){
+
   .cards4{grid-template-columns:repeat(2,1fr)}
 
   /* 区卡：4 列在平板上太窄，退到 2 列 */
   .dist-grid{grid-template-columns:repeat(2,1fr)}
-
 
   /* 不用 grid：1fr 的自动最小宽度会被内容撑开，导致整页横向溢出 */
   .detail-grid{display:block}
@@ -48,9 +47,18 @@
   /* 锚点落点要同时避开固定导航（58px）与目录条（约 44px），否则跳过去标题在框外 */
   html{scroll-padding-top:112px}
 
-  .cards3{grid-template-columns:1fr}
+  /* 768 下三列仍放得下（227px/张），退单列交给 600 断点 */
+  .cards3{grid-template-columns:repeat(3,1fr)}
 }
 
+/* 导航收起阈值（780px）比移动端布局阈值（720px）高——两者不是一回事。
+   7 项（含「特长生」的展开按钮）实测约 772px，781 以上才排得开；
+   720–780 会挤成两行，此前只按 720 划断点，这一段就成了盲区。
+   收起的两个入口（对比、特长生）在每页页脚都可达。 */
+@media (max-width:780px){
+  .nav-links a[data-nav="compare"],
+  .nav-drop[data-nav="talent"]{display:none}
+}
 
 @media (max-width:720px){
   .cards4{grid-template-columns:1fr}
@@ -62,7 +70,6 @@
   .dist b{font-size:var(--f-sm)}
   .stat{padding:var(--s-4) var(--s-2)}
   .hero-quick{line-height:2.4}
-
 
   /* 硬约束：任何情况下都不允许整页横向溢出 */
   html,body{max-width:100%;overflow-x:hidden}
@@ -92,9 +99,14 @@
     transition:transform var(--t-fast)}
   .filter-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
 
-  #q{font-size:var(--f-md);padding:12px 14px}
-  /* 触屏上 44px 是 Apple HIG 的下限，原 38px 点起来容易偏 */
-  .chip{min-height:44px;padding:8px 14px;font-size:var(--f-sm)}
+  /* 导航与主题按钮同样按 44px 落地：实测 375px 下 30 个可点元素里 29 个不足 44px，
+     其中导航项只有 22–34px 高，是误触最集中的地方。 */
+  .nav-links a,.nav-drop-btn{min-height:44px;display:inline-flex;align-items:center}
+  /* nowrap 是硬要求：flex 收缩会把「学校库」压成「学校 / 库」两行，
+     加了第四个导航项之后就出现过一次。宁可少显示几项也不能折行。 */
+  .nav-links a,.nav-drop-link,.nav-drop-btn{white-space:nowrap;flex:0 0 auto}
+  #themeBtn{width:44px;height:44px;flex:0 0 auto}
+  #sort{min-height:44px}
 
   .detail-head{padding:var(--s-4)}
   .detail-head h1{font-size:var(--f-xl)}
@@ -113,7 +125,7 @@
   .article .table-wrap tr{background:var(--surface);border:1px solid var(--line);
     border-radius:var(--r-md);margin-bottom:var(--s-3);padding:var(--s-2) 0}
   .article .table-wrap td{border:0;padding:5px var(--s-3);display:grid;
-    grid-template-columns:84px minmax(0,1fr);gap:var(--s-3);
+    grid-template-columns:96px minmax(0,1fr);gap:var(--s-3);
     font-size:var(--f-sm);justify-items:start;align-items:start}
   .article .table-wrap td::before{content:attr(data-label);color:var(--muted);
     font-size:var(--f-2xs);font-weight:600;padding-top:2px}
@@ -131,6 +143,17 @@
   .article .table-wrap td.kv-key{display:none}
 }
 
+/* 660px 以下：导航改为紧凑排布，并把「分数查学校」换成「查分」。
+   实测 5 项全称 + 品牌要 620px，481–619px 这一段放不下——字号、内边距、
+   标签长度各退一档。阈值取 660 而不是 600，是因为「品牌名不折行」之后
+   品牌实际宽度增加了，601–619 会重新溢出。
+   教训：断点必须按**实测宽度**划，不能按「看起来该到哪」划。 */
+
+@media (max-width:660px){
+  .nav-links a{padding:8px 7px;font-size:var(--f-2xs)}
+  .nav-links a.has-short .nl-full{display:none}
+  .nav-links a.has-short .nl-short{display:inline}
+}
 
 @media (max-width:480px){
 
@@ -139,57 +162,46 @@
   .brand{font-size:var(--f-sm)}
   .brand-mark{width:24px;height:24px;font-size:var(--f-2xs)}
   .nav-links{gap:0}
-  .nav-links a{padding:7px;font-size:var(--f-2xs)}
-  #themeBtn{width:34px;height:34px;margin-left:var(--s-1)}
+  /* 导航靠压内边距腾空间，不靠删入口。这是「内边距只允许 8/12/16」的
+     唯一例外：改回 7px 会在 375 档重新出现 4.1px 裁切。 */
+  .nav-links a{padding:7px 5px;font-size:var(--f-2xs)}
+  /* 与上面缩 padding 成套：单独把按钮放大到 44，375 下会多裁 10px */
+  #themeBtn{width:44px;height:44px;margin-left:var(--s-1)}
   .page-title{font-size:var(--f-xl)}
   .sec{padding:var(--s-6) 0}
 }
 
+/* 600 以下才退单列：481–600 三列时每张只剩约 150px */
+@media (max-width:600px){
+  .cards3{grid-template-columns:1fr}
+}
 
-
-
-
+/* 320：5 项仍溢出 13.6px。让「查分」退出——它只覆盖 37 所高中，
+   首页与页脚都有入口；政策与时间轴不能砍。 */
+@media (max-width:340px){
+  .nav-links a[data-nav="score"]{display:none}
+}
 
 @media (min-width:1280px){
 
+  /* 只放大，不改小：这里出现的每个值都必须 ≥ 默认值 */
   :root{
     --gutter:clamp(24px, 2.6vw, 40px);
     --toc-w:240px;
-    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
-    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
-  }
-
-  :root{
-    --gutter:clamp(24px, 2.6vw, 40px);
-    --toc-w:240px;
-    --f-base:16px; --f-sm:14.5px; --f-xs:13.5px; --f-2xs:12.5px;
-    --f-md:17px; --f-lg:18.5px; --f-xl:22px; --f-2xl:30px; --f-3xl:40px;
+    --f-sm:15.5px; --f-md:18px; --f-lg:19px;
+    --f-xl:23px; --f-2xl:31px; --f-3xl:42px;
   }
 }
-
 
 @media (min-width:1700px){
 
   :root{
     --gutter:clamp(32px, 3vw, 64px);
     --toc-w:260px;
-    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
-    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
-  }
-
-  :root{
-    --gutter:clamp(32px, 3vw, 64px);
-    --toc-w:260px;
-    --f-base:17px; --f-sm:15px; --f-xs:14px; --f-2xs:13px;
-    --f-md:18px; --f-lg:20px; --f-xl:24px; --f-2xl:34px; --f-3xl:46px;
+    --f-base:17px; --f-sm:16px; --f-xs:14.5px; --f-2xs:13px;
+    --f-md:19px; --f-lg:21px; --f-xl:25px; --f-2xl:36px; --f-3xl:48px;
   }
 }
-
-
-
-
-
-
 
 /* ------------------------------------------------------------
    宽屏（≥1600px）：键值表改为双列卡片
@@ -214,24 +226,8 @@
   .table-wrap--kv td[data-label="信度"]{grid-column:2;grid-row:1;justify-self:end}
   .table-wrap--kv td[data-label="信度"]::before{display:none}
 
-  .table-wrap--kv{border:0;background:transparent;box-shadow:none;overflow:visible}
-  .table-wrap--kv table{display:block;min-width:0}
-  .table-wrap--kv thead{display:none}
-  .table-wrap--kv tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:var(--s-3)}
-  .table-wrap--kv tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
-    gap:2px var(--s-3);align-items:start;
-    background:var(--surface);border:1px solid var(--line);
-    border-radius:var(--r-md);padding:var(--s-3) var(--s-4)}
-  .table-wrap--kv td{display:block;border:0;padding:0;min-width:0}
-  .table-wrap--kv td.kv-key{display:none}
-  .table-wrap--kv td[data-label]::before{content:attr(data-label);display:block;
-    font-size:var(--f-2xs);color:var(--muted);margin-bottom:3px}
-  .table-wrap--kv td[data-label="信度"]{grid-column:2;grid-row:1;justify-self:end}
-  .table-wrap--kv td[data-label="信度"]::before{display:none}
+  
 }
-
-
 
 /* ------------------------------------------------------------
    宽屏（≥1600px）：键值表改为双列卡片

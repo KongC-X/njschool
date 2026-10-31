@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% from "partials.html" import badges, official %}
+{% block head %}<link rel="stylesheet" href="{{ base }}assets/detail.css?v={{ ver }}">{% endblock %}
 {% block content %}
 {# 结构化数据：便于搜索引擎识别「这是一所什么学校」，放在 body 内亦被支持 #}
 <script type="application/ld+json">{{ jsonld | safe }}</script>
 <div class="wrap">
+  {# 页头卡原本满宽（1350），正文 784、目录 240 —— 同一页三条左边界。
+     这层容器把它们收成一条轴线：宽度同时决定目录 + 正文 + 页头。 #}
+  <div class="detail-main">
   {# 面包屑用 nav+ol：读屏能把整条路径当导航读出来，搜索引擎也能识别层级。
      分隔符交给 CSS 的 ::before，别写成文本「/」——那样键盘会依次停在 5 个孤立链接上。 #}
   <nav class="crumb" aria-label="面包屑">
@@ -30,14 +34,40 @@
     {%- endif %}
     <div class="tier">{{ s.tier }}</div>
     <div class="tag">{{ s.tagline }}</div>
-    {{ official(s.website, verified_at) }}
-    {# 加入对比：无 JS 时整块不显示（.cmp-add 默认 display:none，html.js 才出现），
-       避免留下一个点了没反应的死按钮 #}
-    <div class="cmp-add">
-      <button type="button" class="btn-ghost" id="cmpAdd"
-              data-id="{{ cmp_id }}" aria-pressed="false">＋ 加入对比</button>
-      <a class="cmp-go" id="cmpGo" href="{{ base }}compare.html" hidden>去对比 →</a>
+
+    {# 关键数字：家长在招生咨询会现场要 5 秒内看到的那几个数。
+       取不到的项不出现（后端只传有值的），不用「—」占位。 #}
+    {%- if chips %}
+    <div class="dchips">
+      {%- for c in chips %}
+      {%- if c.href %}
+      <a class="dchip" href="#{{ c.href }}" title="{{ c.label }}：{{ c.full }}"><span class="k">{{ c.label }}</span><span class="v">{{ c.value }}</span></a>
+      {%- else %}
+      <div class="dchip" title="{{ c.label }}：{{ c.full }}"><span class="k">{{ c.label }}</span><span class="v">{{ c.value }}</span></div>
+      {%- endif %}
+      {%- endfor %}
     </div>
+    {%- endif %}
+
+    {# 主行动：锚点链接而不是 JS 按钮——关掉脚本也能用。
+       原来这里唯一的实心按钮是「访问学校官网」，等于把家长往站外送。
+       窄屏用短标签：完整文案在 375px 会折成两行，把按钮撑到 72px 高。 #}
+    <div class="detail-cta">
+      {%- if has_shijiaoqu %}
+      <a class="btn-primary" href="#shijiaoqu"><span class="cta-full">查施教区：我家在不在范围内 →</span><span class="cta-short">查施教区 →</span></a>
+      {%- elif chips and chips[0].href %}
+      <a class="btn-primary" href="#{{ chips[0].href }}"><span class="cta-full">看{{ chips[0].label }}与招生计划 →</span><span class="cta-short">看{{ chips[0].label }} →</span></a>
+      {%- endif %}
+      {# 加入对比：无 JS 时整块不显示（.cmp-add 默认 display:none，html.js 才出现），
+         避免留下一个点了没反应的死按钮 #}
+      <span class="cmp-add">
+        <button type="button" class="btn-ghost btn--sm" id="cmpAdd"
+                data-id="{{ cmp_id }}" aria-pressed="false">＋ 加入对比</button>
+        <a class="cmp-go" id="cmpGo" href="{{ base }}compare.html" hidden>去对比 →</a>
+      </span>
+    </div>
+
+    {{ official(s.website, verified_at) }}
   </div>
 
   <div class="detail-grid">
@@ -50,6 +80,24 @@
     </aside>
     {%- endif %}
     <article class="article">{{ body | safe }}</article>
+  </div>
+
+  {# 页尾「接着看」：详情页原先没有任何横向出口，
+     家长想从「对口初中」走到那所初中，只能退回学校库重搜。 #}
+  {%- if related %}
+  <section class="detail-next" aria-labelledby="next-h">
+    <h2 id="next-h">接着看</h2>
+    <div class="next-grid">
+      {%- for r in related %}
+      <a class="next-card" href="{{ r.href }}">
+        <span class="k">{{ r.k }}</span>
+        <span class="n">{{ r.n }}</span>
+        <span class="d">{{ r.d }}</span>
+      </a>
+      {%- endfor %}
+    </div>
+  </section>
+  {%- endif %}
   </div>
 </div>
 {% endblock %}

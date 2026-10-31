@@ -7,10 +7,15 @@
     <h1>这一页不存在</h1>
     <p class="hint">链接可能来自旧版页面，或者学校已更名。可以试试下面这几种方式。</p>
 
-    <form class="hero-search nf-search" onsubmit="return false;">
+    {# 真表单：回车由浏览器提交，手机键盘的「前往/搜索」键也走同一条路。
+       原来是 <form onsubmit="return false"> + type="button" onclick，
+       回车被拦掉什么都不发生——而这是 404 页唯一的自救通道。 #}
+    <form class="hero-search nf-search" role="search"
+          action="{{ base }}schools.html" method="get">
       <label class="sr-only" for="nfq">搜索学校</label>
-      <input id="nfq" type="search" placeholder="输入校名，如「琅琊路」「金中」">
-      <button type="button" onclick="nfGo()">找学校</button>
+      <input id="nfq" name="q" type="search" autocomplete="off"
+             placeholder="输入校名，如「琅琊路」「金中」">
+      <button type="submit">找学校</button>
     </form>
 
     <div class="nf-links">
@@ -25,11 +30,4 @@
     </div>
   </div>
 </div>
-<script>
-/* 404 页没有完整脚本上下文，这里自带最小搜索跳转 */
-function nfGo() {
-  var q = document.getElementById('nfq').value.trim();
-  location.href = '{{ base }}schools.html' + (q ? '?q=' + encodeURIComponent(q) : '');
-}
-</script>
 {% endblock %}

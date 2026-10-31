@@ -1,20 +1,27 @@
 [
-  {"key": "level",    "label": "学段",        "group": "identity", "source": "index",   "field": "level",    "diff": "exact", "priority": 10},
-  {"key": "type",     "label": "性质",        "group": "identity", "source": "index",   "field": "type",     "diff": "exact", "priority": 20},
-  {"key": "district", "label": "行政区",      "group": "identity", "source": "index",   "field": "district", "diff": "exact", "priority": 30},
-  {"key": "tier",     "label": "梯队",        "group": "identity", "source": "index",   "field": "tier",     "diff": "exact", "priority": 40},
-  {"key": "group",    "label": "集团归属",    "group": "identity", "source": "facts",   "field": "group",    "diff": "none",  "priority": 50},
-  {"key": "channel",  "label": "官方渠道",    "group": "identity", "source": "channel", "field": "hasSite",  "diff": "exact", "priority": 60},
+  {"key": "level",    "label": "学段",        "group": "base",    "source": "index",   "field": "level",    "diff": "exact", "mode": "tag",    "priority": 10},
+  {"key": "type",     "label": "性质",        "group": "base",    "source": "index",   "field": "type",     "diff": "exact", "mode": "tag",    "priority": 20},
+  {"key": "district", "label": "行政区",      "group": "base",    "source": "index",   "field": "district", "diff": "exact", "mode": "tag",    "priority": 30},
+  {"key": "tier",     "label": "梯队定位",    "group": "base",    "source": "index",   "field": "tier",     "diff": "exact", "mode": "tag",    "priority": 40},
+  {"key": "group",    "label": "集团归属",    "group": "base",    "source": "facts",   "field": "group",    "diff": "exact", "mode": "tag",    "priority": 50},
+  {"key": "founded",  "label": "创办时间",    "group": "base",    "source": "facts",   "field": "founded",  "diff": "exact", "mode": "value",  "priority": 55},
+  {"key": "address",  "label": "校址",        "group": "base",    "source": "facts",   "field": "address",  "diff": "none",  "mode": "text",   "priority": 60},
+  {"key": "channel",  "label": "官方渠道",    "group": "base",    "source": "channel", "field": "hasSite",  "diff": "exact", "mode": "tag",    "priority": 65},
 
-  {"key": "feeder",   "label": "对口初中",    "group": "path",     "source": "facts",   "field": "feeder",   "diff": "none",  "priority": 70,  "levels": ["小学"]},
-  {"key": "sources",  "label": "主要生源小学", "group": "path",    "source": "facts",   "field": "sources",  "diff": "none",  "priority": 72,  "levels": ["初中"]},
-  {"key": "plan",     "label": "2026 招生计划", "group": "path",   "source": "facts",   "field": "plan",     "diff": "exact", "priority": 80},
-  {"key": "tuition",  "label": "学费",        "group": "path",     "source": "facts",   "field": "tuition",  "diff": "exact", "priority": 90},
-  {"key": "score",    "label": "2026 投档线", "group": "path",     "source": "facts",   "field": "score",    "diff": "exact", "priority": 100, "levels": ["高中"]},
-  {"key": "classes",  "label": "班型",        "group": "path",     "source": "facts",   "field": "classes",  "diff": "none",  "priority": 110, "levels": ["初中", "高中"]},
-  {"key": "phone",    "label": "咨询电话",    "group": "path",     "source": "facts",   "field": "phone",    "diff": "none",  "priority": 120},
+  {"key": "feeder",   "label": "对口初中",    "group": "outcome", "source": "facts",   "field": "feeder",   "diff": "exact", "mode": "text",   "priority": 70, "levels": ["小学"]},
+  {"key": "sources",  "label": "主要生源小学", "group": "outcome", "source": "facts",  "field": "sources",  "diff": "exact", "mode": "text",   "priority": 72, "levels": ["初中"]},
+  {"key": "score",    "label": "2026 投档线", "group": "outcome", "source": "facts",   "field": "score",    "diff": "exact", "mode": "value",  "num": true, "unit": "分", "priority": 80, "levels": ["高中"]},
+  {"key": "reputation", "label": "升学口碑（原文摘录）", "group": "outcome", "source": "facts", "field": "reputation", "diff": "none", "mode": "excerpt", "priority": 90},
 
-  {"key": "scale",    "label": "办学规模",    "group": "evidence", "source": "facts",   "field": "scale",    "diff": "none",  "priority": 130},
-  {"key": "address",  "label": "校址",        "group": "evidence", "source": "facts",   "field": "address",  "diff": "none",  "priority": 140},
-  {"key": "tagline",  "label": "一句话定位",  "group": "evidence", "source": "tagline", "field": "tagline",  "diff": "none",  "priority": 150}
+  {"key": "teachers", "label": "教职工",      "group": "faculty", "source": "facts",   "field": "teachers", "diff": "exact", "mode": "value",  "num": true, "unit": "人", "priority": 100},
+  {"key": "backbone", "label": "骨干/特级教师", "group": "faculty", "source": "facts", "field": "backbone", "diff": "exact", "mode": "value",  "num": true, "unit": "人", "priority": 110},
+  {"key": "classes",  "label": "班型",        "group": "faculty", "source": "facts",   "field": "classes",  "diff": "exact", "mode": "text",   "priority": 120, "levels": ["初中", "高中"]},
+  {"key": "scale",    "label": "办学规模",    "group": "faculty", "source": "facts",   "field": "scale",    "diff": "none",  "mode": "text",   "priority": 130},
+
+  {"key": "plan",     "label": "2026 招生计划", "group": "enroll", "source": "facts",  "field": "plan",     "diff": "exact", "mode": "value",  "num": true, "unit": "人", "priority": 140},
+  {"key": "tuition",  "label": "学费",        "group": "enroll",  "source": "facts",   "field": "tuition",  "diff": "exact", "mode": "value",  "num": true, "unit": "元", "priority": 150},
+  {"key": "lottery",  "label": "2026 派位计划", "group": "enroll", "source": "facts",  "field": "lottery",  "diff": "exact", "mode": "value",  "num": true, "unit": "人", "priority": 160},
+  {"key": "phone",    "label": "咨询电话",    "group": "enroll",  "source": "facts",   "field": "phone",    "diff": "none",  "mode": "text",   "priority": 170},
+
+  {"key": "tagline",  "label": "一句话定位",  "group": "voice",   "source": "tagline", "field": "tagline",  "diff": "none",  "mode": "text",   "priority": 180}
 ]

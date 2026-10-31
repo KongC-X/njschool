@@ -9,7 +9,7 @@ import os
 import re
 from urllib.parse import quote
 
-from . import config, mdtext, source
+from . import config, district, mdtext, source
 from .schema import School, Website
 
 
@@ -122,6 +122,7 @@ def load_source_links():
 def load_body(school, links=None):
     """读取并渲染档案正文，返回 (html, toc)。"""
     html, toc = mdtext.render(mdtext.strip_leading_h1(source.text(school.file)), links=links)
+    html, _structured = district.enhance_html(html)
     return _thin_quickfacts(html, school), toc
 
 

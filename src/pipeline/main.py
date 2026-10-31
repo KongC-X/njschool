@@ -8,9 +8,9 @@ import os
 import shutil
 from collections import Counter
 
-from . import check, config, load, render
-from .schema import (Report, validate_counts, validate_pages, validate_schools,
-                     validate_web_counts, validate_websites)
+from . import tables, check, config, load, render, xref
+from .schema import (Report, validate_counts, validate_pages, validate_policy_sync,
+                     validate_schools, validate_web_counts, validate_websites)
 
 
 def run():
@@ -28,6 +28,7 @@ def run():
     validate_websites(schools, rep)
     validate_counts(schools, md_total, rep)
     validate_pages(pages, rep)
+    validate_policy_sync(pages, rep)
     # counts 缓存若与现算不符，页面会显示错数字（曾低报 35 所）
     validate_web_counts(web_counts_cached, web_counts, rep)
     ok = rep.dump()
@@ -49,9 +50,23 @@ def run():
     dup_names = {n for n, c in Counter(s.name for s in schools).items() if c > 1}
     if dup_names:
         print(f"   {len(dup_names)} 组同名档案，详情页标题将补上学段")
+    # 正文里的校名转内链（报告 P1-5：对口初中原本是纯文本，链路走不下去）。
+    # 重名校不进表——「南京仙林外国语学校」同时有小学与初中两份档案，
+    # 链到哪一份都是错，宁可保持纯文本。
+    name_href = {s.name: "../" + s.url for s in schools if s.name not in dup_names}
+    # 简称也进表：正文里写「二十九中」远比写全称常见，只认全称等于大部分地方链不上。
+    # 三个字以上才收——「力小」「拉小」这类两字简称做子串匹配太容易误伤。
+    short_used = Counter(s.short for s in schools if s.short)
+    for s in schools:
+        if (s.short and len(s.short) >= 3 and s.name not in dup_names
+                and short_used[s.short] == 1 and s.short not in name_href):
+            name_href[s.short] = "../" + s.url
+    linkify = xref.build(name_href)
     outputs = {
         "index.html": render.home(env, schools, index["districts"], pages, web_counts),
         "schools.html": render.schools_page(env, schools, index["districts"]),
+        "timeline.html": render.timeline_page(env, schools),
+        "score.html": render.score_page(env, schools),
         "all.html": render.all_page(env, schools, index["districts"]),
         "compare.html": render.compare(env, schools),
         "talent.html": render.talent(env, schools),
@@ -65,7 +80,13 @@ def run():
     for spec in render.TALENT_SUBS:
         outputs[spec[1]] = render.talent_sub(env, schools, spec)
     for s in schools:
-        outputs[f"schools/{s.slug}.html"] = render.detail(env, s, verified_at, links, dup_names)
+        outputs[f"schools/{s.slug}.html"] = render.detail(
+            env, s, verified_at, links, dup_names, schools, linkify)
+
+    # 表格装饰：给手写的 <table>（特长生 5 页 16 张、政策页等）补
+    # 「可横向滚动容器 + 每列 data-label」，窄屏才能转成「字段名 / 值」卡片，
+    # 否则在 375px 上第 4 列会被裁掉且无法滚动到达。
+    outputs = {name: tables.decorate(html) for name, html in outputs.items()}
 
     print("④ 写入站点")
     if os.path.isdir(config.SITE):
@@ -73,9 +94,11 @@ def run():
     os.makedirs(os.path.join(config.SITE, "assets"))
     os.makedirs(os.path.join(config.SITE, "schools"), exist_ok=True)
 
-    for name in ("tokens.css", "site.css", "pages.css", "responsive.css", "app.js",
+    for name in ("tokens.css", "site.css", "components.css", "pages.css", "detail.css",
+                 "compare.css", "all.css", "responsive.css", "app.js",
                  "search-core.js", "schools.js",
-                 "compare-core.js", "compare.js", "talent.css"):
+                 "compare-core.js", "compare.js", "talent.css", "timeline.css",
+                 "score.css", "score.js"):
         src = os.path.join(config.ASSETS, name)
         if not os.path.isfile(src):
             print(f"✗ 缺少资源文件：{src}")
@@ -107,8 +130,13 @@ def run():
     with open(os.path.join(config.SITE, "assets", "schools-compare.js"), "w",
               encoding="utf-8") as f:
         f.write(render.compare_data(schools))
+    # 只有学校库加载：施教区地名索引（搜「宁海路」这类地址查询靠它）
+    with open(os.path.join(config.SITE, "assets", "streets-data.js"), "w",
+              encoding="utf-8") as f:
+        f.write(render.streets_data(schools))
 
-    urls = ["", "schools.html", "all.html", "compare.html", "talent.html"] \
+    urls = ["", "schools.html", "timeline.html", "score.html", "all.html",
+            "compare.html", "talent.html"] \
         + [spec[1] for spec in render.TALENT_SUBS] \
         + ["policy.html", "changelog.html", "about.html"] + [s.url for s in schools]
     if config.BASE_URL:

@@ -9,6 +9,9 @@
 /* ------------------------------------------------------------
    首页 · 首屏
    ------------------------------------------------------------ */
+/* 首屏保持居中：试过与下方区块统一左对齐，结果是 h1 只占半屏、
+   右半区整片空白，落地页明显失衡。首屏作为「入口段」居中，
+   其下的内容区块左对齐 —— 这是两段不同性质的版式，不必强行同轴。 */
 .hero{padding:var(--s-9) 0 var(--s-8);text-align:center;position:relative;overflow:hidden}
 /* 极轻的径向光晕，仅用于建立视觉焦点，不参与信息表达 */
 .hero::before{content:"";position:absolute;inset:-40% 20% auto;height:420px;
@@ -46,12 +49,13 @@
   box-shadow:var(--sh-1);margin:var(--s-7) 0 0;overflow:hidden}
 /* 格数不固定（2 或 3 格），用 flex 而不是定列数的 grid，避免出现空列 */
 .stat{flex:1;padding:var(--s-5) var(--s-4);text-align:center;border-left:1px solid var(--line)}
-.stat:first-child{flex:1.35;border-left:0}
+.stat:first-child{border-left:0}
 /* 收录总量是页面的核心数字，给它更高的视觉权重，其余四项作为构成说明 */
 /* 原来给第一格数字上强调色，但它不可点、也非当前状态——
    同一行其余 4 格是 --ink，会造成「第一格能点」的错觉。层级靠字号就够了。 */
-.stat:first-child b{font-size:calc(var(--f-2xl) * 1.45)}
-.stat:first-child span{color:var(--text)}
+/* 三格等宽同字号：层级靠位置和标签表达，不再叠 1.35 倍宽度 + 1.45 倍字号。
+   连带修掉一个真实缺陷：首格撑宽后第三格内容区只剩 91.3px，
+   而「2026 政策变化」需要 91.5px —— 差 0.2px 就折行，第二行只剩一个「化」。 */
 .stat b{display:block;font-size:var(--f-2xl);line-height:1.15;color:var(--ink);
   letter-spacing:-.02em}
 .stat span{display:block;margin-top:var(--s-1);font-size:var(--f-xs);color:var(--muted)}
@@ -68,21 +72,22 @@
 .lv-card:hover{border-color:var(--accent);box-shadow:var(--sh-2);transform:translateY(-2px);
   text-decoration:none}
 .lv-card h3{font-size:var(--f-md);color:var(--muted);font-weight:600;margin-bottom:var(--s-1)}
-.lv-card .n{font-size:var(--f-2xl);font-weight:700;color:var(--accent);letter-spacing:-.02em}
+.lv-card .n{font-size:var(--f-xl);font-weight:700;color:var(--accent);letter-spacing:-.02em}
 .lv-card p{color:var(--muted);font-size:var(--f-xs);margin:var(--s-2) 0 0}
 
 /* 11 个区在 auto-fill 下被切成 7 列，第二行只剩 4 个，且每张卡挤三行小字。
    固定 4 列 → 4+4+3，卡宽约 265px，区名和数量都能放大一档。 */
 .dist-grid{display:grid;grid-template-columns:repeat(4,1fr);
   gap:var(--s-3)}
-.dist{display:block;background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-md);padding:var(--s-3) var(--s-4);color:var(--text);
-  transition:border-color var(--t-fast),background var(--t-fast)}
-.dist:hover{border-color:var(--accent);background:var(--accent-weak);text-decoration:none}
+.dist{display:block;color:var(--text)}
+/* 区名与数量组成一行头部：原来数量是 float:right，浮动占位把下面那行压窄，
+   于是「江北新区」那格第三行只剩一个「3」。改成 flex 后各行宽度一致。 */
+.dist .dhead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s-2)}
 .dist b{font-size:var(--f-md);font-weight:600}
-.dist span{float:right;color:var(--muted);font-size:var(--f-xs);
-  font-variant-numeric:tabular-nums}
-.dist small{display:block;color:var(--muted);font-size:var(--f-2xs);margin-top:3px}
+.dist span{color:var(--muted);font-size:var(--f-xs);font-variant-numeric:tabular-nums;
+  flex:none}
+.dist small{display:block;color:var(--muted);font-size:var(--f-2xs);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 补位卡：与区卡区分开，一眼看出它不是第 12 个区 */
 .dist-all{border-style:dashed}
 .dist-all:hover{border-color:var(--accent);border-style:solid}
@@ -90,48 +95,9 @@
 /* ------------------------------------------------------------
    详情页
    ------------------------------------------------------------ */
-.crumb{font-size:var(--f-xs);color:var(--muted);padding:var(--s-5) 0 var(--s-3)}
-.crumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:0;
-  list-style:none;margin:0;padding:0}
-.crumb li{display:inline-flex;align-items:center;min-width:0}
-.crumb li + li::before{content:"/";margin:0 7px;color:var(--line-strong)}
-.crumb a{color:var(--muted)}
-.crumb a:hover{color:var(--accent-text)}
-/* 当前页（校名）不做成链接，用截断防止长校名把这一行撑破 */
-.crumb li:last-child span{color:var(--text);max-width:22em;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap}
-
-.detail-head{background:var(--surface);border:1px solid var(--line);
-  border-top:3px solid var(--accent);
-  border-radius:var(--r-lg);padding:var(--s-6);margin:0 0 var(--s-5);
-  box-shadow:var(--sh-1)}
-.detail-head h1{font-size:var(--f-2xl);letter-spacing:-.025em;margin:0 0 var(--s-3)}
-.detail-head .tier{font-size:var(--f-xs);color:var(--muted);margin-bottom:var(--s-2)}
-.detail-head .tag{font-size:var(--f-sm);color:var(--text);opacity:.92}
-
-/* 官方渠道：带强调色竖线的提示条，与正文区分 */
-.official{display:flex;gap:var(--s-3) var(--s-4);flex-wrap:wrap;align-items:center;
-  margin-top:var(--s-4);padding:var(--s-3) var(--s-4);
-  background:var(--accent-weak);border-left:3px solid var(--accent);
-  border-radius:0 var(--r-md) var(--r-md) 0}
-.btn-site{display:inline-flex;align-items:center;gap:var(--s-2);
-  padding:8px 16px;border-radius:var(--r-md);background:var(--accent);color:var(--on-accent);
-  font-size:var(--f-sm);font-weight:600;min-height:38px;
-  transition:background var(--t-fast)}
-.btn-site:hover{background:var(--accent-strong);text-decoration:none}
-.btn-site.warn{background:transparent;color:var(--accent-text);
-  border:1px solid var(--accent);font-weight:500}
-.btn-site.warn:hover{background:var(--surface)}
-.wx{font-size:var(--f-xs);color:var(--muted)}
-.wx b{color:var(--text);font-weight:600}
-.nosite{font-size:var(--f-xs);color:var(--muted);line-height:1.6}
-.vnote{font-size:var(--f-2xs);color:var(--muted);opacity:.85;margin-left:auto}
 
 .detail-grid{display:grid;grid-template-columns:var(--toc-w) minmax(0,1fr);gap:var(--s-8);
-  align-items:start;
-  /* 目录 + 正文整体居中，否则正文卡居中后与目录之间空一道 */
-  max-width:calc(var(--toc-w) + var(--s-8) + 46em + 2 * var(--s-6));
-  margin-inline:auto}
+  align-items:start}
 .toc{position:sticky;top:76px;font-size:var(--f-sm)}
 .toc-title{font-size:var(--f-2xs);letter-spacing:.1em;color:var(--muted);
   margin-bottom:var(--s-2)}
@@ -172,6 +138,37 @@
 .article > p:first-of-type{margin-top:var(--s-4)}
 
 /* ------------------------------------------------------------
+   施教区：逐条路名 + 自查入口
+   ------------------------------------------------------------
+   原文是一整段「琅琊路、北京西路[19-69号…]、天竺路、…」，
+   家长要在密集文本里完成「找路名 → 比号段 → 判单双号」三步核对。
+   拆成一条一行之后，至少「找路名」这一步从扫描变成定位。
+   ------------------------------------------------------------ */
+.roads{list-style:none;margin:var(--s-3) 0;padding:0;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(15em,1fr));
+  gap:2px var(--s-4);background:var(--surface-2);
+  border:1px solid var(--line);border-left:3px solid var(--line-strong);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--s-3) var(--s-4)}
+.roads li{font-size:var(--f-sm);line-height:1.9;color:var(--text);
+  padding-left:var(--s-3);position:relative;overflow-wrap:anywhere}
+/* 用一条极短的发丝线做行首标记：比圆点轻，不抢字号 */
+.roads li::before{content:"";position:absolute;left:0;top:.95em;
+  width:5px;height:1px;background:var(--line-strong)}
+.roads mark,.sk-hit{background:var(--amber-bg);color:var(--amber);
+  border-radius:3px;padding:0 2px}
+
+/* 自查框：命中后高亮原文并说明「在哪个校区的哪一条里」，
+   不输出「能上/不能上」——号段规则各校写法不一，机器判错的代价太大。 */
+.sk-box{margin:var(--s-4) 0;padding:var(--s-4);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md)}
+.sk-label{display:block;font-size:var(--f-sm);font-weight:600;color:var(--ink);
+  margin-bottom:var(--s-2)}
+.sk-row{display:flex;gap:var(--s-2)}
+.sk-out{margin:var(--s-2) 0 0;font-size:var(--f-xs);color:var(--muted);line-height:1.7}
+.sk-out.hit{color:var(--text)}
+.sk-out.miss{color:var(--muted)}
+
+/* ------------------------------------------------------------
    说明页 / 独立内容页
    ------------------------------------------------------------ */
 .panel{background:var(--surface);border:1px solid var(--line);
@@ -186,8 +183,6 @@
 .article > .eyebrow{margin-top:var(--s-4)}
 .article > h2:first-of-type{margin-top:var(--s-6)}
 .article .hint{margin-bottom:var(--s-4)}
-
-
 
 /* ------------------------------------------------------------
    内容型提示框（首页年度变化等）：比直接放文章容器更轻
@@ -208,8 +203,11 @@
    打印：家长打印施教区、招生计划是真实场景
    ------------------------------------------------------------ */
 @media print{
-  .nav,.toc,.filter-toggle,footer .cols,.skip,.cmp-add,
-  .picker,.chips,.cmp-actions,.cmp-gtoggle .cmp-gcaret{display:none!important}
+  /* 家长会打印施教区与招生计划，纸面上不能出现「点了才有用」的东西：
+     吸顶导航、横向滑动的目录条、固定在右下角的回顶按钮、骨架屏、对比按钮。 */
+  .nav,.filter-toggle,footer .cols,.skip,.cmp-add,.to-top,
+  .picker,.chips,.cmp-actions,.cmp-gtoggle .cmp-gcaret,.card-skel,.all-jump{
+    display:none!important}
   .cmp-wrap{overflow:visible}
   .cmp-table th,.cmp-table td{padding:4px 6px;font-size:9pt}
   .cmp-cell.is-diff{background:transparent;color:var(--text);font-weight:700}
@@ -218,24 +216,34 @@
   tbody.is-collapsed tr:not(.cmp-ghead){display:table-row!important}
   body{background:var(--bg);color:var(--text);font-size:11pt}
   .article,.detail-head,.callout,.table-wrap{box-shadow:none;border-color:var(--line)}
-  .article a::after{content:" (" attr(href) ")";font-size:9pt;color:var(--muted)}
+  /* 目录在纸上反而有用：长档案打印出来要能按页翻。
+     屏幕上它是吸顶横条，打印时改成两栏静态列表。 */
+  .toc{display:block!important;position:static;margin:0 0 6mm;font-size:9pt}
+  .toc-title{display:block;margin-bottom:2mm}
+  .toc ol{display:grid;grid-template-columns:1fr 1fr;gap:0 8mm;border-left:0;overflow:visible}
+  .toc li a{padding:1mm 0;border-left:0}
+  /* 只给站外链接印 URL：站内链接印出来是一串 ../schools/%E9%AB%98…，
+     150 个字符谁也不会去敲，还把施教区那种密集短行撑乱。 */
+  .article a[href^="http"]::after{content:" (" attr(href) ")";font-size:9pt;
+    color:var(--muted);word-break:break-all}
   .detail-grid{display:block}
+  .detail-main{max-width:none}
   .article{page-break-inside:auto}
   .article .table-wrap{overflow:visible}
+  /* 表格行别被切成两半 */
+  tr{page-break-inside:avoid}
 }
 
 /* 超窄屏（≤420px）
-   1) 5 个导航项在 390px 里会贴成一条、链接高度只有 30px；
-      「政策」「数据说明」在每页页脚都有入口，这里先收起。
+   1) 剩 5 项：首页 / 学校库 / 时间轴 / 查分 / 政策。
+      「分数查学校」在这个断点用短标签「查分」（省 37px），
+      否则 375px 上要么放不下、要么得砍掉一个入口。
+      对比收在页脚（详情页也有入口），数据说明在 720 断点已收。
    2) 品牌原来只剩一个「宁」字方块，新用户看不出这是什么站——
       改成保留「南京档案」四个字（隐去中间的 em）。 */
 @media (max-width:420px){
-  .nav-links a[href$="policy.html"],
-  .nav-links a[href$="about.html"]{display:none}
-  .nav-links a{padding:10px 9px}
   .brand-text em{display:none}
 }
-
 
 /* 骨架屏（学校库） */
 .card-skel{display:none;min-height:210px;border-style:dashed;
@@ -243,167 +251,6 @@
   background-size:250% 100%;animation:skel 1.2s ease-in-out infinite}
 html.js .card-skel{display:block}
 @keyframes skel{from{background-position:150% 0}to{background-position:-50% 0}}
-
-/* ------------------------------------------------------------
-   对比页
-   ------------------------------------------------------------ */
-.picker{position:relative;margin:var(--s-4) 0}
-/* site.css 给输入框写了 outline:none，键盘聚焦只剩一圈淡阴影。
-   这里把可见焦点补回来（只在键盘导航时出现，鼠标点击不显示）。 */
-.picker input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.pick-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);
-  margin:0;padding:var(--s-1);list-style:none;background:var(--surface);
-  border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh-2);
-  max-height:min(320px, 50vh);overflow:auto}
-.pick-list li{display:flex;justify-content:space-between;align-items:baseline;
-  gap:var(--s-3);padding:9px var(--s-3);border-radius:var(--r-sm);
-  cursor:pointer;font-size:var(--f-sm)}
-.pick-list li:hover,.pick-list li:focus,.pick-list li.is-active{background:var(--accent-weak)}
-/* 键盘活动项必须看得见：只靠鼠标 hover 的列表，键盘用户是盲的 */
-.pick-list li.is-active{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-sm)}
-.pick-list em{color:var(--muted);font-style:normal;font-size:var(--f-xs);white-space:nowrap}
-.pick-empty{color:var(--muted);cursor:default}
-
-#picked{margin:0 0 var(--s-4)}
-/* ---- 对比表 ----
-   真表格：th[scope=row] + 每校一列，行天然对齐。
-   之前是每列各自一个 <dl>，只要某格换行，该列后续所有行整体下移，
-   「第三行是投档线」这个对位关系就没了——那不是美化问题，是读不出来。 */
-.cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.cmp-table{width:100%;border-collapse:collapse;table-layout:fixed;
-  background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-lg);overflow:hidden;font-size:var(--f-sm)}
-.cmp-table th,.cmp-table td{padding:10px var(--s-4);text-align:left;
-  vertical-align:top;border-bottom:1px solid var(--line)}
-.cmp-table tbody:last-child tr:last-child th,
-.cmp-table tbody:last-child tr:last-child td{border-bottom:0}
-.cmp-table thead th{background:var(--surface-2);border-bottom:1px solid var(--line-strong)}
-.cmp-corner{width:128px;font-size:var(--f-2xs);color:var(--muted);
-  font-weight:600;letter-spacing:.02em}
-.cmp-head a{color:var(--ink);font-weight:600}
-.cmp-head a:hover{color:var(--accent-text)}
-.cmp-head-meta{display:block;margin-top:2px;font-size:var(--f-2xs);
-  color:var(--muted);font-weight:400}
-.cmp-head-warn{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
-.cmp-rowhead{width:128px;font-size:var(--f-xs);color:var(--muted);
-  font-weight:600;position:relative}
-.cmp-fill{display:block;margin-top:2px;font-size:var(--f-2xs);
-  font-weight:400;opacity:.75}
-.cmp-cell{color:var(--text);line-height:1.6;word-break:break-word}
-/* 一所都没有值的行：留着是诚实（说明这一项我们没收到），但不必和有的行一样重 */
-.cmp-row.is-blank .cmp-cell{opacity:.55}
-/* 「未获取」= 该校档案自己声明了这一项是缺口；「—」= 本站没抽到。
-   两者必须看得出区别，否则等于替学校下结论。 */
-.cmp-cell.is-gap{color:var(--muted);font-style:italic}
-/* 「—」原用 --line-strong（边框色）当文字，对比度只有 1.44:1，等于看不见。
-   改用 --muted（5.39:1 达标）；短横线本身视觉权重已很低，不必再压色。 */
-.cmp-cell.is-na{color:var(--muted)}
-
-/* 差异标记：只标「不同」，不标「更好」。禁用红绿——语义色留给信度徽章 */
-.cmp-row.has-diff > .cmp-rowhead::before{content:"";position:absolute;
-  left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--accent)}
-/* 2 比 2 时没有任何格子是「独一无二」的，格内不会亮；
-   只靠左边缘 3px 竖线太弱。把行标签一起染色，让「这一行不同」在行首就能看到。 */
-.cmp-row.has-diff > .cmp-rowhead{background:var(--amber-bg);color:var(--amber);
-  border-radius:0 4px 4px 0}
-.cmp-cell.is-diff{background:var(--amber-bg);color:var(--amber)}
-
-/* 分组标题行（可折叠） */
-.cmp-ghead th{padding:var(--s-3) var(--s-4) var(--s-2);background:transparent;
-  border-bottom:1px solid var(--line)}
-.cmp-gtoggle{display:inline-flex;align-items:center;gap:var(--s-2);
-  padding:0;border:0;background:none;font-family:inherit;cursor:pointer;
-  font-size:var(--f-xs);font-weight:700;color:var(--ink)}
-.cmp-gcount{color:var(--muted);font-weight:400}
-.cmp-gcaret{color:var(--muted);font-size:var(--f-2xs)}
-tbody.is-collapsed tr:not(.cmp-ghead){display:none}
-
-/* 只看差异：收起「各处都一样」和「一所都没有值」两类行 */
-.only-diff .cmp-row.is-same,
-.only-diff .cmp-row.is-blank,
-.only-diff .cmp-crow.is-same,
-.only-diff .cmp-crow.is-blank{display:none}
-.chip-clear{padding:0 4px;border:0;background:none;min-height:36px;
-  font-family:inherit;font-size:var(--f-xs);color:var(--muted);
-  cursor:pointer;text-decoration:underline;text-underline-offset:2px}
-.chip-clear:hover{color:var(--text)}
-/* 「四所都没有数据」的折行摘要 */
-.cmp-blankrow th{font-size:var(--f-xs);color:var(--muted);font-weight:600}
-.cmp-blankrow td{font-size:var(--f-xs);color:var(--muted)}
-.cmp-blanktoggle{margin-left:var(--s-2);padding:0;border:0;background:none;
-  font-family:inherit;font-size:inherit;color:var(--accent);
-  cursor:pointer;text-decoration:underline;text-underline-offset:2px}
-.cmp-card-note{margin:var(--s-3) 0 0;font-size:var(--f-2xs);color:var(--muted)}
-.cmp-note{margin:var(--s-4) 0 0;font-size:var(--f-sm);color:var(--muted)}
-.cmp-note-btn{margin-left:var(--s-2);padding:0;border:0;background:none;
-  font-family:inherit;font-size:inherit;color:var(--accent);cursor:pointer;
-  text-decoration:underline}
-
-.cmp-actions{display:flex;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-5)}
-.btn-ghost{padding:9px 16px;border-radius:var(--r-md);border:1px solid var(--line);
-  background:var(--surface);color:var(--text);font-size:var(--f-sm);
-  font-family:inherit;cursor:pointer;min-height:40px}
-.btn-ghost:hover{border-color:var(--accent);color:var(--accent-text)}
-.btn-ghost[hidden]{display:none}
-
-/* 详情页「加入对比」
-   默认不显示，只有 html.js（base.html 首帧写入）才出现：
-   没有 JS 时这个按钮点了不会有任何反应，不如不显示。 */
-.cmp-add{display:none;gap:var(--s-3);align-items:center;flex-wrap:wrap;margin-top:var(--s-4)}
-html.js .cmp-add{display:flex}
-.cmp-add .btn-ghost[aria-pressed="true"]{border-color:var(--accent);
-  color:var(--accent-text);background:var(--accent-weak)}
-.cmp-add .btn-ghost:disabled{opacity:.55;cursor:not-allowed}
-.cmp-add .btn-ghost:disabled:hover{border-color:var(--line);color:var(--text)}
-.cmp-go{font-size:var(--f-sm);font-weight:600;color:var(--accent)}
-.cmp-go[hidden]{display:none}
-
-/* ---- 全部学校索引（all.html）----
-   纯静态清单：不依赖 JS，也是站内指向 545 个详情页的爬虫入口 */
-.all-group{margin:var(--s-6) 0 var(--s-7)}
-.all-h2{display:flex;align-items:baseline;gap:var(--s-2);margin:0 0 var(--s-3);
-  padding-bottom:var(--s-2);border-bottom:1px solid var(--line);font-size:var(--f-md)}
-.all-h3{margin:var(--s-4) 0 var(--s-2);font-size:var(--f-xs);
-  color:var(--muted);font-weight:600}
-.all-count{font-size:var(--f-2xs);color:var(--muted);font-weight:400}
-.all-list{display:grid;gap:0 16px;margin:0;padding:0;list-style:none;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
-.all-list li{display:flex;align-items:baseline;gap:6px;min-width:0;padding:4px 0}
-/* 校名允许折行：这一页的全部价值就是让人把名字读全，
-   截成「南京市六合区东沟…」等于没写 */
-.all-list a{font-size:var(--f-sm);color:var(--text);line-height:1.45;
-  overflow-wrap:anywhere}
-.all-list a:hover{color:var(--accent-text)}
-.all-list em{font-style:normal;font-size:var(--f-2xs);color:var(--muted);
-  white-space:nowrap;flex:0 0 auto}
-
-/* 搜索命中高亮 */
-mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3px}
-
-/* 窄屏专用的「一校一卡」结构：桌面隐藏 */
-.cmp-cards{display:none}
-.cmp-card{background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-lg);padding:var(--s-4);margin-bottom:var(--s-4)}
-.cmp-card .cmp-head{margin:0 0 2px}
-.cmp-card dl{margin:var(--s-3) 0 0}
-.cmp-crow{display:grid;grid-template-columns:100px minmax(0,1fr);
-  gap:var(--s-3);padding:6px 0;border-top:1px solid var(--line);
-  position:relative;align-items:start}
-.cmp-crow:first-child{border-top:0}
-.cmp-crow dt{font-size:var(--f-2xs);color:var(--muted);font-weight:600;padding-top:2px}
-.cmp-crow dd{margin:0;min-width:0}
-.cmp-crow.has-diff::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;
-  width:3px;border-radius:2px;background:var(--accent)}
-.cmp-crow.has-diff dt{color:var(--amber)}
-
-/* 窄屏：表格改为「行标签吸附 + 容器内横向滚动」。
-   容器自己滚，不会把整页撑宽（站内硬约束）。
-   列宽用 data-n 定档，2 所时不滚、4 所时滚大约一半。 */
-@media (max-width:720px){
-  .cmp-wrap{display:none}
-  .cmp-cards{display:block}
-  .cmp-add{flex-wrap:wrap}
-}
 
 /* ------------------------------------------------------------
    404 页
@@ -423,10 +270,45 @@ mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3
 .nf-card:hover{border-color:var(--accent);background:var(--accent-weak);
   text-decoration:none}
 
+/* 首页常搜词说明：「拉力琅」「玄外」这类圈内简称，
+   本地老家长秒懂，新落户家庭完全不知所云——放在入口处就是门槛。 */
+.quick-note{margin:var(--s-2) auto 0;max-width:44em;font-size:var(--f-2xs);
+  color:var(--muted);line-height:1.75}
 
+/* 首页 · 招生时间轴入口
+   统计条正下方的一条窄带：不抢占学段卡的位置，但排在首屏内。
+   家长找这张表时通常是「明天就截止」的状态，入口必须一眼可见。 */
+.tl-entry{display:flex;align-items:center;gap:var(--s-4);flex-wrap:wrap;
+  margin:var(--s-4) 0 0;padding:var(--s-4) var(--s-5);
+  background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--amber);border-radius:0 var(--r-md) var(--r-md) 0;
+  color:var(--text);transition:border-color var(--t-fast),background var(--t-fast)}
+.tl-entry:hover{background:var(--amber-bg);text-decoration:none}
+.tl-entry-k{font-size:var(--f-sm);font-weight:700;color:var(--ink);flex:0 0 auto;
+  white-space:nowrap}
+.tl-entry-v{font-size:var(--f-xs);color:var(--muted);flex:1 1 260px;line-height:1.6}
+.tl-entry-go{font-size:var(--f-xs);font-weight:600;color:var(--amber);flex:0 0 auto}
 
-/* 来源状态说明（详情页「数据来源」章节顶部） */
-.src-note{font-size:var(--f-xs);color:var(--muted);background:var(--surface-2);
-  border-left:3px solid var(--line-strong);margin:var(--s-3) 0 var(--s-4);
-  padding:var(--s-3) var(--s-4);line-height:1.7}
-.src-note strong{color:var(--text)}
+/* 首页两个工具入口并排（时间轴 / 分数查学校）。
+   单列时每个占满一行，两条并排后原来的 margin 要归零由容器接管。 */
+.home-tools{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3);margin:var(--s-4) 0 0}
+.home-tools .tl-entry{margin:0}
+.tl-entry--score{border-left-color:var(--accent)}
+.tl-entry--score:hover{background:var(--accent-weak)}
+.tl-entry--score .tl-entry-go{color:var(--accent-text)}
+
+@media (max-width:720px){
+  .home-tools{grid-template-columns:1fr}
+}
+
+/* 比 375 更窄的屏（安卓常见 360dp）：5 项会多出约 12px。
+   375 恰好放得下（余量约 3px），所以阈值卡在 374 而不是 380——
+   按「大概多少」划断点，会把本来放得下的尺寸也一起砍掉。
+   首页让位：左上角品牌本身就是回首页的链接，这是通用约定。 */
+@media (max-width:374px){
+  .nav-links a[data-nav="home"]{display:none}
+}
+
+/* 政策页的「其他招生通道」：5 张卡在 2 列网格里会剩最后一张落单。
+   让总览卡跨满一行当横幅，下面 4 类正好 2×2。 */
+.nf-lead{grid-column:1/-1}

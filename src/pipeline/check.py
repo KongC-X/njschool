@@ -24,10 +24,23 @@ PAGE_SIZE_WARN_KB = 120
 PAGE_SIZE_EXEMPT_KB = {"all.html": 200}
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
-ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 20, "pages.css": 24, "talent.css": 8,
-                   "responsive.css": 12, "app.js": 14, "schools-data.js": 200,
-                   "schools-compare.js": 120, "search-core.js": 16, "schools.js": 16,
-                   "compare-core.js": 16, "compare.js": 20}
+# pages.css 由 24 → 32：这一轮新增了详情页的四个组件（关键数字芯片、施教区逐条列表、
+# 施教区自查框、页尾「接着看」），合计约 5.5KB。下次再要加详情页样式时，
+# 应先把 detail-head 及以下整块拆成 assets/detail.css，而不是继续抬这个数字。
+ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 22, "components.css": 14, "pages.css": 20, "detail.css": 10, "compare.css": 14, "all.css": 4, "talent.css": 8,
+                   "timeline.css": 10, "score.css": 10,
+                   "score.js": 12,
+                   "responsive.css": 12, "app.js": 18, "schools-data.js": 200,
+                   "schools-compare.js": 140, "streets-data.js": 60,
+                   "search-core.js": 16, "schools.js": 20,
+                   "compare-core.js": 16, "compare.js": 24}
+# 令牌纪律与移动端溢出守卫要扫的样式表。timeline.css 只在时间轴页加载，
+# 但它照样是「组件样式」，同样不许写死色值。
+STYLE_SHEETS = ("site.css", "pages.css", "detail.css", "compare.css", "responsive.css",
+                "timeline.css", "score.css")
+# 数据型 JS：内容是一行 JSON，没有「函数块」可言，
+# 对它跑重复代码块检测既无意义又慢，故排除。
+DATA_ASSETS = ("schools-data.js", "schools-compare.js", "streets-data.js")
 RE_HEX = re.compile(r"#[0-9a-fA-F]{3,6}\b")
 RE_TABLE_MINW = re.compile(r"\.article table\{[^}]*min-width:\s*(\d{3})px")
 
@@ -123,9 +136,10 @@ def run(rep: Report, expected_pages):
         rep.error("产物", f"生成 {len(html_files)} 个页面，预期 {expected_pages} 个")
 
     # 2) 资源文件
-    for name in ("tokens.css", "site.css", "pages.css", "responsive.css",
-                 "app.js", "schools-data.js", "schools-compare.js",
-                 "search-core.js", "schools.js", "compare-core.js", "compare.js"):
+    for name in ("tokens.css", "site.css", "pages.css", "detail.css", "compare.css", "responsive.css",
+                 "app.js", "schools-data.js", "schools-compare.js", "streets-data.js",
+                 "timeline.css", "score.css", "score.js", "search-core.js", "schools.js",
+                 "compare-core.js", "compare.js"):
         p = os.path.join(config.SITE, "assets", name)
         if not os.path.isfile(p):
             rep.error("产物", f"缺少资源文件 assets/{name}")
@@ -136,7 +150,7 @@ def run(rep: Report, expected_pages):
             rep.warn(f"assets/{name}", f"体积 {kb:.1f}KB 超过预算 {budget}KB，考虑拆分")
 
     # 2b) 令牌纪律：组件样式不得写死色值（#fff 用于强调色上的文字，允许）
-    for sheet in ("site.css", "pages.css", "responsive.css"):
+    for sheet in STYLE_SHEETS:
         comp = os.path.join(config.SITE, "assets", sheet)
         if not os.path.isfile(comp):
             continue
@@ -151,7 +165,7 @@ def run(rep: Report, expected_pages):
     # 但窄屏表格已改为卡片布局，min-width 仍生效会把整页撑宽、右侧内容被裁切。
     # 覆盖规则可能在 responsive.css，故需跨三个样式文件合并后判断。
     all_css = ""
-    for sheet in ("site.css", "pages.css", "responsive.css"):
+    for sheet in STYLE_SHEETS:
         p = os.path.join(config.SITE, "assets", sheet)
         if os.path.isfile(p):
             all_css += load.read_text(p) + "\n"
@@ -171,7 +185,7 @@ def run(rep: Report, expected_pages):
     # （筛选按钮点不动就是这么来的）。故 JS 重复按错误处理。
     import collections as _c
 
-    for sheet in ("site.css", "pages.css", "responsive.css"):
+    for sheet in STYLE_SHEETS:
         f = os.path.join(config.SITE, "assets", sheet)
         if not os.path.isfile(f):
             continue
@@ -182,7 +196,7 @@ def run(rep: Report, expected_pages):
             rep.warn(f"assets/{sheet}", f"同一文件内重复定义 {len(dups)} 个选择器：{dups[:3]}")
 
     for js_name in sorted(n for n in os.listdir(os.path.join(config.SITE, "assets"))
-                          if n.endswith(".js") and n != "schools-data.js"):
+                          if n.endswith(".js") and n not in DATA_ASSETS):
         js = os.path.join(config.SITE, "assets", js_name)
         lines = [ln.rstrip() for ln in open(js, encoding="utf-8").read().splitlines()]
         blocks = [tuple(lines[i:i + 8]) for i in range(len(lines) - 8)
@@ -214,6 +228,21 @@ def run(rep: Report, expected_pages):
 
     payload = load_payload("schools-data.js")
     cpayload = load_payload("schools-compare.js")
+    spayload = load_payload("streets-data.js")
+
+    # 地名索引与列表数据靠下标对齐：错一位 = 「搜宁海路」跳到另一所学校。
+    # 这类错位在页面上完全看不出异常（照样有结果、照样能点），必须由构建挡住。
+    if payload and spayload:
+        n_list = len(payload.get("rows") or [])
+        n_street = len(spayload.get("rows") or [])
+        if n_street != n_list:
+            rep.error("assets/streets-data.js",
+                      f"行数 {n_street} 与 schools-data.js 的 {n_list} 不一致，"
+                      f"地址搜索会张冠李戴")
+        empty = sum(1 for a in (spayload.get("rows") or []) if not str(a or "").strip())
+        if empty == n_street:
+            rep.error("assets/streets-data.js",
+                      "所有学校的施教区地名都为空，地址搜索会永远 0 结果")
 
     if payload:
         cols = payload.get("cols") or []

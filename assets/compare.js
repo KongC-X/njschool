@@ -30,9 +30,17 @@ DATA.forEach(function (s) { BY_ID[s.id] = s; });
 
 const MAX = 4;
 const STORE = 'nj-compare';
-/* 分组名要说人话。「身份 / 通路 / 证据」是内部模型词，
-   而且「证据」组里放的是办学规模、校址、一句话定位——跟证据没关系，名实不符。 */
-const GROUPS = { identity: '基本信息', path: '入学相关', evidence: '补充信息' };
+/* 分组按「家长选校时的思考顺序」排：先确认这是不是同一类学校，
+   再看出口（升学/对口），再看师资与规模，再看要花多少钱，最后看口碑。
+   旧的 identity/path/evidence 是内部模型词，且「证据」组里放的是校址与办学规模，
+   名实不符。 */
+const GROUPS = {
+  base:    '一、基本信息',
+  outcome: '二、升学与成绩',
+  faculty: '三、师资与规模',
+  enroll:  '四、招生与费用',
+  voice:   '五、口碑与定位'
+};
 
 const pick = document.getElementById('pick');
 const list = document.getElementById('pickList');
@@ -198,11 +206,17 @@ function tableHtml(items, rows) {
     + '<caption class="sr-only">' + n + ' 所学校对比</caption><thead><tr>'
     + '<th scope="col" class="cmp-corner">对比项</th>';
 
-  items.forEach(function (s) {
+  const cov = CORE.coverage(rows, items);
+  items.forEach(function (s, i) {
+    const c = cov[i];
+    /* 列头写「11/21 项」：家长一眼知道这一列的数据有多稀，
+       不用逐格去数横线，也不会误以为「没写=没有」。 */
     out += '<th scope="col" class="cmp-head">'
       + '<a href="' + s.url + '">' + esc(s.name) + '</a>'
       + '<span class="cmp-head-meta">' + esc(s.level) + ' · ' + esc(s.type)
       + ' · ' + esc(s.district) + '</span>'
+      + '<span class="cmp-head-cov" title="本站已收录 ' + c.has + ' 项，'
+      + c.gap + ' 项为该档案声明的数据缺口">有数据 ' + c.has + '/' + c.total + '</span>'
       + warnHtml(s) + '</th>';
   });
   out += '</tr></thead>';
@@ -212,11 +226,15 @@ function tableHtml(items, rows) {
     if (row.group !== group) {
       if (group) out += '</tbody>';
       group = row.group;
-      const count = visible.filter(function (r) { return r.group === group; }).length;
+      const inGroup = visible.filter(function (r) { return r.group === group; });
+      const count = inGroup.length;
+      const diffN = inGroup.filter(function (r) { return r.hasDiff; }).length;
       out += '<tbody data-group="' + group + '"><tr class="cmp-ghead"><th colspan="' + (n + 1) + '">'
         + '<button type="button" class="cmp-gtoggle" aria-expanded="true" data-group="' + group + '">'
         + '<span class="cmp-gcaret" aria-hidden="true">▾</span>'
-        + esc(GROUPS[group] || group) + '<span class="cmp-gcount">' + count + ' 项</span>'
+        + esc(GROUPS[group] || group)
+        + '<span class="cmp-gcount">' + count + ' 项'
+        + (diffN ? ' · <b>' + diffN + ' 项有差异</b>' : '') + '</span>'
         + '</button></th></tr>';
     }
     let rowCls = 'cmp-row';
@@ -231,8 +249,11 @@ function tableHtml(items, rows) {
 
     out += '<tr class="' + rowCls + '" data-key="' + row.key + '">'
       + '<th scope="row" class="cmp-rowhead">' + esc(row.label)
-      + (row.filled < row.total
-          ? '<span class="cmp-fill">' + row.filled + '/' + row.total + '</span>' : '')
+      + (row.spread
+          ? '<span class="cmp-spread" title="最高与最低相差 ' + row.spread.delta
+            + row.spread.unit + '">差 ' + fmtNum(row.spread.delta) + row.spread.unit + '</span>'
+          : (row.filled < row.total
+              ? '<span class="cmp-fill">' + row.filled + '/' + row.total + '</span>' : ''))
       + '</th>'
       + row.cells.map(function (c) { return cellHtml(row, c); }).join('')
       + '</tr>';
@@ -241,15 +262,83 @@ function tableHtml(items, rows) {
 
   if (blanks.length && !showBlank && !onlyDiff) {
     const names = blanks.map(function (r) { return r.label; });
+    /* 「这 N 所都没有数据」读起来像「两校在这项上没差别」——
+       实际是本站没抽取到，学校之间大概率并不相同。
+       对比页的全部立场是「只标不同不标更好」，那就不能让缺失伪装成相同。 */
     out += '<tbody class="cmp-blanksum"><tr class="cmp-blankrow">'
       + '<th scope="row">未收录</th>'
       + '<td colspan="' + n + '">' + esc(names.join(' · '))
-      + ' —— 这 ' + n + ' 所都没有数据'
+      + ' ——本站未获取上述 ' + blanks.length + ' 项，<strong>不代表各校相同</strong>'
       + '<button type="button" class="cmp-blanktoggle" id="showBlank">展开 ' + blanks.length + ' 项</button>'
       + '</td></tr></tbody>';
   }
   out += '</table></div>';
   return out;
+}
+
+/* 数字展示：过万折成「2.2 万」，否则原样。
+   对比表一列只有 200px，「22,000」＋单位已经要折行，写「2.2 万」更省一行。 */
+function fmtNum(v) {
+  if (v >= 10000) return (v / 10000).toFixed(1).replace(/\.0$/, '') + ' 万';
+  return String(v);
+}
+
+function brief(text, n) {
+  const t = String(text == null ? '' : text);
+  return t.length > n ? t.slice(0, n) + '…' : t;
+}
+
+/* 顶部「先看这几处不同」。
+   表格有二十来行，家长第一眼看到的往往是「基本信息」这类无差异项——
+   把最有决策价值的差异提到最前面，是这一屏唯一能做的「结论先行」。
+   但只陈述「不一样」，不排序、不给推荐：排序还取决于通勤、班型、孩子性格。 */
+function summaryHtml(items, rows) {
+  const live = rows.filter(function (r) { return r.filled > 0; });
+  const diffs = live.filter(function (r) { return r.hasDiff; });
+  const blanks = rows.filter(function (r) { return r.filled === 0; });
+  if (!diffs.length) return '';
+
+  /* 选哪几条放到速览里，不能按表格顺序取前 4——
+     那样会全被「性质 / 行政区 / 梯队」这类基本信息占满，而家长最想先看的是
+     升学、师资、费用。这里给分组加权，并限制同一组最多 2 条。 */
+  const GW = { outcome: 5, faculty: 4, enroll: 4, voice: 3, base: 2 };
+  const cands = diffs.slice().sort(function (a, b) {
+    return ((GW[b.group] || 1) - (GW[a.group] || 1)) || (a.priority - b.priority);
+  });
+  const used = {}, picks = [];
+  cands.forEach(function (r) {
+    if (picks.length >= 4) return;
+    used[r.group] = used[r.group] || 0;
+    if (used[r.group] >= 2) return;
+    used[r.group] += 1;
+    picks.push(r);
+  });
+
+  const lis = picks.map(function (r) {
+    const vals = items.map(function (s, i) {
+      const c = r.cells[i];
+      if (c.state !== 'has') {
+        /* 用「无数据」而不是「—」：速览里破折号会被读成「值为空」，
+            「无数据」才明确指向「本站没收录」，与表格里的两种缺失状态呼应。 */
+        return '<em class="is-miss">' + (c.state === 'gap' ? '该校声明缺口' : '无数据') + '</em>';
+      }
+      /* 两所对比时「每格都独一无二」，全上色等于没重点；
+         三所以上时只给「和别人都不一样」的那一格上色才有信息量。 */
+      const odd = c.isDiff && items.length >= 3;
+      return '<span' + (odd ? ' class="is-diff"' : '')
+        + ' title="' + esc(s.name) + '">' + esc(brief(c.text, 18)) + '</span>';
+    }).join('<i aria-hidden="true">·</i>');
+    return '<li><b>' + esc(r.label) + '</b><span class="cmp-sum-vals">' + vals + '</span></li>';
+  }).join('');
+
+  return '<section class="cmp-summary" aria-labelledby="cmpSumH">'
+    + '<h2 id="cmpSumH">先看这几处不同'
+    + '<span>' + live.length + ' 项有数据 · ' + diffs.length + ' 项有差异'
+    + (blanks.length ? ' · ' + blanks.length + ' 项本站未收录' : '') + '</span></h2>'
+    + '<ul>' + lis + '</ul>'
+    + '<p class="cmp-summary-note">按决策权重取前 4 项有差异的字段（升学、师资、费用优先）。这里只说明「哪里不一样」，'
+    + '不判断「哪个更好」——最终怎么选还取决于通勤、班型与孩子的性格。</p>'
+    + '</section>';
 }
 
 /* 窄屏用：一校一张卡。
@@ -324,12 +413,25 @@ function render() {
   if (diffBtn) {
     diffBtn.hidden = false;
     diffBtn.setAttribute('aria-pressed', String(onlyDiff));
+    /* 按钮上的数字必须是「点下去会剩几行」，不是「有几项存在差异」。
+       两者不等：有值但不构成差异的行、以及只有一所填了值的行都会留下
+       （缺失本身就是信号）。写成 diffN 会让人点完发现行数对不上。 */
+    const keepN = rows.filter(function (r) {
+      const same = r.diff === 'exact' && r.filled === r.total && !r.hasDiff;
+      return !same && r.filled > 0;
+    }).length;
     diffBtn.textContent = onlyDiff
       ? '显示全部 ' + rows.length + ' 项'
-      : '只看差异（' + diffN + ' 项）';
+      : '只看差异（' + keepN + ' 项）';
   }
 
-  cmp.innerHTML = tableHtml(items, rows) + cardsHtml(items, rows);
+  cmp.innerHTML = summaryHtml(items, rows) + tableHtml(items, rows) + cardsHtml(items, rows);
+  /* 表格是整体重排的，读屏不会自己发现内容变了。
+     往状态区写一句「现在对比的是哪几所、共多少项」，加/删学校才播报得到。 */
+  if (items.length) {
+    status.textContent = '正在对比 ' + items.length + ' 所，共 '
+      + rows.length + ' 项：' + items.map(function (s) { return s.name; }).join('、');
+  }
 
   const blankBtn = document.getElementById('showBlank');
   if (blankBtn) {
@@ -343,7 +445,7 @@ function render() {
     const blankN = rows.filter(function (r) { return r.filled === 0; }).length;
     const notes = [];
     if (sameN) notes.push(sameN + ' 项各处相同');
-    if (blankN) notes.push(blankN + ' 项四所都没有数据');
+    if (blankN) notes.push(blankN + ' 项本站未获取（不代表相同）');
     if (!diffN) {
       notes.unshift('这 ' + items.length + ' 所在已收录的字段上没有差异');
     }

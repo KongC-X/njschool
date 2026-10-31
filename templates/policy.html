@@ -18,6 +18,23 @@
     <h2>如何使用这两份内容</h2>
     <p>政策条目用于判断「今年规则有没有变」，更名对照用于避免「按旧校名搜不到」。
        具体到某所学校的招生计划、施教区与投档线，请到 <a href="{{ base }}schools.html">学校库</a> 查看该校档案。</p>
+
+    {# 特长生从主导航移到这里：它本质是「招生通道」的一种，
+       和政策放在一起比塞进顶部导航更贴语义——导航位要留给每年都要用的东西。 #}
+    <h2>其他招生通道</h2>
+    <p class="hint">特长生是中考升入普通高中的一条单独通道，与学区、摇号无关。小学、初中阶段没有这条通道。</p>
+    <div class="nf-links">
+      <a class="nf-card nf-lead" href="{{ base }}talent.html">
+        <b>特长生总览</b><span>四类通道的差别、控制线、报名规则与时间节点——先看这一页再进具体类别</span></a>
+      <a class="nf-card" href="{{ base }}talent-xueke.html">
+        <b>学科特长生</b><span>数学、物理、化学、生物，控制线 560</span></a>
+      <a class="nf-card" href="{{ base }}talent-keji.html">
+        <b>科技特长生</b><span>人工智能、机器人、航模，含信息学（信奥）</span></a>
+      <a class="nf-card" href="{{ base }}talent-yishu.html">
+        <b>艺术特长生</b><span>美术、音乐、书法，控制线 490</span></a>
+      <a class="nf-card" href="{{ base }}talent-tiyu.html">
+        <b>体育特长生</b><span>足球、篮球、田径、击剑，控制线 455</span></a>
+    </div>
   </article>
 </div>
 {% endblock %}

@@ -1,0 +1,142 @@
+/* ============================================================
+   详情页专属样式：面包屑 / 页头 / 官方渠道 / 主行动 / 数字芯片 / 接着看
+   ------------------------------------------------------------
+   从 pages.css 拆出来的原因：pages.css 已顶到 32KB 预算，
+   而详情页页头这一组样式是「一个组件的若干状态」，本该独立成文件。
+   出问题也最先出在这里——移动端页头一度占满整个首屏。
+
+   加载顺序：tokens → site → pages → detail → responsive。
+   必须在 responsive.css 之前引入，否则 responsive 里对 .toc、.vnote
+   的窄屏覆盖会被本文件的同名基础规则盖掉。
+   ============================================================ */
+
+.crumb{font-size:var(--f-xs);color:var(--muted);padding:var(--s-5) 0 var(--s-3)}
+.crumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:0;row-gap:6px;
+  list-style:none;margin:0;padding:0}
+.crumb li{display:inline-flex;align-items:center;min-width:0}
+.crumb li + li::before{content:"/";margin:0 7px;color:var(--line-strong)}
+.crumb a{color:var(--muted);padding:6px 0;display:inline-block}
+.crumb a:hover{color:var(--accent-text)}
+/* 当前页（校名）不做成链接，用截断防止长校名把这一行撑破 */
+.crumb li:last-child span{color:var(--text);max-width:22em;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+
+.detail-head{background:var(--surface);border:1px solid var(--line);
+  border-top:3px solid var(--accent);
+  border-radius:var(--r-lg);padding:var(--s-6);margin:0 0 var(--s-5);
+  box-shadow:var(--sh-1)}
+.detail-head h1{font-size:var(--f-2xl);letter-spacing:-.025em;margin:0 0 var(--s-3)}
+.detail-head .tier{font-size:var(--f-xs);color:var(--muted);margin-bottom:var(--s-2)}
+.detail-head .tag{font-size:var(--f-sm);color:var(--text)}
+
+/* 官方渠道：带强调色竖线的提示条，与正文区分 */
+.official{display:flex;gap:var(--s-3) var(--s-4);flex-wrap:wrap;align-items:center;
+  margin-top:var(--s-4);padding:var(--s-3) var(--s-4);
+  background:var(--accent-weak);border-left:3px solid var(--accent);
+  border-radius:0 var(--r-md) var(--r-md) 0}
+
+/* 详情页主行动区：一个锚点按钮 + 加入对比。
+   锚点跳转不依赖 JS，关掉脚本也能用——它不是按钮，是一条真的链接。 */
+.detail-cta{display:flex;gap:var(--s-3);flex-wrap:wrap;align-items:center;
+  margin-top:var(--s-4)}
+/* 主按钮的窄屏短标签：默认隐藏，720 断点互换 */
+.cta-short{display:none}
+
+/* 关键数字芯片：家长在招生咨询会现场要 5 秒内看到投档线/招生计划，
+   原来这些数字在第四节，要滚四屏。芯片可点，直达对应小节。 */
+.dchips{display:flex;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-4)}
+.dchip{max-width:none;display:flex;flex-direction:column;gap:2px;min-width:104px;
+  padding:9px 14px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--surface);color:var(--text);
+  transition:border-color var(--t-fast),background var(--t-fast)}
+.dchip:hover{border-color:var(--accent);background:var(--accent-weak);text-decoration:none}
+.dchip .k{font-size:var(--f-2xs);color:var(--muted);letter-spacing:.02em}
+.dchip .v{font-size:var(--f-md);font-weight:700;color:var(--ink);line-height:1.35}
+.dchip .v em{font-style:normal;font-size:var(--f-xs);font-weight:500;color:var(--muted)}
+
+.wx{font-size:var(--f-xs);color:var(--muted)}
+.wx b{color:var(--text);font-weight:600}
+.nosite{font-size:var(--f-xs);color:var(--muted);line-height:1.6}
+.vnote{font-size:var(--f-2xs);color:var(--muted);margin-left:auto}
+
+/* 页尾「接着看」：详情页原先没有任何横向出口，读完一所就断路。
+   与 .detail-grid 同宽同居中，否则会贴着窗口左边、和正文错位。 */
+.detail-next{margin:var(--s-6) auto 0;
+  max-width:calc(var(--toc-w) + var(--s-8) + 46em + 2 * var(--s-6))}
+.detail-next h2{font-size:var(--f-md);margin:0 0 var(--s-3)}
+.next-grid{display:grid;gap:var(--s-3);
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.next-card{display:block;padding:var(--s-3) var(--s-4);background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-md);color:var(--text);
+  transition:border-color var(--t-fast),background var(--t-fast)}
+.next-card:hover{border-color:var(--accent);background:var(--accent-weak);text-decoration:none}
+.next-card .k{font-size:var(--f-2xs);color:var(--muted)}
+.next-card .n{display:block;font-size:var(--f-sm);font-weight:600;color:var(--ink);
+  margin-top:2px;line-height:1.5}
+.next-card .d{font-size:var(--f-2xs);color:var(--muted);margin-top:2px}
+
+/* 「接着看」的 CSS 已在上方 .detail-next 中定义；
+   这里只补一条：对比按钮并进主行动区后，不再需要自己的上边距。 */
+.detail-cta .cmp-add{margin-top:0}
+
+/* ------------------------------------------------------------
+   窄屏（≤720px）：把页头压回「能看见正文」的高度
+   ------------------------------------------------------------
+   实测 375px 下页头 653px，加导航 59 + 目录条 52，正文从 856px 才开始——
+   视口只有 812px，等于家长点进一所学校，首屏一句正文都看不到。
+   芯片、主行动、官网三块在窄屏各占两三行，是主要来源：
+     芯片 146 / 主行动 99 / 官网 138（桌面分别是 67 / 43 / 65）。
+   这里逐块压成单行或紧凑行，不改任何文案与功能。
+   ------------------------------------------------------------ */
+@media (max-width:720px){
+  /* 一句话定位：窄屏 3 行，行高从 1.75 收到 1.55（不截断，内容全保留） */
+  .detail-head .tag{line-height:1.55}
+
+  /* 芯片：固定两列，最多显示两个。
+     三个的学校（高中）挤成一行会把「2026 招生计划」压成两行、值只剩「长江路 6…」，
+     反而读不出来。第三个芯片指向的章节，目录条就在首屏，等于没有损失。 */
+  .dchips{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);margin-top:var(--s-3)}
+  .dchip{max-width:none;min-width:0;padding:7px 10px}
+  .dchip:nth-child(n+3){display:none}
+  .dchips > .dchip:only-child{grid-column:1/-1}
+  .dchip .k{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dchip .v{font-size:var(--f-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* 主行动：「加入对比」降为文字链接与主按钮同行。
+     它是个辅助动作，不该和「查施教区」平分一整行。 */
+  .detail-cta{display:grid;grid-template-columns:minmax(0,1fr) auto;
+    gap:var(--s-2);align-items:center;margin-top:var(--s-3)}
+  /* 完整文案「查施教区：我家在不在范围内 →」在 375px 会把按钮撑到两行（72px） */
+  .cta-full{display:none}
+  .cta-short{display:inline}
+  
+
+  /* 官网区：按钮缩小，公众号与核验日期并到同一行 */
+  .official{gap:6px var(--s-3);padding:6px var(--s-3);margin-top:var(--s-3)}
+  .official .wx,.official .vnote{font-size:var(--f-2xs)}
+  .official .vnote{margin-left:0}
+}
+
+/* ------------------------------------------------------------
+   详情页唯一左轴线
+   ------------------------------------------------------------
+   原先 .detail-head 满宽（1440 下 1350px），而 .detail-grid 自己居中
+   （calc(240 + 40 + 46em + 48) = 1064），正文卡再缩进一栏到 x=460：
+   同一页出现 37 / 181 / 461 三条左边界，页头与正文错位 423px。
+   解法是用一层容器统一宽度——它按默认字号解析，em 不会被
+   .crumb 的 13.5px 带偏（自定义属性里的 em 在「使用处」才解析）。
+   ------------------------------------------------------------ */
+.detail-main{max-width:calc(var(--toc-w) + var(--s-8) + var(--w-read) + 2 * var(--s-6));
+  margin-inline:auto}
+.detail-main > .detail-grid{max-width:none;margin-inline:0}
+
+/* ------------------------------------------------------------
+   「加入对比」两个控件
+   ------------------------------------------------------------
+   它们先前住在 compare.css 里，而使用它们的是详情页 —— 于是要么让
+   560 个页面都下载对比页样式，要么详情页掉按钮。现在归位到 detail.css。
+   ------------------------------------------------------------ */
+.cmp-add{display:none;gap:var(--s-3);align-items:center;flex-wrap:wrap;margin-top:var(--s-4)}
+html.js .cmp-add{display:flex}
+.cmp-go{font-size:var(--f-sm);font-weight:600;color:var(--accent)}
+.cmp-go[hidden]{display:none}

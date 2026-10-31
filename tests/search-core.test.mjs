@@ -103,3 +103,43 @@ test('空查询返回全部，不算兜底', () => {
   assert.equal(res.fellBack, false);
   assert.deepEqual(res.terms, []);
 });
+
+/* ---------- 地址层检索（报告 P0-1） ----------
+   家长问的是「我家这条街能上哪所」，而路名从不出现在校名里。
+   这组用例锁住三件事：能命中、能说明命中来源、不抢主索引。 */
+const ADDR = [
+  { id: 'a', name: '甲小学', short: '', district: '鼓楼区', level: '小学',
+    type: '公办', tier: '', tagline: '', aliases: '',
+    addr: '琅琊路 宁海路 北京西路', has: '有学费 有对口初中' },
+  { id: 'b', name: '乙小学', short: '', district: '鼓楼区', level: '小学',
+    type: '公办', tier: '', tagline: '', aliases: '', addr: '', has: '' },
+  { id: 'c', name: '南京市宁海中学', short: '', district: '鼓楼区', level: '高中',
+    type: '公办', tier: '', tagline: '', aliases: '', addr: '', has: '有投档线' }
+];
+
+test('地址层：搜路名能命中施教区覆盖它的学校', () => {
+  const res = S.query(ADDR, '宁海路', null);
+  assert.deepEqual(ids(res.rows), ['a'], '应命中施教区含宁海路的甲小学');
+  assert.equal(res.addrMatch, true, '调用方据此写「按施教区路名匹配」');
+  assert.equal(res.hits.a, 'addr');
+});
+
+test('地址层不抢主索引：校名能命中时就不降级', () => {
+  const res = S.query(ADDR, '宁海', null);
+  assert.deepEqual(ids(res.rows), ['c'], '宁海中学是校名命中，不应把甲小学也带出来');
+  assert.equal(res.addrMatch, false);
+  assert.equal(res.hits.c, 'name');
+});
+
+test('addrLabels 给出命中的那个地名，用于结果卡写「施教区含：X」', () => {
+  assert.deepEqual(S.addrLabels(ADDR[0], ['宁海路']), ['宁海路']);
+  assert.deepEqual(S.addrLabels(ADDR[0], ['宁海']), ['宁海路'], '前缀命中也要能回填全名');
+  assert.deepEqual(S.addrLabels(ADDR[1], ['宁海路']), []);
+});
+
+test('数据项筛选：按「有学费 / 有投档线」整词比对', () => {
+  assert.deepEqual(ids(S.query(ADDR, '', { has: '有学费' }).rows), ['a']);
+  assert.deepEqual(ids(S.query(ADDR, '', { has: '有投档线' }).rows), ['c']);
+  assert.equal(S.query(ADDR, '', { has: '有学费' }).rows.length, 1,
+    '「有学费」不应被空 has 的学校命中');
+});

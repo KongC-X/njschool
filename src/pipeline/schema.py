@@ -184,3 +184,24 @@ def validate_pages(pages, rep: Report):
             rep.warn(f"内容页「{key}」", "缺少 updated 日期")
         if not p.get("html"):
             rep.error(f"内容页「{key}」", "正文为空")
+
+
+def validate_policy_sync(pages, rep: Report):
+    """首页「今年主要变化」的条数必须与政策页表格一致。
+
+    首页那份是手写的短文案，政策页那张表是完整清单——两者曾经对不上：
+    首页 4 条、政策页 5 条，而首页缺的恰是「取消学区房年限限制」和
+    「长幼随学」。数字（首页统计条的「N 项」）已改为从政策页现算，
+    这里再加一道守卫，防止文案本身再次漂移。
+    """
+    policy = pages.get("policy-2026") or {}
+    home = pages.get("home-highlights") or {}
+    if not policy or not home:
+        return
+    m = re.search(r"<tbody>(.*?)</tbody>", policy.get("html", ""), re.S)
+    n_policy = len(re.findall(r"<tr>", m.group(1))) if m else 0
+    n_home = home.get("html", "").count("<li>")
+    if n_policy and n_home and n_policy != n_home:
+        rep.warn("内容页「home-highlights」",
+                 f"首页列了 {n_home} 条变化，政策页有 {n_policy} 条；"
+                 f"两处口径不一致，家长会发现首页漏项")

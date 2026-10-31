@@ -1,0 +1,172 @@
+/* ============================================================
+   对比页：选择器 / 对比表 / 窄屏卡片
+   ------------------------------------------------------------
+   从 pages.css 拆出来：那一份已到 28KB 预算，而对比表格是最容易继续加东西的地方
+   （每加一个维度都要配样式）。加载顺序 tokens → site → pages → detail →
+   compare → responsive，必须在 responsive.css 之前，
+   否则窄屏把表格转成卡片的规则会被这里的基础规则盖掉。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   对比页
+   ------------------------------------------------------------ */
+.picker{position:relative;margin:var(--s-4) 0}
+/* site.css 给输入框写了 outline:none，键盘聚焦只剩一圈淡阴影。
+   这里把可见焦点补回来（只在键盘导航时出现，鼠标点击不显示）。 */
+.picker input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pick-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);
+  margin:0;padding:var(--s-1);list-style:none;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh-2);
+  max-height:min(320px, 50vh);overflow:auto}
+.pick-list li{display:flex;justify-content:space-between;align-items:baseline;
+  gap:var(--s-3);padding:9px var(--s-3);border-radius:var(--r-sm);
+  cursor:pointer;font-size:var(--f-sm)}
+.pick-list li:hover,.pick-list li:focus,.pick-list li.is-active{background:var(--accent-weak)}
+/* 键盘活动项必须看得见：只靠鼠标 hover 的列表，键盘用户是盲的 */
+.pick-list li.is-active{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-sm)}
+.pick-list em{color:var(--muted);font-style:normal;font-size:var(--f-xs);white-space:nowrap}
+.pick-empty{color:var(--muted);cursor:default}
+
+#picked{margin:0 0 var(--s-4)}
+/* ---- 对比表 ----
+   真表格：th[scope=row] + 每校一列，行天然对齐。
+   之前是每列各自一个 <dl>，只要某格换行，该列后续所有行整体下移，
+   「第三行是投档线」这个对位关系就没了——那不是美化问题，是读不出来。 */
+.cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cmp-table{width:100%;border-collapse:collapse;table-layout:fixed;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;font-size:var(--f-sm)}
+.cmp-table th,.cmp-table td{padding:10px var(--s-4);text-align:left;
+  vertical-align:top;border-bottom:1px solid var(--line)}
+.cmp-table tbody:last-child tr:last-child th,
+.cmp-table tbody:last-child tr:last-child td{border-bottom:0}
+.cmp-table thead th{background:var(--surface-2);border-bottom:1px solid var(--line-strong)}
+.cmp-corner{width:128px;font-size:var(--f-2xs);color:var(--muted);
+  font-weight:600;letter-spacing:.02em}
+.cmp-head a{color:var(--ink);font-weight:600}
+.cmp-head a:hover{color:var(--accent-text)}
+.cmp-head-meta{display:block;margin-top:2px;font-size:var(--f-2xs);
+  color:var(--muted);font-weight:400}
+.cmp-head-warn{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.cmp-rowhead{width:128px;font-size:var(--f-xs);color:var(--muted);
+  font-weight:600;position:relative}
+.cmp-fill{display:block;margin-top:2px;font-size:var(--f-2xs);
+  font-weight:400}
+.cmp-cell{color:var(--text);line-height:1.6;word-break:break-word}
+/* 一所都没有值的行：留着是诚实（说明这一项我们没收到），但不必和有的行一样重 */
+.cmp-row.is-blank .cmp-cell{opacity:.55}
+/* 「未获取」= 该校档案自己声明了这一项是缺口；「—」= 本站没抽到。
+   两者必须看得出区别，否则等于替学校下结论。 */
+.cmp-cell.is-gap{color:var(--muted);font-style:italic}
+/* 「—」原用 --line-strong（边框色）当文字，对比度只有 1.44:1，等于看不见。
+   改用 --muted（5.39:1 达标）；短横线本身视觉权重已很低，不必再压色。 */
+.cmp-cell.is-na{color:var(--muted)}
+
+/* 差异标记：只标「不同」，不标「更好」。禁用红绿——语义色留给信度徽章 */
+.cmp-row.has-diff > .cmp-rowhead::before{content:"";position:absolute;
+  left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--accent)}
+/* 2 比 2 时没有任何格子是「独一无二」的，格内不会亮；
+   只靠左边缘 3px 竖线太弱。把行标签一起染色，让「这一行不同」在行首就能看到。 */
+.cmp-row.has-diff > .cmp-rowhead{background:var(--amber-bg);color:var(--amber);
+  border-radius:0 4px 4px 0}
+.cmp-cell.is-diff{background:var(--amber-bg);color:var(--amber)}
+
+/* 分组标题行（可折叠） */
+.cmp-ghead th{padding:var(--s-3) var(--s-4) var(--s-2);background:transparent;
+  border-bottom:1px solid var(--line)}
+.cmp-gtoggle{display:inline-flex;align-items:center;gap:var(--s-2);
+  padding:0;border:0;background:none;font-family:inherit;cursor:pointer;
+  font-size:var(--f-xs);font-weight:700;color:var(--ink)}
+.cmp-gcount{color:var(--muted);font-weight:400}
+.cmp-gcaret{color:var(--muted);font-size:var(--f-2xs)}
+tbody.is-collapsed tr:not(.cmp-ghead){display:none}
+
+/* 只看差异：收起「各处都一样」和「一所都没有值」两类行 */
+.only-diff .cmp-row.is-same,
+.only-diff .cmp-row.is-blank,
+.only-diff .cmp-crow.is-same,
+.only-diff .cmp-crow.is-blank{display:none}
+/* 「四所都没有数据」的折行摘要 */
+.cmp-blankrow th{font-size:var(--f-xs);color:var(--muted);font-weight:600}
+.cmp-blankrow td{font-size:var(--f-xs);color:var(--muted)}
+.cmp-blanktoggle{margin-left:var(--s-2);padding:0;border:0;background:none;
+  font-family:inherit;font-size:inherit;color:var(--accent);
+  cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.cmp-card-note{margin:var(--s-3) 0 0;font-size:var(--f-2xs);color:var(--muted)}
+.cmp-note{margin:var(--s-4) 0 0;font-size:var(--f-sm);color:var(--muted)}
+.cmp-note-btn{margin-left:var(--s-2);padding:0;border:0;background:none;
+  font-family:inherit;font-size:inherit;color:var(--accent);cursor:pointer;
+  text-decoration:underline}
+
+.cmp-actions{display:flex;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-5)}
+
+/* 详情页「加入对比」
+   默认不显示，只有 html.js（base.html 首帧写入）才出现：
+   没有 JS 时这个按钮点了不会有任何反应，不如不显示。 */
+
+/* ---- 全部学校索引（all.html）----
+   纯静态清单：不依赖 JS，也是站内指向 545 个详情页的爬虫入口 */
+/* 搜索命中高亮 */
+mark{background:var(--amber-bg);color:var(--amber);padding:0 2px;border-radius:3px}
+
+/* 窄屏专用的「一校一卡」结构：桌面隐藏 */
+.cmp-cards{display:none}
+.cmp-card{background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:var(--s-4);margin-bottom:var(--s-4)}
+.cmp-card .cmp-head{margin:0 0 2px}
+.cmp-card dl{margin:var(--s-3) 0 0}
+.cmp-crow{display:grid;grid-template-columns:100px minmax(0,1fr);
+  gap:var(--s-3);padding:6px 0;border-top:1px solid var(--line);
+  position:relative;align-items:start}
+.cmp-crow:first-child{border-top:0}
+.cmp-crow dt{font-size:var(--f-2xs);color:var(--muted);font-weight:600;padding-top:2px}
+.cmp-crow dd{margin:0;min-width:0}
+.cmp-crow.has-diff::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;
+  width:3px;border-radius:2px;background:var(--accent)}
+.cmp-crow.has-diff dt{color:var(--amber)}
+
+/* 窄屏：表格改为「行标签吸附 + 容器内横向滚动」。
+   容器自己滚，不会把整页撑宽（站内硬约束）。
+   列宽用 data-n 定档，2 所时不滚、4 所时滚大约一半。 */
+@media (max-width:720px){
+  .cmp-wrap{display:none}
+  .cmp-cards{display:block}
+  .cmp-add{flex-wrap:wrap}
+}
+
+/* ------------------------------------------------------------
+   顶部「先看这几处不同」
+   ------------------------------------------------------------
+   表格二十来行，家长第一眼先撞上「基本信息」这种全是相同值的组。
+   把最有决策价值的差异提到最上面，是这一屏唯一能做好的「结论先行」。
+   语气刻意保持陈述：只说哪里不一样，不说哪个好。
+   ------------------------------------------------------------ */
+.cmp-summary{margin:var(--s-5) 0;padding:var(--s-4) var(--s-5);background:var(--surface);
+  border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 var(--r-lg) var(--r-lg) 0;box-shadow:var(--sh-1)}
+.cmp-summary h2{margin:0 0 var(--s-3);font-size:var(--f-md);
+  display:flex;align-items:baseline;gap:var(--s-3);flex-wrap:wrap}
+.cmp-summary h2 span{font-size:var(--f-2xs);color:var(--muted);font-weight:400}
+.cmp-summary ul{margin:0;padding:0;list-style:none;display:grid;gap:0}
+.cmp-summary li{display:grid;grid-template-columns:104px minmax(0,1fr);
+  gap:var(--s-3);align-items:start;padding:7px 0;border-top:1px dashed var(--line)}
+.cmp-summary li:first-child{border-top:0}
+.cmp-summary li > b{font-size:var(--f-xs);color:var(--text);font-weight:600;line-height:1.7}
+.cmp-sum-vals{font-size:var(--f-xs);color:var(--muted);line-height:1.7;min-width:0}
+.cmp-sum-vals span{color:var(--text)}
+/* 只给「独一无二」的值上色：三所里两所相同、一所不同时，
+   上色的是那所不同——这才是家长真正想先看到的信息 */
+.cmp-sum-vals span.is-diff{color:var(--amber);font-weight:600}
+.cmp-sum-vals i{color:var(--line-strong);margin:0 6px;font-style:normal}
+.cmp-sum-vals .is-miss{color:var(--muted);font-style:italic}
+.cmp-summary-note{margin:var(--s-3) 0 0;font-size:var(--f-2xs);color:var(--muted);line-height:1.7}
+
+/* 分组标题里的「N 项有差异」 */
+.cmp-gcount b{color:var(--amber);font-weight:700}
+
+@media (max-width:620px){
+  /* 窄屏把「字段名 / 值」改成上下两行：104px 的固定列在 375px 上会把值挤成竖排 */
+  .cmp-summary{padding:var(--s-3) var(--s-4)}
+  .cmp-summary li{grid-template-columns:1fr;gap:2px;padding:8px 0}
+  .cmp-summary li > b{font-size:var(--f-2xs);color:var(--muted)}
+}

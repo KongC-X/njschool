@@ -31,11 +31,16 @@
    执行时首帧已经绘制完成），深色模式用户每次翻页都会看到一次白闪。 #}
 <script>document.documentElement.className += ' js';
 try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAttribute('data-theme',_t)}catch(e){}</script>
-{# 顺序即层叠顺序：responsive.css 必须最后，断点内的覆盖规则才能盖住基础规则 #}
-<link rel="stylesheet" href="{{ base }}assets/tokens.css">
-<link rel="stylesheet" href="{{ base }}assets/site.css">
-<link rel="stylesheet" href="{{ base }}assets/pages.css">
-<link rel="stylesheet" href="{{ base }}assets/responsive.css">
+{# 顺序即层叠顺序：responsive.css 必须最后，断点内的覆盖规则才能盖住基础规则。
+   detail.css / compare.css / all.css 不在这一层：它们只服务个别页面，
+   由各页 {% block head %} 自己引入。原先 6 份全站加载，
+   实测站级页有 340 条规则（66%）一条都匹配不到。 #}
+<link rel="stylesheet" href="{{ base }}assets/tokens.css?v={{ ver }}">
+<link rel="stylesheet" href="{{ base }}assets/site.css?v={{ ver }}">
+{# 组件层：按钮/胶囊/徽章/输入框/说明块/折叠条只在这里定义一次 #}
+<link rel="stylesheet" href="{{ base }}assets/components.css?v={{ ver }}">
+<link rel="stylesheet" href="{{ base }}assets/pages.css?v={{ ver }}">
+<link rel="stylesheet" href="{{ base }}assets/responsive.css?v={{ ver }}">
 {% block head %}{% endblock %}
 </head>
 <body>
@@ -51,7 +56,7 @@ try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAt
       {%- if item.children %}
       {# 下拉：标签是链接（进总览），右侧 ▾ 是独立按钮（展开子项）。
          分开是为了桌面点标签能直达总览，触屏也能明确地点开子菜单。 #}
-      <div class="nav-drop" data-open="false">
+      <div class="nav-drop" data-open="false" data-nav="{{ item.key }}">
         <a class="nav-drop-link{% if item.key == active or item.children | selectattr('key', 'equalto', active) | list %} on{% endif %}"
            href="{{ base }}{{ item.href }}"{% if item.key == active %} aria-current="page"{% endif %}>{{ item.label }}</a>
         <button type="button" class="nav-drop-btn" id="navDropBtn-{{ item.key }}"
@@ -64,10 +69,18 @@ try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAt
         </ul>
       </div>
       {%- else %}
-      <a href="{{ base }}{{ item.href }}"{% if item.key == active %} class="on" aria-current="page"{% endif %}>{{ item.label }}</a>
+      <a href="{{ base }}{{ item.href }}" data-nav="{{ item.key }}" class="{% if item.key == active %}on {% endif %}{% if item.short %}has-short{% endif %}"{% if item.key == active %} aria-current="page"{% endif %}><span class="nl-full">{{ item.label }}</span>{% if item.short %}<span class="nl-short">{{ item.short }}</span>{% endif %}</a>
       {%- endif %}
       {%- endfor %}
-      <button id="themeBtn" type="button" onclick="toggleTheme()" aria-label="切换主题">🌙</button>
+      <button id="themeBtn" type="button" onclick="toggleTheme()" aria-label="切换主题">
+        {# 图标用内联 SVG 而不是 emoji：🌙/☀️ 在 macOS、Windows、Android 上是三套字形，
+           而且 emoji 不吃 color，深色模式下那个彩色 ☀️ 跟 40px 描边按钮完全不是一套。 #}
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+        </svg>
+      </button>
     </div>
   </div>
 </nav>
@@ -76,26 +89,62 @@ try{var _t=localStorage.getItem('nj-theme');if(_t)document.documentElement.setAt
 </main>
 <footer>
   <div class="wrap">
+    {# 页脚分四列：品牌+信度 / 找学校 / 招生季 / 关于。
+       原来 9 条链接挤在一列里竖排（每条一个 <br>），页脚被拉到一屏高，
+       而右侧三列各自只有内容宽度，右边空出一大片。按用途分组后
+       每列最多 4 条，整体高度减半，宽度也铺满了版心。 #}
     <div class="cols">
-      <div><h4>南京中小学档案</h4>
+      <div class="fcol fcol-brand">
+        <h4>南京中小学档案</h4>
         {# 版本号本身就是年月，再单独写一次「更新」等于同一个月说两遍 #}
-        公开信息汇编 · 数据版本 {{ today[:7] }} · 更新于 {{ today[5:] }}</div>
-      <div><h4>导航</h4>
-        <a href="{{ base }}schools.html">学校库</a><br>
-        <a href="{{ base }}all.html">全部学校索引</a><br>
-        <a href="{{ base }}policy.html">政策与更名</a><br>
-        <a href="{{ base }}about.html">数据说明</a><br>
-        <a href="{{ base }}changelog.html">更新日志</a></div>
-      <div><h4>信度标注</h4>
-        [A] 官方发布　[B] 权威媒体　[C] 家长圈口径</div>
+        <p class="fmeta">公开信息汇编 · 数据版本 {{ today[:7] }} · 更新于 {{ today[5:] }}</p>
+        <h4 class="fsub">信度标注</h4>
+        <a href="{{ base }}about.html">[A] 官方发布　[B] 权威媒体　[C] 家长圈口径 →</a>
+        <p class="confhint">三级怎么区分、哪些数据查不到，见「数据说明」</p>
+      </div>
+      <div class="fcol">
+        <h4>找学校</h4>
+        <a href="{{ base }}schools.html">学校库</a>
+        <a href="{{ base }}all.html">全部学校索引</a>
+        <a href="{{ base }}compare.html">对比</a>
+      </div>
+      <div class="fcol">
+        <h4>招生季</h4>
+        <a href="{{ base }}timeline.html">招生时间轴</a>
+        <a href="{{ base }}score.html">分数查学校</a>
+        <a href="{{ base }}talent.html">特长生</a>
+        <a href="{{ base }}policy.html">政策与更名</a>
+      </div>
+      <div class="fcol">
+        <h4>关于本站</h4>
+        <a href="{{ base }}about.html">数据说明</a>
+        <a href="{{ base }}changelog.html">更新日志</a>
+      </div>
     </div>
+    {# 免责声明原来是一整段，被 max-width:88ch 限制在 748px，
+       而上面四列占满 1213px —— 右侧空出 465px，看着像没排完。
+       改法：按「来源 / 边界 / 缺口」拆成三块，沿用同一套栅格铺满宽度，
+       文字一字未改，只是把它分成三个能扫读的部分。 #}
     <div class="disclaim">
-      <strong>免责声明</strong>：本站为公开信息汇编，数据来自政府/教育局官网、学校官网与官方公众号、党报及权威媒体，
-      <strong>不构成任何择校建议</strong>；政策与数据每年变动，请以官方最新发布为准。
-      家长圈统计的升学数据均已标注 [C]，不可作为唯一依据。各档案末节列有「数据缺口清单」——未获取即未获取，不作推测。
+      <h4 class="disclaim-h">免责声明</h4>
+      <div class="disclaim-grid">
+        <div>
+          <h5>数据来源</h5>
+          <p>本站为公开信息汇编，数据来自政府/教育局官网、学校官网与官方公众号、党报及权威媒体。</p>
+        </div>
+        <div>
+          <h5>使用边界</h5>
+          <p><strong>不构成任何择校建议</strong>；政策与数据每年变动，请以官方最新发布为准。
+            家长圈统计的升学数据均已标注 [C]，不可作为唯一依据。</p>
+        </div>
+        <div>
+          <h5>数据缺口</h5>
+          <p>各档案末节列有「数据缺口清单」——未获取即未获取，不作推测。</p>
+        </div>
+      </div>
     </div>
   </div>
 </footer>
-<script src="{{ base }}assets/app.js"></script>
+<script src="{{ base }}assets/app.js?v={{ ver }}"></script>
 </body>
 </html>
