@@ -84,10 +84,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # --branch 必须等于 CF 项目的 Production branch，否则会被当成 preview 部署：
-          # 产物上传成功、CI 一片绿，但线上（production）永远是旧内容。
-          # 这个项目创建时 Production branch 是默认的 main，而仓库分支是 master，
-          # 曾因此连续三次「构建成功但线上没变」——日志里只会写
-          # "Deployment alias URL: https://master.njschool.pages.dev"。
-          # 若以后把 CF 的 Production branch 改成 master，这里也要跟着改成 master。
-          command: pages deploy site --project-name=njschool --branch=main --commit-dirty=true
+          # --branch 必须与 CF 项目的 Production branch 完全一致，否则会被当成
+          # preview 部署：文件上传成功、CI 全绿，但线上（production）永远是旧内容。
+          # 曾因项目默认是 main、仓库是 master，连续三次「构建成功但线上没变」；
+          # 日志特征：Deployment alias URL: https://master.njschool.pages.dev
+          # 2026-10-31 已把 CF 的 Production branch 改为 master，此处随之对齐。
+          command: pages deploy site --project-name=njschool --branch=master --commit-dirty=true
