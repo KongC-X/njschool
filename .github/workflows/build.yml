@@ -45,6 +45,21 @@ jobs:
           NJ_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
         run: python src/build_website.py
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # 搜索质量闸门：必须跑在构建之后——它校验的是 site/assets 里的真实产物，
+      # 不是 tests/fixtures.json 里的 8 所手写样本。
+      # 为什么值得卡在这里：「搜不到某所学校」不会让任何页面报错，
+      # 构建检查也全绿，只有家长搜的时候才发现。实测曾出现搜「初中」只出 50 条
+      # （实际 164 所）、搜「南师附中」本部排在分校后面，都是这类静默失效。
+      - name: 前端单测 + 搜索质量闸门
+        env:
+          # 缺产物必须失败：CI 里静默跳过等于「什么都没查却显示通过」
+          NJ_REQUIRE_QUALITY: "1"
+        run: node --test tests/*.test.mjs
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

@@ -35,11 +35,16 @@
     return String(q || '').trim().toLowerCase().split(/\s+/).filter(Boolean).map(normTerm);
   }
 
-  /* 主索引：校名、简称、性质、梯队、区名。
+  /* 主索引：校名、简称、性质、学段、梯队、区名。
      tagline 刻意不进主索引——它是叙述性长文本，「施教区」「集团」这类词会把结果撑满，
-     而且会把只是「提到」了某校的档案一并带出（搜「二十九中」曾跳出琅小/拉小/力学）。 */
+     而且会把只是「提到」了某校的档案一并带出（搜「二十九中」曾跳出琅小/拉小/力学）。
+
+     level 必须在这里：此前只把它交给 passFilters 做筛选，于是「用学段按钮能筛出来、
+     在搜索框打『初中』搜不到」——同一份数据两种行为。实测搜「初中」只出 50 条，
+     而实际有 164 所；「初中 鼓楼」更是只剩 1 条。校名里带「小学」的占绝大多数，
+     所以小学校来像是正常的，初中校名多叫「XX中学」，一漏就是 70%。 */
   function hayMain(s) {
-    return (s.name + ' ' + (s.short || '') + ' ' + s.type + ' '
+    return (s.name + ' ' + (s.short || '') + ' ' + s.type + ' ' + s.level + ' '
             + (s.tier || '') + ' ' + s.district).toLowerCase();
   }
 
@@ -79,16 +84,38 @@
     return false;
   }
 
-  /* 命中质量评分：校名精确 > 校名前缀 > 校名包含 > 别名 > 简称 > 梯队与区名 */
+  /* 校名归一：剥掉行政区前缀再比。
+     「南京市金陵中学」搜「金陵中学」时 indexOf 是 5，只能拿包含分 40；
+     而「金陵中学实验小学」indexOf 是 0，拿前缀分 60——本部反被同族分校压住，
+     实测搜「金陵中学」本部排第 5。545 所里 403 所（73.9%）校名以「南京市」开头，
+     这不是个例，是系统性偏差。
+     只剥这两层：再往下剥「附属/实验/小学」曾把「金陵中学实验小学」和
+     「金陵中学附属小学」抹成同一所，造成 4 条错配（见 pipeline/aliases.py 的同类教训）。 */
+  var RE_ADMIN = /^(?:江苏省)?(?:南京市)?/;
+
+  function core(x) {
+    var c = x.replace(RE_ADMIN, '');
+    return c || x;   /* 只输入「南京市」这类纯前缀词时退回原值，空串会命中一切 */
+  }
+
+  /* 命中质量评分：校名精确 > 简称精确 > 校名前缀 > 校名包含 > 别名 > 简称包含 > 梯队与区名
+
+     「简称精确」这一档必须有，且要高于校名前缀。
+     实测：搜「南师附中」，本部 short 就是「南师附中」，但按原来的规则只拿简称包含分 20，
+     而「南师附中高淳学校」因校名以它开头拿 60——本部被系统性地排到分校后面。
+     525 所（96.3%）都有 short，这不是个别数据的错，是评分档位缺了一层。 */
   function score(s, ts) {
     var name = s.name.toLowerCase();
+    var cname = core(name);
     var minor = (s.short || '').toLowerCase();
     var rest = ((s.tier || '') + ' ' + s.district).toLowerCase();
     var total = 0;
     ts.forEach(function (t) {
-      if (name === t) total += 100;
-      else if (name.indexOf(t) === 0) total += 60;
-      else if (name.indexOf(t) !== -1) total += 40;
+      var ct = core(t);
+      if (cname === ct) total += 100;
+      else if (minor === t) total += 80;
+      else if (cname.indexOf(ct) === 0) total += 60;
+      else if (cname.indexOf(ct) !== -1) total += 40;
       else if (aliasHit(s, t)) total += 30;
       else if (minor.indexOf(t) !== -1) total += 20;
       else if (rest.indexOf(t) !== -1) total += 6;
