@@ -41,12 +41,13 @@ jobs:
 
       - name: 构建站点
         env:
-          # 站点**实际**部署域名，必须与 Pages 设置里的 Custom domain 完全一致。
-          # 此前这里推导的是 <owner>.github.io/<repo>，而线上挂在自定义域名下，
-          # 结果是 canonical、sitemap（559 条）、robots.txt 里的 Sitemap 行
-          # 全部指向一个用户根本不会访问的地址——收录和分享都算到了 github.io 上。
-          # 换域名时优先改仓库 Settings → Variables 的 SITE_BASE_URL，不必改代码。
-          NJ_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://www.ruimengmeng.cn/njschool' }}
+          # 站点**实际可访问**的地址，必须与 Pages 的有效入口一致。
+          # 历史教训：曾设成 www.ruimengmeng.cn/njschool（域名过期被他人注册），
+          # GitHub 认领了该域名 → github.io 全部 301 过去，而对方是一个影视站，
+          # 结果 560 个页面一个都到不了，canonical/sitemap 全指向别人的站。
+          # 现在回退到 github.io；将来有自有域名时，改仓库 Settings → Variables
+          # 的 SITE_BASE_URL 覆盖即可，不必动代码。
+          NJ_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://kongc-x.github.io/njschool' }}
         run: python src/build_website.py
 
       - uses: actions/setup-node@v4
