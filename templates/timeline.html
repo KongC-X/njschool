@@ -77,14 +77,60 @@
   {%- endfor %}
 
   {%- for sk in skipped %}
-  <section class="tl-level">
-    <div class="tl-lvhead"><h2>{{ sk.level }}</h2></div>
+  <section class="tl-level" id="lv-{{ sk.level }}">
+    <div class="tl-lvhead">
+      <h2>{{ sk.level }}</h2>
+      {%- if sk.level == '高中' and zhongkao %}
+      <span class="tl-lvmeta">2027 届 · 官方已定 + 往年推算</span>
+      {%- endif %}
+    </div>
+
+    {%- if sk.level == '高中' and zhongkao %}
+    {# 高中段换成官方年度安排：档案里只有 {{ sk.contributors }} 份写了节点，
+       凑不出主时间轴；与其空着，不如把市招考院的年度节奏摆出来。
+       但来源与上面两张表不同（不是「N 份档案提及」的频次聚合），
+       所以这里不标份数，改标每个节点是「官方已定」还是「按往年推算」。 #}
+    <div class="tl-note">
+      <p><strong>这一段的来源与上面两张表不同。</strong>本站 {{ sk.total }} 所{{ sk.level }}档案里只有
+      {{ sk.contributors }} 份写了完整的节点表，凑不出按频次合并的主时间轴，
+      所以改用<strong>市招考院与市教育局的年度安排</strong>。</p>
+      <p>因为来源不是档案聚合，这里<strong>不标「N 份提及」，改标每个节点是「官方已定」还是「按往年推算」</strong>。
+      标「按往年推算」的日期参照 2026 年同月同日，每年可能微调，
+      报名、体检、志愿填报这类关键节点请以当年官方公告为准。</p>
+    </div>
+
+    <ol class="tl-list">
+      {%- for ym, nodes in zhongkao %}
+      <li class="tl-month">
+        <div class="tl-mlabel"><span>{{ ym[5:]|int }}</span> 月<br>{{ ym[:4] }}</div>
+        <ol class="tl-items">
+          {%- for label, event, kind in nodes %}
+          <li class="tl-node">
+            <div class="tl-date">{{ label }}</div>
+            <div class="tl-body">
+              <div class="tl-event">{{ event }}</div>
+              <div class="tl-meta">
+                <span class="tl-count">{% if kind == 'fixed' %}官方已定{% else %}按往年推算{% endif %}</span>
+              </div>
+            </div>
+          </li>
+          {%- endfor %}
+        </ol>
+      </li>
+      {%- endfor %}
+    </ol>
+
+    <p class="tl-hint">体育中考已由《南京市 2027 年中考体育考试实施办法》（宁教函〔2026〕62 号，2026-10-26）
+      确定为 <strong>2027 年 4 月</strong>，满分 40 分，考试内容与评分标准<strong>与 2026 年一致</strong>；
+      具体日期由市招考院另行通知。</p>
+    {%- else %}
     <div class="tl-none">
       <p><strong>暂未成表。</strong>{{ sk.level }}的招生节奏（中考出分、填报志愿、分批次录取）由市招考院统一发布；
       本站收录的 {{ sk.total }} 所{{ sk.level }}里，只有 {{ sk.contributors }} 份档案记录了完整的节点表，凑不出一条能核对的全年时间轴。</p>
       <p>与其给一张只有三两条、看不出全貌的表，不如说明白：这一块请以
       <strong>南京市招考院与市教育局当年发布</strong>为准。补录到足够份数后这里会自动出现。</p>
     </div>
+    {%- endif %}
   </section>
   {%- endfor %}
 

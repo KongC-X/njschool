@@ -10,16 +10,8 @@
    的窄屏覆盖会被本文件的同名基础规则盖掉。
    ============================================================ */
 
-.crumb{font-size:var(--f-xs);color:var(--muted);padding:var(--s-5) 0 var(--s-3)}
-.crumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:0;row-gap:6px;
-  list-style:none;margin:0;padding:0}
-.crumb li{display:inline-flex;align-items:center;min-width:0}
-.crumb li + li::before{content:"/";margin:0 7px;color:var(--line-strong)}
-.crumb a{color:var(--muted);padding:6px 0;display:inline-block}
-.crumb a:hover{color:var(--accent-text)}
-/* 当前页（校名）不做成链接，用截断防止长校名把这一行撑破 */
-.crumb li:last-child span{color:var(--text);max-width:22em;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap}
+/* 面包屑 .crumb 已上移到 components.css —— 特长生五页不加载本文件，
+   留在这里它们就退化成「1. 2. 3.」编号列表。 */
 
 .detail-head{background:var(--surface);border:1px solid var(--line);
   border-top:3px solid var(--accent);

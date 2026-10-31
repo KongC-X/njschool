@@ -4,7 +4,7 @@
   <div class="crumb"><a href="{{ base }}index.html">首页</a> / 政策与更名</div>
   <article class="article">
     <div class="eyebrow">政策</div>
-    <h1 class="doc-title">2026 年招生政策与更名对照</h1>
+    <h1 class="doc-title">2026 年招生政策、指标生与更名对照</h1>
     <p class="hint">内容每年招生季更新，来源为市教育局、区政府与学校官方发布。</p>
 
     <h2>{{ pages['policy-2026'].title }}</h2>
@@ -14,6 +14,16 @@
     <h2>{{ pages.renames.title }}</h2>
     <p class="hint">{{ pages.renames.summary }} · 更新于 {{ pages.renames.updated }}</p>
     {{ pages.renames.html | safe }}
+
+    {# 升学通道：指标生规则独立成节。
+       单独放一份 md 而不是追加到 policy-2026.md —— 后者第一张表的行数被
+       _policy_count() 与 validate_policy_sync() 用来核对首页「N 项政策变化」，
+       在里面加第二张表会把那个数字算错。 #}
+    {% if 'shengxue-tongdao' in pages %}
+    <h2 id="zhibiaosheng">{{ pages['shengxue-tongdao'].title }}</h2>
+    <p class="hint">{{ pages['shengxue-tongdao'].summary }} · 更新于 {{ pages['shengxue-tongdao'].updated }}</p>
+    {{ pages['shengxue-tongdao'].html | safe }}
+    {% endif %}
 
     <h2>如何使用这两份内容</h2>
     <p>政策条目用于判断「今年规则有没有变」，更名对照用于避免「按旧校名搜不到」。

@@ -73,6 +73,14 @@
 .sc-legend li b{color:var(--text)}
 .sc-legend p{margin:0 0 var(--s-3);font-size:var(--f-xs);color:var(--muted);line-height:1.8}
 .sc-legend a{color:var(--accent-text)}
+/* 折叠块里放参考表：去掉表格自带外框，避免「框套框」；
+   保留 .table-wrap 的横向滚动，窄屏时表格按 min-width 撑开出滚动条。 */
+.sc-legend .table-wrap{margin:0 0 var(--s-3);border:0;border-radius:0;
+  background:transparent;box-shadow:none}
+.sc-legend .table-wrap table{min-width:420px}
+.sc-legend .table-wrap td,.sc-legend .table-wrap th{font-size:var(--f-xs)}
+/* 指标生摘要卡：前一个元素是折叠块，需要自己的上边距 */
+.sc-legend + .sc-note{margin-top:var(--s-6)}
 
 @media (max-width:720px){
   .sc-input{padding:var(--s-4)}

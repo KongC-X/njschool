@@ -191,6 +191,28 @@
 /* ------------------------------------------------------------
    窄屏：可点元素一律 44px（Apple HIG 与 WCAG 2.5.8 的下限）
    ------------------------------------------------------------ */
+/* ------------------------------------------------------------
+   面包屑
+   ------------------------------------------------------------
+   原来只在 detail.css 定义，而特长生五页只加载 talent.css ——
+   于是 <ol> 退回浏览器默认的「1. 2. 3.」编号与缩进，面包屑看起来
+   像目录树。面包屑是跨页组件（详情页 545 份 + 特长生 5 页 + 政策/数据说明），
+   按本文件的分层原则应当只在这里定义一次。
+
+   <ol> 的 list-style / margin / padding 必须显式清零：只写 display:flex
+   不会去掉 ::marker，编号仍会画在 li 外面。
+   ------------------------------------------------------------ */
+.crumb{font-size:var(--f-xs);color:var(--muted);padding:var(--s-5) 0 var(--s-3)}
+.crumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:0;row-gap:6px;
+  list-style:none;margin:0;padding:0}
+.crumb li{display:inline-flex;align-items:center;min-width:0}
+.crumb li + li::before{content:"/";margin:0 7px;color:var(--line-strong)}
+.crumb a{color:var(--muted);padding:6px 0;display:inline-block}
+.crumb a:hover{color:var(--accent-text)}
+/* 当前页（校名）不做成链接，用截断防止长校名把这一行撑破 */
+.crumb li:last-child span{color:var(--text);max-width:22em;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+
 @media (max-width:720px){
   .btn-primary,.btn-ghost,.btn-site,.btn-reset,.btn,
   .chip,.sc-chip,.chip-clear{min-height:var(--h-control-lg)}
