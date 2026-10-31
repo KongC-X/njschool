@@ -21,6 +21,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # 用于判断是否配置了 Cloudflare 凭证。
+      # 为空串时，下面的 Cloudflare 部署步骤整段跳过——这样在还没配 secret
+      # 的阶段，CI 不会因为「缺 token」而变红，GitHub Pages 照常发布。
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -68,6 +73,21 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
+      # ---- Cloudflare Pages：与 GitHub Pages 并行部署 ----
+      # 为什么不交给 Cloudflare 自己构建：本项目依赖 Python 3.12 + requirements.txt
+      # + make site，CF 的构建镜像版本与依赖缓存都不可控。继续由 Actions 构建、
+      # 只把 site/ 上传，换托管方时只需改这一条命令，前面全部不动。
+      #
+      # 前置（一次性）：在 CF 面板先建好名为 njschool 的 Pages 项目（Direct Upload）。
+      # 不在 CI 里自动创建——wrangler 创建项目是交互式的，CI 里会卡住。
+      - name: 部署到 Cloudflare Pages
+        if: env.CF_API_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=njschool --branch=master
 
   deploy:
     needs: build
