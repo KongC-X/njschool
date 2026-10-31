@@ -41,8 +41,12 @@ jobs:
 
       - name: 构建站点
         env:
-          # 项目页地址形如 https://<owner>.github.io/<repo>
-          NJ_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          # 站点**实际**部署域名，必须与 Pages 设置里的 Custom domain 完全一致。
+          # 此前这里推导的是 <owner>.github.io/<repo>，而线上挂在自定义域名下，
+          # 结果是 canonical、sitemap（559 条）、robots.txt 里的 Sitemap 行
+          # 全部指向一个用户根本不会访问的地址——收录和分享都算到了 github.io 上。
+          # 换域名时优先改仓库 Settings → Variables 的 SITE_BASE_URL，不必改代码。
+          NJ_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://www.ruimengmeng.cn/njschool' }}
         run: python src/build_website.py
 
       - uses: actions/setup-node@v4
