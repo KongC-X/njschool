@@ -45,7 +45,7 @@ def run():
     print(f"   来源链接：{len(links)} 个标题可点击")
 
     print("③ 渲染页面")
-    env = render.make_env()
+    env = render.make_env(len(schools))
     # 跨学段同名的校名（小学部/初中部共用校名）：详情页 title 需补学段才能区分
     dup_names = {n for n, c in Counter(s.name for s in schools).items() if c > 1}
     if dup_names:

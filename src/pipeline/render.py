@@ -69,7 +69,13 @@ def asset_ver():
     return h.hexdigest()[:8]
 
 
-def make_env():
+def make_env(total=None):
+    """total：学校总数，用于 og:image:alt 这类「对外描述站内规模」的文案。
+
+    这些文案原先在模板里写死成「545 所」，学校数一路涨到 563 后没人记得改，
+    于是社交平台卡片上长期挂着一个错的数字。数量是构建时才知道的，
+    不该散落在模板里——统一由 main.py 注入，模板只管摆位置。
+    """
     env = Environment(
         loader=FileSystemLoader(config.TEMPLATES),
         autoescape=select_autoescape(["html", "xml"]),
@@ -78,6 +84,7 @@ def make_env():
     )
     env.filters["host"] = host_of
     env.globals["today"] = config.TODAY
+    env.globals["school_total"] = total or 0
     env.globals["ver"] = asset_ver()
     # 分享卡片图。必须是绝对地址，社交平台不会解析相对路径；
     # 未配置基址（本地 file:// 预览）时返回空串，模板据此整块省略。

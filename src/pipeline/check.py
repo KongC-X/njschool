@@ -19,19 +19,27 @@ from .schema import Report
 
 MIN_H2_FOR_TOC = 3
 PAGE_SIZE_WARN_KB = 120
-# 索引页天生比档案页大：它的全部价值就是把 545 条一次列全，
+# 索引页天生比档案页大：它的全部价值就是把全部条目一次列全，
 # 用同一把尺子量它没有意义，给单独的上限。
 PAGE_SIZE_EXEMPT_KB = {"all.html": 200}
 
 # 静态资源体积预算（KB）：超出说明在往同一个文件里堆样式/脚本，应拆分而非继续增长
-# pages.css 由 24 → 32：这一轮新增了详情页的四个组件（关键数字芯片、施教区逐条列表、
+# pages.css 由 24 → 32：这一轮新增了详情页的四个组件（关键数字 chips、施教区逐条列表、
 # 施教区自查框、页尾「接着看」），合计约 5.5KB。下次再要加详情页样式时，
 # 应先把 detail-head 及以下整块拆成 assets/detail.css，而不是继续抬这个数字。
+#
+# schools-compare.js 140 → 150：这个是**数据文件**，体积随学校数线性增长，
+# 不是「往一个文件里堆代码」。实测：545 所 137KB → 556 所 142.8KB → 563 所 144.97KB，
+# 斜率约每 100 所 11KB。150KB 的余量按此推算只够到 600 所左右（约 37 所空间）。
+#
+# ⚠ 已经进入该分片的区间了：再补一批档案就会顶到 150KB。
+# 正确做法是按学段（小学 / 初中 / 高中）拆成三个 js，对比页按需加载，
+# 而不是把 150 继续往上抬——全量下载对手机端是实打实的首屏成本。
 ASSET_BUDGET_KB = {"tokens.css": 8, "site.css": 22, "components.css": 14, "pages.css": 20, "detail.css": 10, "compare.css": 14, "all.css": 4, "talent.css": 8,
                    "timeline.css": 10, "score.css": 10,
                    "score.js": 12,
                    "responsive.css": 12, "app.js": 18, "schools-data.js": 200,
-                   "schools-compare.js": 140, "streets-data.js": 60,
+                   "schools-compare.js": 150, "streets-data.js": 60,
                    "search-core.js": 16, "schools.js": 20,
                    "compare-core.js": 16, "compare.js": 24}
 # 令牌纪律与移动端溢出守卫要扫的样式表。timeline.css 只在时间轴页加载，

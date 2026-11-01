@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-11-01",
   "note": "官网地址经检索核查并全量体检。统计按「学校」计数，各成因分母不同、不可相加：「历史域名被抢注」数 ≠ 「无官网」数。wechat=null 一律读作「未取得可确认 ID」，不代表该校无官方渠道。",
   "schools": {
     "初中-六合区-南京市六合区雄州初级中学": {
@@ -6038,6 +6038,204 @@
       "level": "C",
       "site_state": "none",
       "basis": "未检索到独立官网；施教区未公开发布（玄武区未发布一览表），校名/地址/电话见《玄武区义务教育学校名录》"
+    },
+    "小学-鼓楼区-南京市鼓楼区第二实验小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "2023 年学校招聘公告只给校址与电话、未列官网；区政府施教区问答亦未提供。2026-11-01 检索未见独立站点，校方信息主要通过区教育局与「鼓楼教育在线」渠道发布",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市鼓楼实验小学": {
+      "site": "http://njglsyxx.msms.tq-edu.com/",
+      "site_archived": null,
+      "null_reason": null,
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "A",
+      "basis": "学校 2026 年招生简章（公众号原文）明示该校官网；2026-11-01 实测返回 200，首页无 title、疑为动态渲染模板",
+      "site_state": "ok"
+    },
+    "小学-鼓楼区-南京鼓楼天河实验小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": null,
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "A",
+      "basis": "学校 2026 年招生简章（公众号原文）明示官网 www.njthsyjsxx.cn；2026-11-01 实测 http 返回 503、https 连接失败，暂记不可达，待 verify_websites.py 复检",
+      "site_state": "exists_unreachable"
+    },
+    "小学-鼓楼区-南京市科睿小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "2024 年招生通告未列官网，主要通过学校公众号发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市天妃宫小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "百年老校，招生简章以公众号与「鼓楼教育在线」为发布渠道；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市方兴小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "官方公众号为「拉小分校方兴小学」；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市姜家园小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "平台托管地址 njjjyxx.njgljy.com 实测返回 2084B 空壳页（njgljy.com 平台统一框架），无可用内容；校史见公众号",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市长平路小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "2026 级新生报到等动态经学校公众号发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市滨江小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "平台托管地址 njbjxx.njgljy.com 实测返回 2084B 空壳页（njgljy.com 平台统一框架），无可用内容",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市象山小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "学校动态经「银城小学教育集团」渠道与公众号发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市旭日景城小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "学校推介与招生信息经公众号与「南京魅力校园」发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南师附中树人学校附属小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "招生通告与学校动态经公众号发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市民生实验小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "平台地址 njmssx.njgljy.com 实测返回 2084B 空壳页（njgljy.com 平台统一框架），无可用内容",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市建宁小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "学校信息主要通过公众号与区教育局渠道发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市小市中心小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "百年校庆等动态经公众号与媒体发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市五塘小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "平台站点 njwtxx.njgljy.com 存在且内页（content?id=…）可读，但首页为 2084B 空壳（平台统一框架），不作为可用官网列出",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市砺志实验小学": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "学校动态经公众号与「南京魅力校园」发布；2026-11-01 检索未发现可访问的独立站点",
+      "site_state": "none"
+    },
+    "小学-鼓楼区-南京市力人学校（小学部）": {
+      "site": null,
+      "site_archived": null,
+      "null_reason": "未检索到",
+      "repair": null,
+      "wechat": null,
+      "wechat_status": "unknown",
+      "level": "C",
+      "basis": "与力学小学共用办学主体与发布渠道；2026-11-01 检索未发现独立站点（该校区 2020 年才开办）",
+      "site_state": "none"
     }
   },
   "verified": "2026-10-22"

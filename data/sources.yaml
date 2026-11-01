@@ -1,0 +1,1471 @@
+# 南京学校档案 · 采集源清单
+#
+# 本文件是采集层（src/ingest）的唯一配置来源，由人工维护。
+# 初次由 src/ingest/gen_sources.py 从 data/school_websites.json 引导生成，之后以本文件为准。
+#
+# 字段：
+#   id      唯一标识，前缀 school: / bureau: 必须与 kind 一致
+#   kind    school = 学校官网（S2 半结构：公告列表）
+#           bureau = 主管部门/招考机构（S1 强结构：PDF 附件与固定表头表格）
+#   entry   入口地址。留空表示尚未核实，采集器会跳过
+#   tier    抓取档位：T0 政策窗口期每日 / T1 每周 / T2 每日探活 / T3 每学期 / T4 仅手动
+#   parser  解析方式：announcement_list / gov_attachment / score_table / manual
+#   status  verified = 已核实可用；unverified = 待核，entry 必须留空
+#   note    为什么收录、已知的问题
+#
+# 语法限制（对应 src/ingest/sourcelist.py 的解析器）：
+#   只支持「- 开头新条目 + 缩进的 key: value」两层结构；不支持多行值与行内注释。
+#   值里含冒号、引号、中文标点时，用双引号包成 JSON 字符串。
+#
+# 维护纪律：新地址先人工核一遍再填 entry 并改 status；不要按域名规律猜。
+# 把「学校官网托管平台」（如 njgljy.com 那批）当成区教育局门户，会抓错地方。
+
+sources:
+  # ── 主管部门与招考机构（S1）──
+  - id: bureau:city-edu
+    kind: bureau
+    name: 南京市教育局
+    entry: https://edu.nanjing.gov.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "施教区、招生政策、电脑派位计划的市级发布口；实测可达"
+
+  - id: bureau:zkb
+    kind: bureau
+    name: 南京教育招生考试院
+    entry: https://edu.nanjing.gov.cn/zb/gzzs/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "投档控制线、录取进程的发布口；无独立官网，公告经市教育局网站发布"
+
+  - id: bureau:01-玄武区
+    kind: bureau
+    name: 玄武区教育局
+    entry: http://www.xwzf.gov.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "区政府门户（无独立教育专网），招生文件在「教育」栏目"
+
+  - id: bureau:02-秦淮区
+    kind: bureau
+    name: 秦淮区教育局
+    entry: http://www.njqhjy.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "秦淮教育信息网"
+
+  - id: bureau:03-建邺区
+    kind: bureau
+    name: 建邺区教育局
+    entry: https://www.jyjsfz.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "南京建邺教育；建邺区官方问答指定的查询网址之一"
+
+  - id: bureau:04-鼓楼区
+    kind: bureau
+    name: 鼓楼区教育局
+    entry: http://www.njgl.gov.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "区政府门户；招生办法、派位办法、施教区问答均在此发布（已验证）"
+
+  - id: bureau:05-栖霞区
+    kind: bureau
+    name: 栖霞区教育局
+    entry: http://www.qxteacher.com/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "栖霞教育之家；区政府 www.njqxq.gov.cn 亦有教育栏目，两者实测可达"
+
+  - id: bureau:06-雨花台区
+    kind: bureau
+    name: 雨花台区教育局
+    entry: http://www.njyh.gov.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "区政府门户（无独立教育专网）"
+
+  - id: bureau:07-江宁区
+    kind: bureau
+    name: 江宁区教育局
+    entry: http://www.jnjy.net.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "江宁教育服务平台；招生咨询电话附件发布于此"
+
+  - id: bureau:08-江北新区
+    kind: bureau
+    name: 江北新区教育局
+    entry: http://www.njnaedu.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "南京江北新区教育信息网"
+
+  - id: bureau:09-六合区
+    kind: bureau
+    name: 六合区教育局
+    entry: http://www.lhenet.net/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "六合教育信息网"
+
+  - id: bureau:10-溧水区
+    kind: bureau
+    name: 溧水区教育局
+    entry: http://www.njls.gov.cn/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "区政府门户；教育专网 njlsedu.cn 实测 502，改用门户"
+
+  - id: bureau:11-高淳区
+    kind: bureau
+    name: 高淳区教育局
+    entry: https://www.gcjy.info/
+    tier: T0
+    parser: gov_attachment
+    status: verified
+    note: "高淳教育"
+
+  # ── 学校官网（S2）──
+
+  # 小学
+  - id: school:小学-鼓楼区-南京市琅琊路小学
+    kind: school
+    name: 南京市琅琊路小学
+    entry: http://lylxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市拉萨路小学
+    kind: school
+    name: 南京市拉萨路小学
+    entry: http://lasaluxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市力学小学
+    kind: school
+    name: 南京市力学小学
+    entry: http://njlixue.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市芳草园小学
+    kind: school
+    name: 南京市芳草园小学
+    entry: http://www.fcyxx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市北京东路小学
+    kind: school
+    name: 南京市北京东路小学
+    entry: http://www.njbx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京师范大学附属小学
+    kind: school
+    name: 南京师范大学附属小学
+    entry: https://www.nsdfx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市金陵汇文学校
+    kind: school
+    name: 南京市金陵汇文学校
+    entry: http://jlhwxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市银城小学
+    kind: school
+    name: 南京市银城小学
+    entry: http://njycxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市凤凰花园城小学
+    kind: school
+    name: 南京市凤凰花园城小学
+    entry: http://njfhy.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市长江路小学
+    kind: school
+    name: 南京市长江路小学
+    entry: http://www.njcx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市成贤街小学
+    kind: school
+    name: 南京市成贤街小学
+    entry: http://www.njcxj.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市夫子庙小学
+    kind: school
+    name: 南京市夫子庙小学
+    entry: http://fzmxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-金陵中学实验小学
+    kind: school
+    name: 金陵中学实验小学
+    entry: http://www.jlzxsx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-南京师范大学附属中学新城小学
+    kind: school
+    name: 南京师范大学附属中学新城小学
+    entry: http://www.njxcxx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-南京河西外国语学校
+    kind: school
+    name: 南京河西外国语学校
+    entry: http://www.nhfls.com.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-金陵中学河西分校
+    kind: school
+    name: 金陵中学河西分校
+    entry: http://www.jzhx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-南京市青奥村外国语小学
+    kind: school
+    name: 南京市青奥村外国语小学
+    entry: http://www.nyovbps.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京仙林外国语学校
+    kind: school
+    name: 南京仙林外国语学校
+    entry: http://www.nxfls.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南师附中仙林学校小学部
+    kind: school
+    name: 南师附中仙林学校小学部
+    entry: http://njxlxx.site.qxteacher.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市东山小学
+    kind: school
+    name: 南京市东山小学
+    entry: http://dsxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市百家湖小学
+    kind: school
+    name: 南京市百家湖小学
+    entry: http://bjhxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京东山外国语学校
+    kind: school
+    name: 南京东山外国语学校
+    entry: http://dswx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市浦口实验小学
+    kind: school
+    name: 南京市浦口实验小学
+    entry: http://pksx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京明道学校
+    kind: school
+    name: 南京明道学校
+    entry: https://www.njmdzx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京（大厂）民办育英第二外国语学校
+    kind: school
+    name: 南京（大厂）民办育英第二外国语学校
+    entry: http://www.njyysf.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-南京苏杰学校
+    kind: school
+    name: 南京苏杰学校
+    entry: https://www.topsuje.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京市金陵小学
+    kind: school
+    name: 南京市金陵小学
+    entry: http://www.njjzxx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区外国语小学
+    kind: school
+    name: 南京江北新区外国语小学
+    entry: http://pwgxxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-建邺区-南京市金陵河西学校附属小学
+    kind: school
+    name: 南京市金陵河西学校附属小学
+    entry: http://www.jzhx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京晓庄学院附属小学
+    kind: school
+    name: 南京晓庄学院附属小学
+    entry: http://www.njxyfx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京市燕子矶中心小学
+    kind: school
+    name: 南京市燕子矶中心小学
+    entry: http://nanjingshiqixiaquyanzijizhongxinxiaoxue.site.qxteacher.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京市迈皋桥中心小学
+    kind: school
+    name: 南京市迈皋桥中心小学
+    entry: http://www.mgqxx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京市炼油厂小学
+    kind: school
+    name: 南京市炼油厂小学
+    entry: http://lyc.njqxzxxx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-栖霞区-南京市龙潭中心小学
+    kind: school
+    name: 南京市龙潭中心小学
+    entry: http://www.njltxx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市琅琊路小学明发滨江分校
+    kind: school
+    name: 南京市琅琊路小学明发滨江分校
+    entry: http://njlxmffx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市南化实验小学
+    kind: school
+    name: 南京市南化实验小学
+    entry: http://nhshx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市南化第四小学
+    kind: school
+    name: 南京市南化第四小学
+    entry: http://www.nhsx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京信息工程大学附属实验小学
+    kind: school
+    name: 南京信息工程大学附属实验小学
+    entry: http://xdjy.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市扬子第二小学
+    kind: school
+    name: 南京市扬子第二小学
+    entry: http://yz2x.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市扬子第三小学
+    kind: school
+    name: 南京市扬子第三小学
+    entry: http://www.njyzsx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市扬子第四小学
+    kind: school
+    name: 南京市扬子第四小学
+    entry: http://yzdsxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市葛塘中心小学
+    kind: school
+    name: 南京市葛塘中心小学
+    entry: http://gtxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市南化第三小学
+    kind: school
+    name: 南京市南化第三小学
+    entry: http://njnhsx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市浦口区高旺小学
+    kind: school
+    name: 南京市浦口区高旺小学
+    entry: http://www.pkjx.com/pkqgwxx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市浦口区永宁小学
+    kind: school
+    name: 南京市浦口区永宁小学
+    entry: http://www.pkjx.com/pkqynxx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市浦口区汤泉小学
+    kind: school
+    name: 南京市浦口区汤泉小学
+    entry: http://www.pkjx.com/pkqtqxx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市浦口区星甸小学
+    kind: school
+    name: 南京市浦口区星甸小学
+    entry: http://www.pkjx.com/pkqxdxx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市琅琊路小学柳洲东路分校
+    kind: school
+    name: 南京市琅琊路小学柳洲东路分校
+    entry: http://wnsscfx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市北京东路小学分校红太阳小学
+    kind: school
+    name: 南京市北京东路小学分校红太阳小学
+    entry: http://njsbjdlxxfxhtyxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京一中江北新区教育集团第一小学
+    kind: school
+    name: 南京一中江北新区教育集团第一小学
+    entry: http://yzyx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京一中江北新区教育集团第二小学
+    kind: school
+    name: 南京一中江北新区教育集团第二小学
+    entry: http://yzex.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市琅琊路小学分校天润城小学
+    kind: school
+    name: 南京市琅琊路小学分校天润城小学
+    entry: http://lxtrc.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区浦口外国语学校（小学部）
+    kind: school
+    name: 南京江北新区浦口外国语学校（小学部）
+    entry: http://www.npfls.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京信息工程大学附属高新实验小学
+    kind: school
+    name: 南京信息工程大学附属高新实验小学
+    entry: http://gxsx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市第二十九中学天润城分校（小学部）
+    kind: school
+    name: 南京市第二十九中学天润城分校（小学部）
+    entry: http://nj29ztrcfx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区浦厂小学
+    kind: school
+    name: 南京江北新区浦厂小学
+    entry: http://pcxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京晓庄学院顶山实验小学
+    kind: school
+    name: 南京晓庄学院顶山实验小学
+    entry: http://xzdssx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区泰山小学
+    kind: school
+    name: 南京江北新区泰山小学
+    entry: http://pkqtsxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京市力学小学海德北岸分校
+    kind: school
+    name: 南京市力学小学海德北岸分校
+    entry: http://lxhdfx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区高新实验小学
+    kind: school
+    name: 南京江北新区高新实验小学
+    entry: http://pkgxxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区浦洲路小学
+    kind: school
+    name: 南京江北新区浦洲路小学
+    entry: http://pzlxx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江北新区-南京江北新区鼎泰实验小学
+    kind: school
+    name: 南京江北新区鼎泰实验小学
+    entry: http://dtsx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市江宁开发区学校（小学部）
+    kind: school
+    name: 南京市江宁开发区学校（小学部）
+    entry: http://kfqxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市将军山小学
+    kind: school
+    name: 南京市将军山小学
+    entry: http://jjsxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市东郊小镇小学
+    kind: school
+    name: 南京市东郊小镇小学
+    entry: http://djxzxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市江宁上坊新城小学
+    kind: school
+    name: 南京市江宁上坊新城小学
+    entry: http://sfxcxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市江宁区禄口第二小学
+    kind: school
+    name: 南京市江宁区禄口第二小学
+    entry: http://lkdexx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市江宁区梅龙湖学校（小学部）
+    kind: school
+    name: 南京市江宁区梅龙湖学校（小学部）
+    entry: http://mlhxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市江宁区宏运学校（小学部）
+    kind: school
+    name: 南京市江宁区宏运学校（小学部）
+    entry: http://hyxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-江宁区-南京市江宁区岔路学校（小学部）
+    kind: school
+    name: 南京市江宁区岔路学校（小学部）
+    entry: http://clxx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市小营小学
+    kind: school
+    name: 南京市小营小学
+    entry: https://xyxx.xwjy.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市逸仙小学
+    kind: school
+    name: 南京市逸仙小学
+    entry: https://yxxx.xwjy.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市锁金新村第二小学
+    kind: school
+    name: 南京市锁金新村第二小学
+    entry: http://sjex.xwjy.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-玄武区-南京市北京东路小学阳光分校
+    kind: school
+    name: 南京市北京东路小学阳光分校
+    entry: http://www.njbx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市石鼓路小学
+    kind: school
+    name: 南京市石鼓路小学
+    entry: http://sglx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市考棚小学
+    kind: school
+    name: 南京市考棚小学
+    entry: http://kpxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市小西湖小学
+    kind: school
+    name: 南京市小西湖小学
+    entry: http://xxhxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京怡馨花园小学
+    kind: school
+    name: 南京怡馨花园小学
+    entry: http://yxhyxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市建康路小学
+    kind: school
+    name: 南京市建康路小学
+    entry: http://njjklxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市马府街小学
+    kind: school
+    name: 南京市马府街小学
+    entry: http://www.njsmfjxx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市中山小学
+    kind: school
+    name: 南京市中山小学
+    entry: http://njzsxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-秦淮区-南京市月牙湖小学
+    kind: school
+    name: 南京市月牙湖小学
+    entry: http://yyhxx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-高淳区-南京市高淳区实验小学
+    kind: school
+    name: 南京市高淳区实验小学
+    entry: http://syxx.gcjy.info/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市三牌楼小学
+    kind: school
+    name: 南京市三牌楼小学
+    entry: http://www.splxx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市天正小学
+    kind: school
+    name: 南京市天正小学
+    entry: https://gltzxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市汉江路小学
+    kind: school
+    name: 南京市汉江路小学
+    entry: http://hjlxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市赤壁路小学
+    kind: school
+    name: 南京市赤壁路小学
+    entry: http://cbl.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市鼓楼区第一中心小学
+    kind: school
+    name: 南京市鼓楼区第一中心小学
+    entry: http://njgldyzx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京大学附属丁家桥小学
+    kind: school
+    name: 南京大学附属丁家桥小学
+    entry: http://nddjqxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市古平岗小学
+    kind: school
+    name: 南京市古平岗小学
+    entry: http://njgpgxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市龙江小学
+    kind: school
+    name: 南京市龙江小学
+    entry: http://njljxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市白云园小学
+    kind: school
+    name: 南京市白云园小学
+    entry: http://njsbyyxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市渊声巷小学
+    kind: school
+    name: 南京市渊声巷小学
+    entry: http://ysxxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市青云巷小学
+    kind: school
+    name: 南京市青云巷小学
+    entry: http://qyxxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市马台街小学
+    kind: school
+    name: 南京市马台街小学
+    entry: http://mtjxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市南昌路小学
+    kind: school
+    name: 南京市南昌路小学
+    entry: https://nclxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市紫竹苑小学
+    kind: school
+    name: 南京市紫竹苑小学
+    entry: http://njzzyxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京财经大学附属小学
+    kind: school
+    name: 南京财经大学附属小学
+    entry: http://njcdfx.nje.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南师附中鲁迅园小学
+    kind: school
+    name: 南师附中鲁迅园小学
+    entry: http://lxyxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-江苏第二师范学院附属小学
+    kind: school
+    name: 江苏第二师范学院附属小学
+    entry: http://jjfx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市莫愁新寓小学
+    kind: school
+    name: 南京市莫愁新寓小学
+    entry: http://mcxy.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市宝船小学
+    kind: school
+    name: 南京市宝船小学
+    entry: http://njbcxx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:小学-鼓楼区-南京市鼓楼实验小学
+    kind: school
+    name: 南京市鼓楼实验小学
+    entry: http://njglsyxx.msms.tq-edu.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+
+  # 初中
+  - id: school:初中-玄武区-南京玄武外国语学校
+    kind: school
+    name: 南京玄武外国语学校
+    entry: http://www.xwfls.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-秦淮区-南京郑和外国语学校
+    kind: school
+    name: 南京郑和外国语学校
+    entry: https://njzhwx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京市鼓楼实验中学
+    kind: school
+    name: 南京市鼓楼实验中学
+    entry: http://njsglsyzx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京求真中学
+    kind: school
+    name: 南京求真中学
+    entry: http://njqz.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京民办育英外国语学校
+    kind: school
+    name: 南京民办育英外国语学校
+    entry: http://njyyfls.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-秦淮区-南京市钟英中学
+    kind: school
+    name: 南京市钟英中学
+    entry: http://zyzx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-玄武区-南京市科利华中学
+    kind: school
+    name: 南京市科利华中学
+    entry: http://www.njklhzx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京师范大学附属中学树人学校
+    kind: school
+    name: 南京师范大学附属中学树人学校
+    entry: http://www.nsfzsr.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京市第二十九中学初中部
+    kind: school
+    name: 南京市第二十九中学初中部
+    entry: http://nj29cz.njgljy.com
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-建邺区-南京师范大学附属中学新城初级中学
+    kind: school
+    name: 南京师范大学附属中学新城初级中学
+    entry: https://www.jyjsfz.cn/xccjzx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-建邺区-南京外国语学校河西初级中学
+    kind: school
+    name: 南京外国语学校河西初级中学
+    entry: https://www.jyjsfz.cn/njwgyxxhxcjzx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京市金陵汇文学校
+    kind: school
+    name: 南京市金陵汇文学校
+    entry: http://njjlhw.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-建邺区-南京河西外国语学校
+    kind: school
+    name: 南京河西外国语学校
+    entry: http://www.nhfls.com.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-栖霞区-南京仙林外国语学校
+    kind: school
+    name: 南京仙林外国语学校
+    entry: https://www.nflsxl.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江宁区-南京东山外国语学校
+    kind: school
+    name: 南京东山外国语学校
+    entry: http://dswx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京明道学校
+    kind: school
+    name: 南京明道学校
+    entry: https://www.njmdzx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京（大厂）民办育英第二外国语学校
+    kind: school
+    name: 南京（大厂）民办育英第二外国语学校
+    entry: http://www.njyysf.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-建邺区-南京苏杰学校
+    kind: school
+    name: 南京苏杰学校
+    entry: https://sjzx.topsuje.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江宁区-南京市竹山中学
+    kind: school
+    name: 南京市竹山中学
+    entry: http://zszx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市旭东中学
+    kind: school
+    name: 南京市旭东中学
+    entry: http://www.njxd.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-建邺区-南京市中华中学附属初级中学
+    kind: school
+    name: 南京市中华中学附属初级中学
+    entry: http://www.jyjsfz.cn/zhzxfscjzx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-建邺区-南京市金陵中学建邺实验学校
+    kind: school
+    name: 南京市金陵中学建邺实验学校
+    entry: http://www.jyjsfz.cn/jlzxjysyxx/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-栖霞区-南京市金陵中学仙林分校中学部
+    kind: school
+    name: 南京市金陵中学仙林分校中学部
+    entry: http://www.njjzxl.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-栖霞区-南京师范大学附属中学丁家庄初级中学
+    kind: school
+    name: 南京师范大学附属中学丁家庄初级中学
+    entry: http://nsfzdjzfx.site.qxteacher.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-栖霞区-南京市迈皋桥初级中学
+    kind: school
+    name: 南京市迈皋桥初级中学
+    entry: http://www.mgqcjzx29.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-栖霞区-南京市伯乐中学
+    kind: school
+    name: 南京市伯乐中学
+    entry: http://njblzx.site.qxteacher.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市第二十九中学天润城分校
+    kind: school
+    name: 南京市第二十九中学天润城分校
+    entry: http://nj29ztrcfx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市第一中学明发滨江分校
+    kind: school
+    name: 南京市第一中学明发滨江分校
+    entry: http://www.yzmffx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京江北新区浦口外国语学校
+    kind: school
+    name: 南京江北新区浦口外国语学校
+    entry: http://www.npfls.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市扬子第一中学
+    kind: school
+    name: 南京市扬子第一中学
+    entry: http://www.yzyz.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京江北新区外国语学校
+    kind: school
+    name: 南京江北新区外国语学校
+    entry: http://pwgxfx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京汉开书院学校
+    kind: school
+    name: 南京汉开书院学校
+    entry: https://www.hankaiacademy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京安生学校
+    kind: school
+    name: 南京安生学校
+    entry: http://nanjing.thomasschools.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京金地未来学校
+    kind: school
+    name: 南京金地未来学校
+    entry: http://www.rgsgnj.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市九龙中学
+    kind: school
+    name: 南京市九龙中学
+    entry: http://jlms.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京江北新区浦厂中学
+    kind: school
+    name: 南京江北新区浦厂中学
+    entry: http://pczx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市沿江中学
+    kind: school
+    name: 南京市沿江中学
+    entry: http://yjzx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市南化第二中学
+    kind: school
+    name: 南京市南化第二中学
+    entry: http://nh2z.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市第二十九中学柳洲东路分校
+    kind: school
+    name: 南京市第二十九中学柳洲东路分校
+    entry: http://njswnczx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京江北新区实验初级中学
+    kind: school
+    name: 南京江北新区实验初级中学
+    entry: http://njhxzx.njnaedu.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-江北新区-南京市第一中学明发滨江南浦路中学
+    kind: school
+    name: 南京市第一中学明发滨江南浦路中学
+    entry: http://www.yzmffx.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-玄武区-南京市第九初级中学
+    kind: school
+    name: 南京市第九初级中学
+    entry: http://www.nj9c.cn
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-玄武区-南京市第十三中学锁金分校
+    kind: school
+    name: 南京市第十三中学锁金分校
+    entry: https://sszsjfx.xwjy.cn/index
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-秦淮区-南京市第三中学
+    kind: school
+    name: 南京市第三中学
+    entry: http://njsdszx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-秦淮区-南京市第五初级中学
+    kind: school
+    name: 南京市第五初级中学
+    entry: http://5c.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-秦淮区-南京航空航天大学附属初级中学
+    kind: school
+    name: 南京航空航天大学附属初级中学
+    entry: http://nhcjzx.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-秦淮区-南京市文枢初级中学
+    kind: school
+    name: 南京市文枢初级中学
+    entry: http://njwscz.njqhjy.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-高淳区-南京市高淳区第二中学
+    kind: school
+    name: 南京市高淳区第二中学
+    entry: https://gcez.gcjy.info/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-高淳区-南京市高淳区第三中学
+    kind: school
+    name: 南京市高淳区第三中学
+    entry: https://gcsz.gcjy.info/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京市第二十九中学幕府山初级中学
+    kind: school
+    name: 南京市第二十九中学幕府山初级中学
+    entry: http://29zmfs.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京市第五十中学
+    kind: school
+    name: 南京市第五十中学
+    entry: http://www.nj50z.cn
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:初中-鼓楼区-南京市宁海中学分校
+    kind: school
+    name: 南京市宁海中学分校
+    entry: http://nhzxfx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+
+  # 高中
+  - id: school:高中-鼓楼区-南京师范大学附属中学
+    kind: school
+    name: 南京师范大学附属中学
+    entry: https://www.nsfz.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-鼓楼区-南京市金陵中学
+    kind: school
+    name: 南京市金陵中学
+    entry: http://www.jlhs.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-玄武区-南京外国语学校
+    kind: school
+    name: 南京外国语学校
+    entry: https://www.nfls.com.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-鼓楼区-南京市第二十九中学
+    kind: school
+    name: 南京市第二十九中学
+    entry: http://www.nj29jt.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-秦淮区-南京市第一中学
+    kind: school
+    name: 南京市第一中学
+    entry: https://www.njyz.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-建邺区-南京市中华中学
+    kind: school
+    name: 南京市中华中学
+    entry: https://www.njzhzx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-玄武区-南京市第十三中学
+    kind: school
+    name: 南京市第十三中学
+    entry: http://www.nj13z.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-玄武区-南京市第九中学
+    kind: school
+    name: 南京市第九中学
+    entry: http://www.njjz.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-鼓楼区-南京市宁海中学
+    kind: school
+    name: 南京市宁海中学
+    entry: http://njnhzx.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-雨花台区-南京市雨花台中学
+    kind: school
+    name: 南京市雨花台中学
+    entry: https://www.yhtzx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江宁区-南京市江宁高级中学
+    kind: school
+    name: 南京市江宁高级中学
+    entry: http://www.jnsms.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江宁区-南京师范大学附属中学江宁分校
+    kind: school
+    name: 南京师范大学附属中学江宁分校
+    entry: https://www.nsfz.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-秦淮区-南京师范大学附属中学秦淮科技高中
+    kind: school
+    name: 南京师范大学附属中学秦淮科技高中
+    entry: http://www.nsfzqhkg.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-鼓楼区-南京田家炳高级中学
+    kind: school
+    name: 南京田家炳高级中学
+    entry: http://njtgz.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-鼓楼区-南京市第十二中学
+    kind: school
+    name: 南京市第十二中学
+    entry: http://nj12z.njgljy.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-建邺区-南京市建邺高级中学
+    kind: school
+    name: 南京市建邺高级中学
+    entry: https://www.schooljy.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-秦淮区-南京航空航天大学附属高级中学
+    kind: school
+    name: 南京航空航天大学附属高级中学
+    entry: http://www.nhfz.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-高淳区-江苏省高淳高级中学
+    kind: school
+    name: 江苏省高淳高级中学
+    entry: https://gcgz.gcjy.info/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-栖霞区-南京市第一中学思益科学高级中学
+    kind: school
+    name: 南京市第一中学思益科学高级中学
+    entry: http://www.njyzsyxx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-建邺区-金陵中学河西分校
+    kind: school
+    name: 金陵中学河西分校
+    entry: http://www.jzhx.net/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-六合区-江苏省六合高级中学
+    kind: school
+    name: 江苏省六合高级中学
+    entry: http://www.lhgz.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-六合区-南京市六合区实验高级中学
+    kind: school
+    name: 南京市六合区实验高级中学
+    entry: http://www.lhqsygz.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-高淳区-南京市高淳区湖滨高级中学
+    kind: school
+    name: 南京市高淳区湖滨高级中学
+    entry: https://hbgz.gcjy.info/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江宁区-南京市秦淮中学
+    kind: school
+    name: 南京市秦淮中学
+    entry: http://qhgjzx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江宁区-南京市临江高级中学
+    kind: school
+    name: 南京市临江高级中学
+    entry: http://ljgjzx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-栖霞区-南京市燕子矶中学
+    kind: school
+    name: 南京市燕子矶中学
+    entry: http://www.njsyzjzx.cn
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-栖霞区-南京市栖霞中学
+    kind: school
+    name: 南京市栖霞中学
+    entry: http://www.njsqxzx.com
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江北新区-南京师范大学附属扬子中学
+    kind: school
+    name: 南京师范大学附属扬子中学
+    entry: http://www.njyzzx.com
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江北新区-南京市大厂高级中学
+    kind: school
+    name: 南京市大厂高级中学
+    entry: http://www.njdcms.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-江宁区-南京市天印高级中学
+    kind: school
+    name: 南京市天印高级中学
+    entry: http://tygjzx.jnjy.net.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-玄武区-南京市玄武高级中学
+    kind: school
+    name: 南京市玄武高级中学
+    entry: http://www.xwgjzx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-玄武区-金陵中学集团人民中学
+    kind: school
+    name: 金陵中学集团人民中学
+    entry: http://www.njrmzx.com/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-秦淮区-南京市第二十七高级中学
+    kind: school
+    name: 南京市第二十七高级中学
+    entry: http://www.nj27gz.cn/
+    tier: T1
+    parser: announcement_list
+    status: verified
+  - id: school:高中-鼓楼区-南京大学附属中学
+    kind: school
+    name: 南京大学附属中学
+    entry: http://www.njndfz.com/
+    tier: T1
+    parser: announcement_list
+    status: verified

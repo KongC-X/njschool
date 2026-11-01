@@ -4,14 +4,31 @@
 
 目录结构：学段 / 行政区 / 学校全称.md
 
-新增学校时：在 SCHOOLS 列表追加一条 → 重跑本脚本即可。
+新增学校时：**只需新建 md 并在头部写 front-matter**，本脚本靠扫描目录收录，
+不必改代码。原 SCHOOLS 名单已不再被读取（见下方说明）。
 """
+import glob
 import json
 import os
+import sys
 
 # 从脚本自身位置推导项目根：写死绝对路径的话，换机器或在 CI 上跑会写到错的地方
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from pipeline import config, source      # noqa: E402  config 提供 TODAY；source 只依赖 config
+
+# ---------------------------------------------------------------------------
+# 【已停止使用】以下 SCHOOLS 名单自 2026-11-01 起不再参与构建。
+#
+# 索引字段现全部来自各档案头部的 front-matter，收录范围改为扫描
+# 「学段/行政区/校名.md」。保留这份名单只为两件事：
+#   1. 历史可追溯（它记录了新增学校时的人工排序意图，已固化进各档案的 rank 字段）
+#   2. 兼容 src/append_index_*.py 这批一次性批量导入脚本——它们以文本方式
+#      定位 "SCHOOLS = [" 来插入条目，删掉会让这些历史脚本报错
+#
+# 改这里不会再影响站点。要改学校信息，请改对应 md 的 front-matter。
+# ---------------------------------------------------------------------------
 # 元组结构：(学校全称, 简称, 区, 学段, 办学性质, 梯队, 一句话定位)
 # 文件路径由「学段/区/学校全称.md」自动推导，无需手写。
 SCHOOLS = [
@@ -1293,17 +1310,74 @@ def plain_tagline(text):
     return text.replace("**", "")
 
 
+# 与档案 front-matter 的字段一一对应（顺序即元组顺序）
+META_KEYS = ("name", "short", "district", "level", "type", "tier", "tagline")
+
+LEVELS = ("小学", "初中", "高中")
+
+
+def scan_files():
+    """扫描「学段/行政区/校名.md」三级结构，返回 [(相对路径, 字节数)]。
+
+    只匹配两级通配 `学段/*/*.md`，不用 `**`：目录规范就是两级，
+    更深的层级属于放错位置，应该报出来让人处理，而不是被静默收录。
+    """
+    out = []
+    for level in LEVELS:
+        pattern = os.path.join(ROOT, level, "*", "*.md")
+        for path in glob.glob(pattern):
+            rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
+            out.append((rel, os.path.getsize(path)))
+    return out
+
+
+def check_layout(rel, meta):
+    """校验 front-matter 与文件路径是否吻合，返回问题描述或 None。
+
+    这是删掉 SCHOOLS 名单后唯一的"防误收"守卫：
+    档案放错区、校名改过但没重命名文件、front-matter 抄了别的学校，
+    都会在这里暴露。没有这道校验，一个放错目录的文件会静默进索引。
+    """
+    parts = rel.split("/")
+    if len(parts) != 3:
+        return f"路径层级不是「学段/区/校名.md」：{rel}"
+    level, district, fname = parts[0], parts[1], parts[2][:-3]
+    for key, expect in (("level", level), ("district", district), ("name", fname)):
+        got = meta.get(key)
+        if got != expect:
+            return f"{key} 为 {got!r}，与路径中的 {expect!r} 不符"
+    return None
+
+
 def build():
     items = []
-    skipped = []
-    for (name, short, district, level, stype, tier, tagline) in SCHOOLS:
-        rel = f"{level}/{district}/{name}.md"
-        abs_path = os.path.join(ROOT, rel)
-        if not os.path.exists(abs_path):
-            skipped.append(rel)
+    nometa = []
+    layout_bad = []
+    ranks = {}
+    for rel, size in scan_files():
+        meta = source.meta(rel)
+        if not meta:
+            # 缺 front-matter 必须报错：索引的全部字段都来自它，缺了就无从生成。
+            # 这类档案通常是从旧版模板新建后忘了补头部。
+            nometa.append(rel)
             continue
+        problem = check_layout(rel, meta)
+        if problem:
+            layout_bad.append(f"{rel}：{problem}")
+            continue
+        row = tuple(meta.get(k, "") for k in META_KEYS)
+        name, short, district, level, stype, tier, tagline = row
+        sid = f"{level}-{district}-{name}"
+
+        # rank 只影响排序，不进 index.json。缺省给一个大值：
+        # 新增学校不写 rank 时排在同类末尾，顺序仍可预期，不会插队。
+        try:
+            ranks[sid] = int(meta.get("rank"))
+        except (TypeError, ValueError):
+            ranks[sid] = 9999
+
         items.append({
-            "id": f"{level}-{district}-{name}",
+            "id": sid,
             "name": name,
             "short": short,
             "district": district,
@@ -1312,12 +1386,16 @@ def build():
             "tier": tier,
             "file": rel,
             "tagline": plain_tagline(tagline),
-            "size": os.path.getsize(abs_path),
+            "size": size,
         })
 
+    # 排序键：学段 → 梯队优先级 → 区 → 人工顺序（rank）。
+    # 第四个键必须存在：前三项相同时，此前靠「遍历 SCHOOLS 的列表次序 + 排序稳定性」
+    # 隐式兜底；改成扫描目录后这个兜底消失，实测 406 个位置会换位。
     items.sort(key=lambda x: (LEVEL_ORDER.get(x["level"], 9),
                               PRIORITY.get(x["name"], 99),
-                              x["district"]))
+                              x["district"],
+                              ranks.get(x["id"], 9999)))
 
     coverage = {lv: sum(1 for x in items if x["level"] == lv)
                 for lv in ("小学", "初中", "高中")}
@@ -1325,8 +1403,11 @@ def build():
     doc = {
         "schema": "nanjing-school-archive/v1",
         "title": "南京中小学学校档案索引",
-        "version": "2026.10",
-        "updated": "2026-10-16",
+        # version 是**数据版本**，只在内容口径发生结构性变化时手动改。
+        # updated 是**生成日期**，必须自动：此前两者都写死，学校补到 563 所后
+        # 对外仍标称「2026-10-16」，读索引的 App/小程序会以为数据停在 10 月。
+        "version": "2026.11",
+        "updated": config.TODAY,
         "structure": "学段/行政区/学校全称.md",
         "note": "内容层为 Markdown 文件，本索引仅提供列表与检索所需的元数据。"
                 "App 渲染时读本文件取元数据，再加载对应 file 的 md 正文。",
@@ -1353,12 +1434,22 @@ def build():
     print()
     for x in items:
         print(f"  [{x['level']}] {x['name']:26s} {x['district']:6s} {x['size']:>6d}B")
-    if skipped:
+    if nometa:
         print()
-        print("⚠️  以下条目的文件不存在，已跳过：")
-        for s in skipped:
+        print(f"✗ {len(nometa)} 份档案缺少 front-matter（索引字段无从生成）：")
+        for s in nometa[:20]:
             print(f"   - {s}")
+        print("   补齐头部字段后重新构建。格式参考任意一份已迁移档案。")
+    if layout_bad:
+        print()
+        print(f"✗ {len(layout_bad)} 份档案的 front-matter 与文件路径不符：")
+        for s in layout_bad[:20]:
+            print(f"   - {s}")
+        print("   多半是文件放错区，或校名改过但没有同步重命名文件。")
+    if nometa or layout_bad:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    build()
+    sys.exit(build())

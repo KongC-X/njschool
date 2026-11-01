@@ -23,7 +23,7 @@
 {% if og_image %}<meta property="og:image" content="{{ og_image }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="南京中小学档案：545 所中小学公开信息汇编">
+<meta property="og:image:alt" content="南京中小学档案：{% if school_total %}{{ school_total }} 所{% endif %}中小学公开信息汇编">
 {% endif %}<meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}">
 <!-- 浏览器地址栏配色；与 tokens.css 的 --accent 保持一致 -->
 <meta name="theme-color" content="#2563eb"><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">

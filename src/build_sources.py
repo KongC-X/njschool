@@ -162,7 +162,10 @@ def main():
         "titles_with_url": filled,
         "by_type": dict(by_type),
     }
-    json.dump(stats, open(STATS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    # sort_keys：rows_by_status 的键来自 set()，而字符串哈希每进程随机化，
+    # 不排序则每次构建都会产生一次纯键序变化的无意义 diff。
+    json.dump(stats, open(STATS, "w", encoding="utf-8"), ensure_ascii=False, indent=1,
+              sort_keys=True)
 
     print(f"\n登记表：{OUT}\n优先级报告：{REPORT}\n统计：{STATS}")
     print("\n出现最多的 10 个来源：")

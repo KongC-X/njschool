@@ -120,6 +120,24 @@ def validate_schools(schools, districts, rep: Report):
         if len(text) < 1500:
             rep.warn(where, f"档案篇幅偏短（{len(text)} 字符），可能未写完")
 
+        # front-matter 是索引全部字段的唯一来源。这里再查一遍，是因为
+        # build_website 可以复用上一轮的 index.json 单独运行，那条路径不经过
+        # build_index 的校验——若此时某份档案的头部被改坏，页面会拿到旧索引，
+        # 错误就被藏起来了。
+        meta = source.meta(s.file)
+        if not meta:
+            rep.error(where, "档案缺少 front-matter（元数据来源）")
+            continue
+        for key in ("name", "district", "level", "type"):
+            if not meta.get(key):
+                rep.error(where, f"front-matter 缺少必填字段：{key}")
+        for key, actual in (("name", s.name), ("district", s.district), ("level", s.level)):
+            val = meta.get(key)
+            if val and val != actual:
+                rep.error(where, f"front-matter.{key}「{val}」与索引值「{actual}」不一致")
+        if meta.get("rank") is not None and not str(meta["rank"]).isdigit():
+            rep.warn(where, f"front-matter.rank 不是整数：{meta['rank']!r}，将按末尾排序")
+
 
 def validate_websites(schools, rep: Report):
     """校验官网记录：URL 格式、枚举值、与学校的一一对应。"""

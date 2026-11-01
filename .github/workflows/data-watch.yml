@@ -1,0 +1,118 @@
+name: data-watch
+
+# 数据巡检：每周跑一轮采集，把「有没有新公告 / 官方数字与站内是否一致」报出来。
+#
+# 为什么不自动提交：本工作流**不 push 任何文件**。采集结果只进 artifact 与 Issue，
+# 由人确认后再改档案。这与「md 是唯一真相、人审是唯一写入口」的约定一致，
+# 也避免自动提交触发 build.yml 造成未经核实的数字直接上线。
+#
+# 为什么不在窗口期改成每日：现有 188 个学校源以学校官网为主，公告频率低；
+# 13 个机构源里 12 个地址尚未核实。每日跑 188 个站点的收益接近于零，
+# 而对区级平台的打扰是实打实的。等机构源补齐后再按方案第四章分档。
+
+on:
+  schedule:
+    - cron: "0 21 * * 0"      # UTC 周日 21:00 = 北京周一 05:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: data-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      # 条件请求与正文快照都在 data/cache 里。不缓存的话每次冷启动都会全量
+      # 重新下载 188 个站点（约 30MB），304 完全失效。
+      - name: 恢复采集缓存
+        uses: actions/cache@v4
+        with:
+          path: data/cache
+          key: ingest-cache-${{ github.run_id }}
+          restore-keys: ingest-cache-
+
+      # extract 要拿 index.json 与档案比对，必须先建索引
+      - name: 重建索引
+        run: python src/build_index.py
+
+      - name: 采集与比对
+        id: ingest
+        run: |
+          set -o pipefail
+          : > /tmp/report.md
+          echo "## 数据巡检 $(date -u '+%Y-%m-%d %H:%M UTC')" >> /tmp/report.md
+
+          echo -e "\n### 一、列表页发现（增量）" >> /tmp/report.md
+          python src/ingest/discover.py --apply >> /tmp/report.md 2>&1 || echo "发现步骤异常" >> /tmp/report.md
+
+          echo -e "\n### 二、公告巡检" >> /tmp/report.md
+          python src/ingest/run.py --fetch --apply >> /tmp/report.md 2>&1
+          rc=$?
+          echo -e "\n### 三、官方数字抽取" >> /tmp/report.md
+          python src/ingest/extract.py --write >> /tmp/report.md 2>&1 || echo "抽取步骤异常" >> /tmp/report.md
+
+          # 「有新增」不是错误，但要主动通知——不然结果躺在 artifact 里没人看
+          if grep -q "新增公告 [1-9]" /tmp/report.md; then
+            echo "changed=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=no" >> "$GITHUB_OUTPUT"
+          fi
+
+          # 巡检本身的失败率过高才算异常（run.py 内部已按 20% 阈值判定）
+          if [ $rc -ne 0 ]; then
+            echo "::error::巡检失败率超过阈值，见报告"
+          fi
+          cat /tmp/report.md >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
+
+      - name: 上传巡检报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-watch-report
+          path: |
+            /tmp/report.md
+            data/facts/
+            data/source_lists.json
+          if-no-files-found: ignore
+          retention-days: 90
+
+      # 有新增公告才开 Issue。先查有没有同类未关的，避免每周叠一条。
+      #
+      # 注意：本工作流不提交 data/source_lists.json，所以基线不会前进——
+      # 同一条新增会在后续每周重复被检出。这是刻意的：基线只在人确认后随提交更新，
+      # 而不是让机器人悄悄把「已通知」当成「已处理」。靠下面的 open Issue 去重兜住噪音。
+      - name: 有新增时开 Issue
+        if: steps.ingest.outputs.changed == 'yes'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh issue list --state open --search "数据巡检发现新公告 in:title" \
+                     --json number --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "已有未关闭的同类 Issue，跳过"
+            exit 0
+          fi
+          {
+            echo "> 由 data-watch 自动创建。核实并更新档案后，请把 data/source_lists.json 的基线一并提交，再关闭本 Issue。"
+            echo "> 未关闭期间不会重复创建，但同一条新增会每周重复检出（基线未前进）。"
+            echo
+            cat /tmp/report.md
+          } > /tmp/issue.md
+          gh issue create \
+            --title "数据巡检发现新公告（$(date -u '+%Y-%m-%d')）" \
+            --body-file /tmp/issue.md

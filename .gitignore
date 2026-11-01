@@ -11,6 +11,11 @@ index.json
 南京学校对比表.xlsx
 data/website_check.json
 
+# ---- 采集层运行态（HTTP 缓存与熔断状态）----
+# 不入库：内容随每次抓取变化，提交进来只会产生无意义 diff。
+# CI 之间用 actions/cache 传递同一份 data/cache/，304 才不会每次都失效。
+data/cache/
+
 # ---- 系统与编辑器 ----
 .DS_Store
 .idea/
