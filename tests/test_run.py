@@ -203,5 +203,33 @@ class TestFailureVerdict(unittest.TestCase):
         self.assertEqual((rc, msg), (0, ""))
 
 
+class TestSplitDupGroups(unittest.TestCase):
+    """「内容完全相同」要按成因分开报，否则告警里混进改无可改的项。"""
+
+    def test_multi_level_same_site_is_expected(self):
+        # 金陵中学河西分校的小学/高中档案共用一址，内容必然相同
+        dup = {"h1": [{"name": "金陵中学河西分校", "entry": "http://www.jzhx.net/"},
+                      {"name": "金陵中学河西分校", "entry": "http://www.jzhx.net/"}]}
+        same, cross = run.split_dup_groups(dup)
+        self.assertEqual(len(same), 1)
+        self.assertEqual(cross, [])
+
+    def test_different_sites_same_content_is_flagged(self):
+        # 两个不同域名却返回同样内容 → 平台统一框架页，需要处理
+        dup = {"h2": [{"name": "A 小学", "entry": "http://a.example/"},
+                      {"name": "B 小学", "entry": "http://b.example/"}]}
+        same, cross = run.split_dup_groups(dup)
+        self.assertEqual(same, [])
+        self.assertEqual(len(cross), 1)
+
+    def test_mixed(self):
+        dup = {
+            "h1": [{"name": "甲", "entry": "http://x/"}, {"name": "乙", "entry": "http://x/"}],
+            "h2": [{"name": "丙", "entry": "http://p/"}, {"name": "丁", "entry": "http://q/"}],
+        }
+        same, cross = run.split_dup_groups(dup)
+        self.assertEqual((len(same), len(cross)), (1, 1))
+
+
 if __name__ == "__main__":
     unittest.main()

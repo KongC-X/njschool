@@ -164,6 +164,23 @@ def verdict(net, http, total):
     return 0, ""
 
 
+def split_dup_groups(dup):
+    """把「返回完全相同内容」的源按成因分成两类。
+
+    同一 URL 上挂了多份学段档案（金陵中学河西分校的小学/高中、浦口外国语学校的
+    小学部/初中部）时，抓到的内容必然 100% 相同——这是**预期**，不该提示去改配置。
+    只有**不同 URL 返回同样内容**，才说明是平台统一框架页（壳站），那才需要处理。
+
+    混在一起报的后果：每周都提示「建议改指公告列表页」，而其中大部分是正常的多学段
+    共用一址，改无可改。告警里混进改无可改的项，人就会开始整段跳过。
+    """
+    same_url, cross_url = [], []
+    for h, rs in dup.items():
+        entries = {r.get("entry") for r in rs}
+        (same_url if len(entries) == 1 else cross_url).append((h, rs))
+    return same_url, cross_url
+
+
 def run(rows, min_interval, apply=False):
     f = fetch.Fetcher(min_interval=min_interval)
     lists = discover.load_lists()
@@ -225,11 +242,19 @@ def run(rows, min_interval, apply=False):
 
     dup = {h: rs for h, rs in by_hash.items() if len(rs) > 1}
     if dup:
-        print(f"\n⚠ {len(dup)} 组源返回完全相同的内容（共 {sum(len(v) for v in dup.values())} 个源）：")
-        for h, rs in sorted(dup.items(), key=lambda kv: -len(kv[1]))[:5]:
-            names = "、".join(x.get("name", "") for x in rs[:4])
-            print(f"  · {len(rs)} 个源同内容（{h}）：{names}{'…' if len(rs) > 4 else ''}")
-        print("  通常意味着该批站是平台统一框架页，建议改指公告列表页或标 parser: manual。")
+        same_url, cross_url = split_dup_groups(dup)
+        if same_url:
+            n = sum(len(v) for _h, v in same_url)
+            print(f"\n· {len(same_url)} 组多学段档案共用同一站点（共 {n} 个源），内容必然相同，属预期：")
+            for _h, rs in same_url[:5]:
+                print(f"  · {rs[0].get('entry')}　" + "、".join(x.get("name", "") for x in rs))
+        if cross_url:
+            n = sum(len(v) for _h, v in cross_url)
+            print(f"\n⚠ {len(cross_url)} 组**不同站点**返回完全相同的内容（共 {n} 个源）：")
+            for h, rs in sorted(cross_url, key=lambda kv: -len(kv[1]))[:5]:
+                names = "、".join(x.get("name", "") for x in rs[:4])
+                print(f"  · {len(rs)} 个源同内容（{h}）：{names}{'…' if len(rs) > 4 else ''}")
+            print("  通常意味着这些站是平台统一框架页，建议改指公告列表页或标 parser: manual。")
 
     if new_items:
         print("\n新增公告（待人工核实后写入档案）：")

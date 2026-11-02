@@ -109,6 +109,16 @@ class TestValidate(unittest.TestCase):
         bad = sourcelist.validate(one(status="unverified"))
         self.assertTrue(any("却标为 unverified" in b for b in bad))
 
+    def test_unverified_with_entry_and_note_passes(self):
+        """写清原因的除外。
+
+        确实存在「地址能用，但不能用来监测本校」的情况：分校被登记成集团总站，
+        抓到的全是总校公告（北京东路小学阳光分校就是）。这类既不该硬标 verified
+        让它污染巡检结果，也不该因为填过地址就一律报错。
+        """
+        bad = sourcelist.validate(one(status="unverified", note="与本部同址，内容不含本校"))
+        self.assertEqual(bad, [])
+
     def test_bad_url(self):
         self.assertTrue(sourcelist.validate(one(entry="edu.nanjing.gov.cn")))
 

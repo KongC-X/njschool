@@ -132,8 +132,12 @@ def validate(items):
             bad.append(f"{where}：entry 必须是 http(s) 地址：{entry}")
         if not entry and it.get("status") == "verified":
             bad.append(f"{where}：标为 verified 但没有 entry 地址")
-        if entry and it.get("status") == "unverified":
-            bad.append(f"{where}：有地址却标为 unverified，核实后应改为 verified")
+        # 有地址却标 unverified：多半是核实完忘了改状态。但确实存在另一种情况——
+        # 地址核实过、确认「能用但不能用来监测本校」（如分校被登记成集团总站，
+        # 抓到的全是总校公告）。这类必须写明 note 才放行，否则两种情形分不开。
+        if entry and it.get("status") == "unverified" and not (it.get("note") or "").strip():
+            bad.append(f"{where}：有地址却标为 unverified，核实后应改为 verified"
+                       f"（若确认不能用，请填 note 说明原因）")
     return bad
 
 

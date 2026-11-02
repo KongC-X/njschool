@@ -659,7 +659,8 @@ sources:
     entry: http://www.njbx.com/
     tier: T1
     parser: announcement_list
-    status: verified
+    status: unverified
+    note: "与本部同址，但该站不含分校内容（2026-11-02 实测首页标题为「北京东路小学」，全站无「阳光/分校」字样）。同址两源会重复检出本部公告、并把本部动态记到分校名下，故暂停巡检；分校公告经公众号发布"
   - id: school:小学-秦淮区-南京市石鼓路小学
     kind: school
     name: 南京市石鼓路小学

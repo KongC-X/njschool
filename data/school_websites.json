@@ -1416,9 +1416,9 @@
       "null_reason": null,
       "repair": null,
       "wechat": null,
-      "wechat_status": "unknown",
+      "wechat_status": "exists_no_id",
       "level": "B",
-      "basis": "集团官网，非本校独立站；该校为北小教育集团分校，检索未见独立域名，故收录集团官网（njbx.com）",
+      "basis": "集团官网，非本校独立站。2026-11-02 实测 njbx.com 首页标题为「北京东路小学」，全站不含「阳光」「分校」字样，说明分校内容不在该站；该校公告与招生简章全部经微信公众号发布（同一公众号主体，非独立站）",
       "site_state": "ok"
     },
     "小学-玄武区-南京市同仁小学": {
