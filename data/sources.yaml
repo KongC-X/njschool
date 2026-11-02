@@ -253,7 +253,8 @@ sources:
     entry: http://www.jzhx.net/
     tier: T1
     parser: announcement_list
-    status: verified
+    status: unverified
+    note: "jzhx.net 服务端返回相对路径 Location: index.jsp，浏览器解析后形成无限重定向（2026-11-02 实测：/ 与 /index.jsp 均 302 循环，https 返回 502）；域名见学校招生简章，本身无误，站点修好后改回 verified"
   - id: school:小学-建邺区-南京市青奥村外国语小学
     kind: school
     name: 南京市青奥村外国语小学
@@ -344,7 +345,8 @@ sources:
     entry: http://www.jzhx.net/
     tier: T1
     parser: announcement_list
-    status: verified
+    status: unverified
+    note: "jzhx.net 服务端返回相对路径 Location: index.jsp，浏览器解析后形成无限重定向（2026-11-02 实测：/ 与 /index.jsp 均 302 循环，https 返回 502）；域名见学校招生简章，本身无误，站点修好后改回 verified"
   - id: school:小学-栖霞区-南京晓庄学院附属小学
     kind: school
     name: 南京晓庄学院附属小学
@@ -1371,7 +1373,8 @@ sources:
     entry: http://www.jzhx.net/
     tier: T1
     parser: announcement_list
-    status: verified
+    status: unverified
+    note: "jzhx.net 服务端返回相对路径 Location: index.jsp，浏览器解析后形成无限重定向（2026-11-02 实测：/ 与 /index.jsp 均 302 循环，https 返回 502）；域名见学校招生简章，本身无误，站点修好后改回 verified"
   - id: school:高中-六合区-江苏省六合高级中学
     kind: school
     name: 江苏省六合高级中学
