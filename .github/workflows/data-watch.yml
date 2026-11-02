@@ -72,9 +72,13 @@ jobs:
             echo "changed=no" >> "$GITHUB_OUTPUT"
           fi
 
-          # 巡检本身的失败率过高才算异常（run.py 内部已按 20% 阈值判定）
-          if [ $rc -ne 0 ]; then
-            echo "::error::巡检失败率超过阈值，见报告"
+          # rc 的含义（见 run.py）：2 = 站点真异常（HTTP 4xx/5xx 占比过高）；
+          # 0 = 正常，即便大量连接层失败——那是 runner 的网络问题，不是站点问题。
+          # 两类混为一谈会让这条流水线每周一准时变红，告警就没人看了。
+          if [ $rc -eq 2 ]; then
+            echo "::error::站点异常率超过阈值（HTTP 有应答但内容不对），见报告"
+          elif grep -q "连接层失败" /tmp/report.md; then
+            echo "::warning::本轮大量源连不上（连接层失败），runner 可能无法直连国内网络，巡检结果不代表站点状态，需在本地补跑"
           fi
           cat /tmp/report.md >> "$GITHUB_STEP_SUMMARY"
           exit $rc

@@ -151,5 +151,57 @@ class TestPlainText(unittest.TestCase):
         self.assertEqual(run.plain_text(html), "正文内容")
 
 
+class TestFailureVerdict(unittest.TestCase):
+    """失败率判定：连接层失败与站点异常必须分开算。
+
+    这一组规则是踩着线上故障定出来的——2026-11-02 首次定时巡检失败，
+    本地同样的代码跑出 4% 失败率，CI 上却判成「异常」。原因是 runner 在
+    美国机房，189 所国内学校站大量连不通（status=0），与「站点返回 404」
+    被混在一起算，直接顶破 20% 阈值。
+    """
+
+    class Res:
+        def __init__(self, status): self.status = status
+
+    def _fails(self, net=0, http=0):
+        rows = [("s", self.Res(0)) for _ in range(net)]
+        rows += [("s", self.Res(502)) for _ in range(http)]
+        return rows
+
+    def test_split_by_status(self):
+        net, http = run.classify_failures(self._fails(net=3, http=2))
+        self.assertEqual(len(net), 3)
+        self.assertEqual(len(http), 2)
+
+    def test_all_connection_failures_not_an_error(self):
+        """连不上 ≠ 站点挂了：不能因为 runner 网络差就判失败。"""
+        net, http = run.classify_failures(self._fails(net=120, http=0))
+        rc, msg = run.verdict(net, http, 200)
+        self.assertEqual(rc, 0)
+        self.assertIn("运行环境的网络", msg)
+
+    def test_moderate_connection_failures_silent(self):
+        """四成连不上只是网络抖动，还不到「环境不可用」的程度，不该刷提示。"""
+        net, http = run.classify_failures(self._fails(net=80, http=0))
+        rc, msg = run.verdict(net, http, 200)
+        self.assertEqual((rc, msg), (0, ""))
+
+    def test_http_failures_still_alarm(self):
+        """站点应答了但不对，这条不能放过——否则真出事了也看不出来。"""
+        net, http = run.classify_failures(self._fails(net=60, http=50))
+        rc, msg = run.verdict(net, http, 200)
+        self.assertEqual(rc, 2)
+        self.assertIn("站点异常率", msg)
+
+    def test_healthy_round_silent(self):
+        net, http = run.classify_failures(self._fails(net=4, http=4))
+        rc, msg = run.verdict(net, http, 200)
+        self.assertEqual((rc, msg), (0, ""))
+
+    def test_zero_total_does_not_divide_by_zero(self):
+        rc, msg = run.verdict([], [], 0)
+        self.assertEqual((rc, msg), (0, ""))
+
+
 if __name__ == "__main__":
     unittest.main()

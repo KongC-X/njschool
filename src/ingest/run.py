@@ -37,6 +37,12 @@ SHELL_TEXT_MIN = 200
 # 不该因为它让整条链路变红——那样人就会习惯性忽略告警。
 FAIL_RATE_ALARM = 0.2
 
+# 连接层失败（超时/DNS/SSL，status=0）的占比超过此值，判定为「运行环境连不上」。
+# 与 FAIL_RATE_ALARM 分开是因为两者的含义完全不同：一个是站点出事，一个是跑的地方不对。
+# 混在一起算的后果很具体——GitHub Actions 是美国 IP，本地 4% 的失败率在那里会顶到 20% 以上，
+# 于是每周一准时失败，告警失去意义（2026-11-02 首次定时执行即如此）。
+NET_ALARM = 0.5
+
 
 def plain_text(html):
     """去掉脚本、样式与标签，返回可读文本。用于判断页面是不是空壳。"""
@@ -125,6 +131,39 @@ def check_source(f, src, rec):
     return ("new" if fresh else "same"), fresh
 
 
+def classify_failures(failed):
+    """把失败按「连接层 / HTTP 层」分成两堆。
+
+    status == 0 表示请求根本没到达站点（超时 / DNS / SSL / 连接被重置）。
+    它与「站点返回 404」是两件事：前者取决于**跑在哪**，后者才是站点出事。
+    混算会把环境问题报成数据问题——GitHub Actions 是美国 IP，访问 189 所
+    国内学校站大量不通，本地实测 4% 的失败率在那里会顶到 20% 以上。
+    """
+    net = [(s, r) for s, r in failed if not r.status]
+    http = [(s, r) for s, r in failed if r.status]
+    return net, http
+
+
+def verdict(net, http, total):
+    """根据两类失败占比给退出码与说明。返回 (退出码, 提示语)；提示语空串表示无需多说。
+
+    2 只留给「站点应答了但内容不对」（HTTP 4xx/5xx 占比过高），因为那才是需要人去看的。
+    连接层失败占多数时给 0：报告里说明是运行环境网络受限，但不让流水线变红——
+    每周准时红的告警等于没有告警。
+    """
+    total = max(total, 1)
+    rate_http = len(http) / total
+    rate_net = len(net) / total
+    if rate_http > FAIL_RATE_ALARM:
+        return 2, (f"✗ 站点异常率 {rate_http:.0%} 超过 {FAIL_RATE_ALARM:.0%}，判为异常"
+                   f"（{len(http)} 个源有 HTTP 应答但内容不对）")
+    if rate_net > NET_ALARM:
+        return 0, (f"⚠ 连接层失败 {rate_net:.0%}（{len(net)} 个源连不上）"
+                   f"超过 {NET_ALARM:.0%}，基本可断定是**运行环境的网络**受限，"
+                   f"而非站点下线。本轮结果不代表站点状态，请在能直连国内网络的机器上补跑。")
+    return 0, ""
+
+
 def run(rows, min_interval, apply=False):
     f = fetch.Fetcher(min_interval=min_interval)
     lists = discover.load_lists()
@@ -177,9 +216,12 @@ def run(rows, min_interval, apply=False):
                 print(f"{tag} {name:<24} {res.status} {hash_rows[-1][2]} {len(res.body)}B")
 
     f.flush()
+    n_net = sum(1 for _s, r in failed if not r.status)
+    n_http = len(failed) - n_net
     print(f"\n汇总：新增公告 {len(new_items)} 源 / 无新增 {len(same)} / "
           f"整页变化 {len(hash_rows)} / 空壳 {len(shells)} / 动态 {len(volatile)} / "
-          f"失败 {len(failed)} / 熔断 {len(blocked)} / SPA 跳过 {len(spas)}")
+          f"失败 {len(failed)}（连接 {n_net} / HTTP {n_http}）/ "
+          f"熔断 {len(blocked)} / SPA 跳过 {len(spas)}")
 
     dup = {h: rs for h, rs in by_hash.items() if len(rs) > 1}
     if dup:
@@ -218,12 +260,12 @@ def run(rows, min_interval, apply=False):
         print(f"\n已更新 {discover.LISTS_FILE} 的条目基线")
 
     # 局部失败不阻塞：个别学校站改版是常态，不该因此让整条链路变红。
-    # 超过两成才说明是真的出事了（网络故障、批量下线、被反爬）。
-    rate = len(failed) / max(len(rows), 1)
-    if rate > FAIL_RATE_ALARM:
-        print(f"\n✗ 失败率 {rate:.0%} 超过 {FAIL_RATE_ALARM:.0%}，判为异常")
-        return 2
-    return 0
+    # 分类与判定见 classify_failures / verdict——两者都是纯函数，有单测覆盖。
+    net_failed, http_failed = classify_failures(failed)
+    rc, msg = verdict(net_failed, http_failed, len(rows))
+    if msg:
+        print("\n" + msg)
+    return rc
 
 
 def main():
