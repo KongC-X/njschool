@@ -27,6 +27,9 @@ data/cache/
 tmp/
 .playwright-cli/
 
+# 本地定时巡检的日志（scripts/ingest-weekly.sh 写入，见 launchd 配置）
+logs/
+
 # ---- 工具运行产生的中间目录（非项目源码）----
 .南京学校对比表.ref/
 .workbuddy/
